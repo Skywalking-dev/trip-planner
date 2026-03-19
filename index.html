@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Viaje 40 — Europa</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+    :root {
+      --bg: #0a0f14;
+      --surface: #11171e;
+      --raised: #171f28;
+      --border: rgba(255,255,255,0.06);
+      --text: rgba(239,238,233,0.72);
+      --text-dim: rgba(239,238,233,0.38);
+      --text-bright: #EFEEE9;
+      --accent: #D4AF37;
+      --accent-dim: rgba(212,175,55,0.12);
+      --r: 10px;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Plus Jakarta Sans',system-ui,sans-serif; background:var(--bg); color:var(--text); font-size:14px; line-height:1.55; -webkit-font-smoothing:antialiased; }
+
+    /* hero */
+    .hero { position:relative; width:100%; height:88vh; min-height:550px; }
+    #map { width:100%; height:100%; }
+    .hero-grad {
+      position:absolute; bottom:0; left:0; right:0; z-index:1000;
+      background:linear-gradient(transparent 0%, var(--bg) 85%);
+      padding:120px 56px 40px;
+    }
+    .hero-grad .pre { font-size:11px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:var(--accent); opacity:0.7; }
+    .hero-grad h1 { font-size:48px; font-weight:300; color:var(--text-bright); letter-spacing:-1px; margin-top:4px; }
+    .hero-grad h1 em { font-style:italic; font-weight:300; color:var(--accent); }
+    .hero-grad .sub { font-size:13px; color:var(--text-dim); margin-top:6px; letter-spacing:0.3px; }
+
+    /* stats */
+    .stats { display:grid; grid-template-columns:repeat(6,1fr); border-bottom:1px solid var(--border); }
+    .st { padding:22px 0; text-align:center; border-right:1px solid var(--border); }
+    .st:last-child { border-right:none; }
+    .st .v { font-size:20px; font-weight:600; color:var(--text-bright); }
+    .st .l { font-size:9px; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-dim); margin-top:3px; }
+    .st.glow .v { color:var(--accent); }
+
+    /* content */
+    .cx { padding:40px 56px 72px; }
+
+    /* section label */
+    .sl { font-size:10px; font-weight:600; letter-spacing:2.5px; text-transform:uppercase; color:var(--text-dim); margin:48px 0 20px; }
+
+    /* cards */
+    .c { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:24px; }
+    .c h4 { font-size:11px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-dim); margin-bottom:14px; }
+    .c p { font-size:13px; color:var(--text); margin-bottom:5px; }
+    .c strong { color:var(--text-bright); font-weight:500; }
+    .c ul { padding-left:0; list-style:none; }
+    .c li { font-size:13px; color:var(--text); padding:3px 0; }
+    .c li::before { content:''; display:inline-block; width:3px; height:3px; border-radius:50%; background:var(--accent); margin-right:10px; vertical-align:middle; opacity:0.5; }
+    .c.glow { border-color:rgba(212,175,55,0.15); background:linear-gradient(135deg, rgba(212,175,55,0.03) 0%, var(--surface) 100%); }
+
+    .g2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:14px 0; }
+    .g3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin:14px 0; }
+    .g4 { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:14px 0; }
+
+    /* phases table */
+    .phases { width:100%; border-collapse:collapse; }
+    .phases td { padding:14px 0; border-bottom:1px solid var(--border); font-size:13px; vertical-align:middle; }
+    .phases tr:last-child td { border-bottom:none; }
+    .phases .phase-name { color:var(--text-bright); font-weight:500; }
+    .phases .phase-tag { font-size:10px; letter-spacing:1px; text-transform:uppercase; color:var(--text-dim); margin-right:12px; display:inline-block; width:80px; }
+    .phases .phase-date { color:var(--text); }
+    .phases .phase-days { text-align:right; font-weight:600; color:var(--text-dim); font-size:13px; }
+    .phases tr.highlight td { border-bottom-color:var(--accent-dim); }
+    .phases tr.highlight .phase-name { color:var(--accent); }
+    .phases tr.highlight .phase-tag { color:var(--accent); opacity:0.6; }
+    .phases tr.highlight .phase-days { color:var(--accent); }
+
+    /* timeline */
+    .tl { position:relative; margin:14px 0; }
+    .tl-item {
+      display:grid; grid-template-columns:100px 1fr 110px; gap:0 24px;
+      padding:22px 0; border-bottom:1px solid var(--border);
+      position:relative;
+    }
+    .tl-item:last-child { border-bottom:none; }
+    .tl-item::before {
+      content:''; position:absolute; left:95px; top:0; bottom:0; width:1px;
+      background:var(--border);
+    }
+    .tl-item:first-child::before { top:24px; }
+    .tl-item:last-child::before { bottom:calc(100% - 24px); }
+    .tl-item::after {
+      content:''; position:absolute; left:92px; top:20px;
+      width:7px; height:7px; border-radius:50%;
+      background:var(--raised); border:1.5px solid var(--text-dim);
+    }
+    .tl-date { font-size:13px; color:var(--text-dim); padding-top:5px; text-align:right; font-weight:500; }
+    .tl-body { padding-left:20px; }
+    .tl-place { font-size:18px; font-weight:500; color:var(--text-bright); letter-spacing:-0.3px; }
+    .tl-desc { font-size:14px; color:var(--text); margin-top:5px; line-height:1.6; }
+    .tl-how { font-size:12px; color:var(--text-dim); margin-top:6px; }
+    .tl-how span { background:var(--raised); border:1px solid var(--border); padding:3px 10px; border-radius:4px; margin-right:5px; font-size:11px; letter-spacing:0.3px; }
+    .tl-meta { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px; margin-top:12px; padding-top:12px; border-top:1px solid var(--border); grid-column:1/-1; margin-left:110px; padding-left:20px; }
+    .tl-meta-item { font-size:13px; color:var(--text-dim); display:flex; flex-direction:column; gap:2px; padding:8px 12px; background:var(--bg); border-radius:6px; }
+    .tl-meta-item .ml { font-size:10px; text-transform:uppercase; letter-spacing:1px; opacity:0.5; margin-bottom:2px; }
+    .tl-meta-item .mv { color:var(--text); font-weight:500; font-size:13px; line-height:1.4; }
+    .tl-cost { text-align:right; padding-top:4px; }
+    .tl-cost .day-cost { font-size:16px; font-weight:500; color:var(--text-bright); }
+    .tl-cost .running { font-size:12px; color:var(--text-dim); margin-top:3px; }
+    .tl-cost .running em { font-style:normal; color:var(--accent); font-weight:500; font-size:13px; }
+
+    .tl-item.epic::after { border-color:var(--accent); background:var(--accent-dim); }
+    .tl-item.epic .tl-place { color:var(--accent); }
+    .tl-item.bday::after { border-color:var(--accent); background:var(--accent); box-shadow:0 0 8px rgba(212,175,55,0.3); width:9px; height:9px; left:91px; }
+    .tl-item.bday .tl-place { color:var(--accent); font-weight:600; }
+    .tl-item.fly .tl-place { color:var(--text-dim); font-weight:400; font-style:italic; }
+    .tl-item.fly::after { border-color:var(--text-dim); background:transparent; width:5px; height:5px; left:93px; }
+    .tl-item.free::after { border-color:var(--text-bright); background:var(--raised); width:9px; height:9px; left:91px; }
+    .tl-item.free .tl-place { font-weight:600; }
+
+    /* transport table */
+    .tt { width:100%; border-collapse:collapse; }
+    .tt td { padding:9px 0; border-bottom:1px solid var(--border); font-size:12px; color:var(--text); }
+    .tt tr:last-child td { border-bottom:none; }
+    .tt .tramo { color:var(--text-bright); font-weight:500; }
+    .tt .modo { color:var(--text-dim); font-size:11px; }
+    .tt .cost { text-align:right; color:var(--text-bright); font-weight:500; font-size:12px; }
+    .tt tr.auto td { border-bottom-color:var(--accent-dim); }
+    .tt tr.auto .tramo { color:var(--accent); }
+    .tt tr.total td { border-bottom:none; padding-top:14px; }
+    .tt tr.total .tramo { font-size:13px; }
+    .tt tr.total .cost { color:var(--accent); font-size:14px; font-weight:600; }
+
+    /* accommodation */
+    .at { width:100%; border-collapse:collapse; }
+    .at td { padding:7px 0; border-bottom:1px solid var(--border); font-size:12px; color:var(--text); }
+    .at tr:last-child td { border-bottom:none; }
+    .at .city { color:var(--text-bright); font-weight:500; }
+    .at .nights { color:var(--text-dim); text-align:center; }
+    .at .price { text-align:right; }
+
+    /* budget */
+    .budget-card { text-align:center; padding:28px 20px; background:var(--surface); border:1px solid var(--border); border-radius:var(--r); }
+    .budget-card .lbl { font-size:9px; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-dim); }
+    .budget-card .amt { font-size:36px; font-weight:300; color:var(--text-bright); margin:6px 0 2px; letter-spacing:-1px; }
+    .budget-card .pd { font-size:11px; color:var(--text-dim); }
+    .budget-card.pick { border-color:rgba(212,175,55,0.2); }
+    .budget-card.pick .amt { color:var(--accent); font-weight:400; }
+    .budget-card.pick .lbl { color:var(--accent); opacity:0.7; }
+
+    .bt { width:100%; border-collapse:collapse; margin-top:14px; }
+    .bt td { padding:8px 0; border-bottom:1px solid var(--border); font-size:12px; color:var(--text); }
+    .bt tr:last-child td { border-bottom:none; }
+    .bt .concept { color:var(--text-bright); font-weight:500; }
+    .bt .val { text-align:right; }
+    .bt tr.final td { padding-top:14px; border-bottom:none; }
+    .bt tr.final .concept { font-size:14px; }
+    .bt tr.final .val { color:var(--accent); font-weight:600; font-size:14px; }
+
+    .footer { padding:40px 56px; text-align:center; font-size:11px; color:var(--text-dim); letter-spacing:0.5px; }
+    .footer .tag { color:var(--accent); opacity:0.5; margin-top:4px; }
+
+    @media(max-width:900px) {
+      .g2,.g3,.g4 { grid-template-columns:1fr; }
+      .cx { padding:24px 20px 48px; }
+      .hero-grad { padding:80px 20px 28px; }
+      .hero-grad h1 { font-size:32px; }
+      .stats { grid-template-columns:repeat(3,1fr); }
+      .tl-item { grid-template-columns:70px 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="hero">
+  <div id="map"></div>
+  <div class="hero-grad">
+    <div class="pre">Skywalking &middot; Mentat</div>
+    <h1>Viaje <em>40</em></h1>
+    <div class="sub">Buenos Aires &rarr; Barcelona &rarr; Riviera &rarr; Milan &rarr; Barcelona &rarr; Buenos Aires &nbsp;&middot;&nbsp; Mayo&ndash;Junio 2026</div>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="st"><div class="v">25-35</div><div class="l">D&iacute;as (flexible)</div></div>
+  <div class="st"><div class="v">1,330</div><div class="l">Km Costa</div></div>
+  <div class="st glow"><div class="v">31 May</div><div class="l">Cumple BCN</div></div>
+  <div class="st"><div class="v" id="stat-vuelo">—</div><div class="l">Vuelo</div></div>
+  <div class="st"><div class="v" id="stat-total">—</div><div class="l">Total Balanced</div></div>
+  <div class="st"><div class="v" id="stat-ars">—</div><div class="l">Vuelo ARS</div></div>
+</div>
+
+<div class="cx">
+
+  <div class="sl">Estructura</div>
+  <div class="g2" style="grid-template-columns:2fr 1fr;">
+    <div class="c">
+      <table class="phases">
+        <tr><td><span class="phase-tag">vuelo</span><span class="phase-name">EZE &rarr; BCN</span></td><td class="phase-date">~11 mayo</td><td class="phase-days">&mdash;</td></tr>
+        <tr><td><span class="phase-tag">barcelona</span><span class="phase-name">Llegada</span></td><td class="phase-date">12 &ndash; 14 may</td><td class="phase-days">3</td></tr>
+        <tr><td><span class="phase-tag">road trip</span><span class="phase-name">Costa mediterr&aacute;nea</span></td><td class="phase-date">15 &ndash; 27 mayo</td><td class="phase-days">13</td></tr>
+        <tr><td><span class="phase-tag">milan</span><span class="phase-name">Duomo, Navigli, Como</span></td><td class="phase-date">28 &ndash; 29 mayo</td><td class="phase-days">2</td></tr>
+        <tr><td><span class="phase-tag">vuelo</span><span class="phase-name">MXP &rarr; BCN</span></td><td class="phase-date">29 mayo</td><td class="phase-days">&mdash;</td></tr>
+        <tr class="highlight"><td><span class="phase-tag">cumple</span><span class="phase-name">40 a&ntilde;os en Barcelona</span></td><td class="phase-date">30&ndash;31 may &ndash; 1 jun</td><td class="phase-days">3</td></tr>
+        <tr><td><span class="phase-tag">vuelo</span><span class="phase-name">BCN &rarr; EZE</span></td><td class="phase-date">~5 junio</td><td class="phase-days">&mdash;</td></tr>
+      </table>
+    </div>
+    <div class="c glow" id="flight-hero-card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.4-.1.9.3 1.1L11 12l-2 3H6l-1 1 3 2 2 3 1-1v-3l3-2 3.8 7.3c.2.4.7.5 1.1.3l.5-.3c.4-.2.6-.6.5-1.1z"/></svg>
+        <h4 style="margin:0">Vuelo EZE &harr; BCN</h4>
+      </div>
+      <div id="current-price" style="font-size:36px;font-weight:300;color:var(--accent);letter-spacing:-1px;margin:4px 0">cargando...</div>
+      <div id="current-airline" style="font-size:13px;color:var(--text)"></div>
+      <div id="current-meta" style="font-size:11px;color:var(--text-dim);margin-top:8px"></div>
+      <div style="margin-top:14px;padding-top:10px;border-top:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:4px">
+        <div style="font-size:11px;color:var(--text-dim)">Threshold: <strong style="color:var(--text-bright)">USD 1,400</strong></div>
+        <div style="font-size:11px;color:var(--text-dim)">Tracking: <strong style="color:var(--text-bright)">cada 2h</strong></div>
+        <div style="font-size:11px;color:var(--text-dim)">Ventana: <strong style="color:var(--text-bright)">25 abr &ndash; 5 jul</strong></div>
+        <div style="font-size:11px;color:var(--text-dim)">Duraci&oacute;n: <strong style="color:var(--text-bright)">25-45 d&iacute;as</strong></div>
+      </div>
+      <div id="tracker-status" style="font-size:11px;color:var(--text-dim);margin-top:6px"></div>
+    </div>
+  </div>
+
+  <div class="sl" style="display:flex;align-items:center;gap:8px">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(239,238,233,0.38)" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    Historial de precios
+  </div>
+  <div class="c">
+    <canvas id="price-chart" style="width:100%;height:200px"></canvas>
+    <div id="price-history-list" style="margin-top:12px;max-height:120px;overflow-y:auto"></div>
+  </div>
+
+  <script>
+    // Load price history from local JSON (embedded at build time or fetched)
+    // For now, render from embedded data — will be updated each deploy
+    const priceData = [
+      {"timestamp":"2026-03-19T03:58:00","lowest_usd":1987,"flight_count":4,"fx":{"oficial":1418,"blue":1435},"dates":"29 abr → 3 jun","flights":[
+        {"source":"google_flights","price_ars":2851582,"price_usd":1987,"airline":"LL","stops":0,"dates":"2026-04-29 → 2026-06-03"}
+      ]},
+      {"timestamp":"2026-03-19T04:07:00","lowest_usd":1396,"flight_count":22,"fx":{"oficial":1418,"blue":1435},"dates":"flex ±3","flights":[
+        {"source":"google_flights","price_ars":2003141,"price_usd":1413,"airline":"AA","stops":1,"dates":"2026-05-02 → 2026-06-03"}
+      ]},
+      {"timestamp":"2026-03-19T10:35:00","lowest_usd":1176,"lowest_ars":1668128,"flight_count":51,"fx":{"oficial":1418,"blue":1435},"dates":"full scan",
+      "flights":[
+        {"source":"google_flights","price_ars":1668128,"price_usd":1176,"airline":"AA","stops":1,"dates":"2026-05-11 → 2026-06-05","outbound":{"departure":"2026-05-11","arrival":"2026-05-12"},"return":{"departure":"2026-06-05","arrival":"2026-06-05"}},
+        {"source":"google_flights","price_ars":1764984,"price_usd":1245,"airline":"LL","stops":0,"duration_min":755,"dates":"2026-05-11 → 2026-06-05","outbound":{"departure":"2026-05-11 11:00","arrival":"2026-05-12 04:35"},"return":{"departure":"2026-06-05 00:30","arrival":"2026-06-05 09:15"}},
+        {"source":"google_flights","price_ars":1848543,"price_usd":1303,"airline":"LH","stops":2,"duration_min":1175,"dates":"2026-05-11 → 2026-06-05","outbound":{"departure":"2026-05-11 16:35","arrival":"2026-05-12 14:05"},"return":{"departure":"2026-06-05 17:10","arrival":"2026-06-06 06:25"}},
+        {"source":"google_flights","price_ars":1899024,"price_usd":1339,"airline":"TK","stops":2,"duration_min":1500,"dates":"2026-05-11 → 2026-06-06","outbound":{"departure":"2026-05-11 20:00","arrival":"2026-05-12 16:00"},"return":{"departure":"2026-06-06 17:10","arrival":"2026-06-07 08:00"}},
+        {"source":"google_flights","price_ars":1947014,"price_usd":1373,"airline":"LH","stops":1,"duration_min":1080,"dates":"2026-05-11 → 2026-06-05","outbound":{"departure":"2026-05-11 16:35","arrival":"2026-05-12 15:35"},"return":{"departure":"2026-06-05 17:10","arrival":"2026-06-06 06:25"}},
+        {"source":"google_flights","price_ars":1825339,"price_usd":1287,"airline":"AA","stops":1,"dates":"2026-05-11 → 2026-06-05","outbound":{"departure":"2026-05-11","arrival":"2026-05-12"},"return":{"departure":"2026-06-05","arrival":"2026-06-06"}}
+      ]},
+      {"timestamp":"2026-03-19T12:07:00","lowest_usd":1174,"lowest_ars":1666929,"flight_count":50,"fx":{"oficial":1418,"blue":1435},"dates":"auto 2h",
+      "flights":[
+        {"source":"google_flights","price_ars":1666929,"price_usd":1174,"airline":"AA","stops":1,"dates":"2026-05-11 → 2026-06-05"}
+      ]},
+      {"timestamp":"2026-03-19T14:07:00","lowest_usd":1171,"lowest_ars":1663253,"flight_count":50,"fx":{"oficial":1418,"blue":1435},"dates":"auto 2h",
+      "flights":[
+        {"source":"google_flights","price_ars":1663253,"price_usd":1171,"airline":"AA","stops":1,"dates":"2026-05-11 → 2026-06-05"}
+      ]}
+    ];
+
+    const airlineInfo = {
+      'LL':  {name:'LEVEL',      book:'https://www.flylevel.com/en/routes/buenos-aires-barcelona-direct-flight/'},
+      'LX':  {name:'Swiss',      book:'https://www.swiss.com/'},
+      'LH':  {name:'Lufthansa',  book:'https://www.lufthansa.com/'},
+      'AF':  {name:'Air France', book:'https://www.airfrance.com/'},
+      'AZ':  {name:'ITA Airways',book:'https://www.ita-airways.com/'},
+      'IB':  {name:'Iberia',     book:'https://www.iberia.com/'},
+      'UX':  {name:'Air Europa', book:'https://www.aireuropa.com/'},
+      'AV':  {name:'Avianca',    book:'https://www.avianca.com/'},
+      'AR':  {name:'Aerolíneas', book:'https://www.aerolineas.com.ar/'},
+      'LA':  {name:'LATAM',      book:'https://www.latam.com/'},
+    };
+    const googleFlightsUrl = 'https://www.google.com/travel/flights?q=flights+from+buenos+aires+to+barcelona+on+2026-05-11+return+2026-06-05&curr=USD';
+    const skyscannerUrl = 'https://www.skyscanner.com/transport/flights/buea/bcn/260511/260605/';
+    const kiwiUrl = 'https://www.kiwi.com/en/search/tiles/buenos-aires-argentina/barcelona-spain/2026-05-11/2026-06-05';
+
+    function renderPriceTracker(data) {
+      const priceEl = document.getElementById('current-price');
+      const airlineEl = document.getElementById('current-airline');
+      const metaEl = document.getElementById('current-meta');
+      const statusEl = document.getElementById('tracker-status');
+      const listEl = document.getElementById('price-history-list');
+
+      if (!data || data.length === 0) {
+        priceEl.innerHTML = 'ARS 2.003.141';
+        airlineEl.innerHTML = 'USD 1,413 · American Airlines 1 escala · 2 may';
+        metaEl.textContent = 'Primera lectura: ' + new Date().toLocaleDateString();
+        statusEl.innerHTML = '<span style="color:var(--accent)">Tracker activo</span> · cron cada 2h';
+        return;
+      }
+
+      const latest = data[data.length - 1];
+      const lowest = Math.min(...data.map(d => d.lowest_usd));
+      const highest = Math.max(...data.map(d => d.lowest_usd));
+
+      const best = latest.flights[0];
+      priceEl.innerHTML = 'USD ' + (best.price_usd||0).toLocaleString('es');
+      const aName = (airlineInfo[best.airline]||{name:best.airline}).name;
+      airlineEl.innerHTML = 'ARS ' + (best.price_ars||0).toLocaleString('es') + ' · ' + aName + (best.stops===0?' Directo':' '+best.stops+' escala'+(best.stops>1?'s':''));
+      if (best.dates) airlineEl.innerHTML += ' · ' + best.dates.split(' → ')[0].slice(5);
+      const fx = latest.fx;
+      metaEl.innerHTML = 'Min: USD ' + lowest.toLocaleString('es') + ' · ' + data.length + ' lecturas'
+        + (fx ? ' · Oficial: '+fx.oficial+' · Blue: '+fx.blue : '');
+      statusEl.innerHTML = '<span style="color:var(--accent)">Tracker activo</span> · &uacute;ltimo: ' + new Date(latest.timestamp).toLocaleString();
+
+      // Render history list
+      const recent = data.slice(-10).reverse();
+      listEl.innerHTML = recent.map(d => {
+        const ts = new Date(d.timestamp).toLocaleString('es', {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+        const delta = d === data[data.length-1] ? '' :
+          (d.lowest_usd < latest.lowest_usd ? ' ↓' : d.lowest_usd > latest.lowest_usd ? ' ↑' : ' =');
+        const ars = d.flights && d.flights[0] ? d.flights[0].price_ars : 0;
+        const dates = d.dates || '';
+        return '<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:11px;border-bottom:1px solid rgba(255,255,255,0.03)"><span style="color:rgba(239,238,233,0.4)">' + ts + '</span><span style="color:rgba(239,238,233,0.4);font-size:10px">' + dates.slice(0,20) + '</span><span style="color:rgba(239,238,233,0.5)">ARS ' + ars.toLocaleString('es') + '</span><span style="color:rgba(239,238,233,0.7)">USD ' + d.lowest_usd.toLocaleString('es') + delta + '</span></div>';
+      }).join('');
+
+      // Render chart
+      renderChart(data);
+    }
+
+    function renderChart(data) {
+      const canvas = document.getElementById('price-chart');
+      if (!canvas || data.length < 2) return;
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      const ch = 220;
+      canvas.width = rect.width * dpr;
+      canvas.height = ch * dpr;
+      canvas.style.height = ch + 'px';
+      ctx.scale(dpr, dpr);
+      const w = rect.width, h = ch;
+      const pad = {t:24, r:16, b:32, l:60}; // space for labels
+      const pw = w - pad.l - pad.r, ph = h - pad.t - pad.b;
+
+      const prices = data.map(d => d.lowest_usd);
+      const times = data.map(d => d.timestamp);
+      const minP = Math.min(...prices, 1400) * 0.92;
+      const maxP = Math.max(...prices) * 1.05;
+      const rangeP = maxP - minP || 1;
+
+      function xAt(i) { return pad.l + (i / (prices.length - 1)) * pw; }
+      function yAt(p) { return pad.t + ph - ((p - minP) / rangeP) * ph; }
+
+      // Background
+      ctx.fillStyle = 'rgba(10,15,20,0.3)';
+      ctx.fillRect(pad.l, pad.t, pw, ph);
+
+      // Horizontal grid + price labels
+      const gridSteps = 4;
+      ctx.font = '10px Plus Jakarta Sans, system-ui';
+      ctx.textAlign = 'right';
+      for (let i = 0; i <= gridSteps; i++) {
+        const p = minP + (rangeP * i / gridSteps);
+        const y = yAt(p);
+        ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(w - pad.r, y); ctx.stroke();
+        ctx.fillStyle = 'rgba(239,238,233,0.25)';
+        ctx.fillText('$' + Math.round(p).toLocaleString(), pad.l - 8, y + 3);
+      }
+
+      // Time labels on x axis
+      ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(239,238,233,0.2)';
+      prices.forEach((_, i) => {
+        if (data.length <= 8 || i % Math.ceil(data.length/6) === 0 || i === data.length-1) {
+          const t = new Date(times[i]);
+          const label = t.toLocaleString('es', {hour:'2-digit', minute:'2-digit'});
+          ctx.fillText(label, xAt(i), h - pad.b + 16);
+        }
+      });
+
+      // Threshold line
+      const threshY = yAt(1400);
+      if (threshY > pad.t && threshY < h - pad.b) {
+        ctx.beginPath();
+        ctx.strokeStyle = 'rgba(239,238,233,0.12)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([6, 4]);
+        ctx.moveTo(pad.l, threshY); ctx.lineTo(w - pad.r, threshY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = 'rgba(239,238,233,0.2)';
+        ctx.textAlign = 'left';
+        ctx.fillText('threshold $1,400', pad.l + 4, threshY - 6);
+      }
+
+      // Area fill
+      ctx.beginPath();
+      prices.forEach((p, i) => {
+        const x = xAt(i), y = yAt(p);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.lineTo(xAt(prices.length-1), h - pad.b);
+      ctx.lineTo(xAt(0), h - pad.b);
+      ctx.closePath();
+      const grad = ctx.createLinearGradient(0, pad.t, 0, h - pad.b);
+      grad.addColorStop(0, 'rgba(212,175,55,0.12)');
+      grad.addColorStop(1, 'rgba(212,175,55,0)');
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Price line
+      ctx.beginPath();
+      ctx.strokeStyle = '#D4AF37';
+      ctx.lineWidth = 2.5;
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+      prices.forEach((p, i) => {
+        const x = xAt(i), y = yAt(p);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+
+      // Data points
+      prices.forEach((p, i) => {
+        const x = xAt(i), y = yAt(p);
+        const isLast = i === prices.length - 1;
+        const isLowest = p === Math.min(...prices);
+
+        // Outer ring
+        ctx.beginPath();
+        ctx.arc(x, y, isLast ? 6 : 4, 0, Math.PI * 2);
+        ctx.fillStyle = isLast ? '#D4AF37' : isLowest ? 'rgba(212,175,55,0.6)' : 'rgba(239,238,233,0.15)';
+        ctx.fill();
+
+        // Inner dot
+        ctx.beginPath();
+        ctx.arc(x, y, isLast ? 3 : 2, 0, Math.PI * 2);
+        ctx.fillStyle = isLast ? '#0a0f14' : isLowest ? '#D4AF37' : 'rgba(239,238,233,0.4)';
+        ctx.fill();
+
+        // Price label on points
+        if (isLast || isLowest || i === 0) {
+          ctx.fillStyle = isLast ? '#D4AF37' : 'rgba(239,238,233,0.4)';
+          ctx.font = (isLast ? '600 ' : '') + '11px Plus Jakarta Sans, system-ui';
+          ctx.textAlign = 'center';
+          ctx.fillText('$' + Math.round(p).toLocaleString(), x, y - 10);
+        }
+      });
+
+      // Glow on last point
+      const lx = xAt(prices.length-1), ly = yAt(prices[prices.length-1]);
+      const glow = ctx.createRadialGradient(lx, ly, 0, lx, ly, 20);
+      glow.addColorStop(0, 'rgba(212,175,55,0.15)');
+      glow.addColorStop(1, 'rgba(212,175,55,0)');
+      ctx.fillStyle = glow;
+      ctx.fillRect(lx-20, ly-20, 40, 40);
+    }
+
+    renderPriceTracker(priceData);
+    document.addEventListener('DOMContentLoaded', () => renderFlightOffers(priceData));
+
+    function renderFlightOffers(data) {
+      const container = document.getElementById('flight-offers');
+      if (!data || !data.length) return;
+      // Use the entry with the most flights (detailed search) for offers
+      const latest = [...data].sort((a,b) => (b.flights||[]).length - (a.flights||[]).length)[0];
+      if (!latest.flights || !latest.flights.length) return;
+
+      function fmtTime(dt) {
+        if (!dt) return '—';
+        const str = dt.replace(' ','T');
+        const d = new Date(str);
+        if (isNaN(d.getTime()) || str.length <= 10) {
+          // Date only, no time — show just the date
+          return dt.slice(5).replace('-','/');
+        }
+        return d.toLocaleString('es', {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+      }
+      function fmtDuration(min) {
+        if (!min) return '';
+        const h = Math.floor(min/60), m = min%60;
+        return h+'h'+(m>0?' '+m+'m':'');
+      }
+      function stopsText(n) {
+        if (n===0) return 'Directo';
+        return n+' escala'+(n>1?'s':'');
+      }
+
+      let html = '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">';
+      latest.flights.slice(0,3).forEach((f,i) => {
+        const info = airlineInfo[f.airline] || {name:f.airline, book:'https://www.google.com/travel/flights'};
+        const isCheapest = i === 0;
+        const outDep = fmtTime(f.outbound?.departure);
+        const outArr = fmtTime(f.outbound?.arrival);
+        const retDep = fmtTime(f.return?.departure);
+        const retArr = fmtTime(f.return?.arrival);
+
+        html += '<div style="background:var(--surface);border:1px solid '+(isCheapest?'rgba(212,175,55,0.2)':'var(--border)')+';border-radius:10px;padding:20px;'+(isCheapest?'background:linear-gradient(135deg,rgba(212,175,55,0.03),var(--surface))':'')+'">';
+
+        // Header: airline + price
+        html += '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px">';
+        // Calculate trip duration from dates
+        let tripDays = '';
+        if (f.dates) {
+          const parts = f.dates.split(' \u2192 ');
+          if (parts.length===2) {
+            const d1 = new Date(parts[0]), d2 = new Date(parts[1]);
+            if (!isNaN(d1) && !isNaN(d2)) tripDays = Math.round((d2-d1)/(86400000)) + 'd';
+          }
+        }
+        html += '<div><span style="font-size:16px;font-weight:500;color:var(--text-bright)">'+info.name+'</span> <span style="font-size:12px;color:var(--text-dim);margin-left:4px">'+stopsText(f.stops);
+        if (f.duration_min) html += ' · '+fmtDuration(f.duration_min);
+        if (tripDays) html += ' · '+tripDays;
+        html += '</span></div>';
+        html += '<div style="font-size:24px;font-weight:300;color:'+(isCheapest?'var(--accent)':'var(--text-bright)')+';letter-spacing:-1px">USD '+(f.price_usd||0).toLocaleString('es')+'</div>';
+        html += '<div style="font-size:12px;color:var(--text-dim)">ARS '+(f.price_ars||0).toLocaleString('es')+'</div>';
+        html += '</div>';
+
+        // Legs compact
+        html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;margin-bottom:12px">';
+        html += '<div style="padding:6px 10px;background:var(--bg);border-radius:5px"><span style="color:var(--text-dim)">Ida</span> <span style="color:var(--text-bright)">'+outDep+'</span> <span style="color:var(--text-dim)">→ '+outArr+'</span></div>';
+        html += '<div style="padding:6px 10px;background:var(--bg);border-radius:5px"><span style="color:var(--text-dim)">Ret</span> <span style="color:var(--text-bright)">'+retDep+'</span> <span style="color:var(--text-dim)">→ '+retArr+'</span></div>';
+        html += '</div>';
+
+        // Links
+        html += '<div style="display:flex;gap:8px;flex-wrap:wrap">';
+        html += '<a href="'+info.book+'" target="_blank" rel="noopener" style="font-size:11px;color:var(--accent);text-decoration:none;padding:4px 10px;border:1px solid rgba(212,175,55,0.2);border-radius:5px">'+info.name+'</a>';
+        html += '<a href="'+googleFlightsUrl+'" target="_blank" rel="noopener" style="font-size:11px;color:var(--text-dim);text-decoration:none;padding:4px 10px;border:1px solid var(--border);border-radius:5px">Google Flights</a>';
+        html += '<a href="'+skyscannerUrl+'" target="_blank" rel="noopener" style="font-size:11px;color:var(--text-dim);text-decoration:none;padding:4px 10px;border:1px solid var(--border);border-radius:5px">Skyscanner</a>';
+        html += '</div>';
+
+        html += '</div>';
+      });
+      html += '</div>';
+      html += '<div style="text-align:right;font-size:11px;color:var(--text-dim);margin-top:8px">Actualizado: '+new Date(latest.timestamp).toLocaleString('es',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})+'</div>';
+
+      container.innerHTML = html;
+    }
+  </script>
+
+  <div class="sl" style="display:flex;align-items:center;gap:8px">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(239,238,233,0.38)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.4-.1.9.3 1.1L11 12l-2 3H6l-1 1 3 2 2 3 1-1v-3l3-2 3.8 7.3c.2.4.7.5 1.1.3l.5-.3c.4-.2.6-.6.5-1.1z"/></svg>
+    Ofertas de vuelo
+  </div>
+  <div id="flight-offers"></div>
+
+  <div class="sl">Itinerario</div>
+  <div class="tl">
+    <div class="tl-item fly">
+      <div class="tl-date">~11 may</div>
+      <div class="tl-body">
+        <div class="tl-place">Buenos Aires &rarr; Barcelona</div>
+        <div class="tl-desc">AA 1 escala o LEVEL directo. Lleg&aacute;s 12 mayo.</div>
+      </div>
+      <div class="tl-cost"><div class="running"><em>$1,171</em></div><div class="running">vuelo</div></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">12&ndash;14 may</div>
+      <div class="tl-body">
+        <div class="tl-place">Barcelona</div>
+        <div class="tl-desc">G&oacute;tico, Barceloneta, El Born, La Boqueria, Sagrada Fam&iacute;lia. Aclimatarse.</div>
+        <div class="tl-meta">
+          <div class="tl-meta-item"><span class="ml">Dormir</span><span class="mv">Hostel &euro;20-30 / Airbnb &euro;40-60</span></div>
+          <div class="tl-meta-item"><span class="ml">Noches</span><span class="mv">3</span></div>
+          <div class="tl-meta-item"><span class="ml">Comer</span><span class="mv">La Boqueria, tapas El Born &middot; &euro;20-30/d</span></div>
+        </div>
+      </div>
+      <div class="tl-cost"><div class="day-cost">&euro;55/d</div><div class="running"><em>&euro;165</em></div><div class="running">acumulado</div></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">15 may</div>
+      <div class="tl-body">
+        <div class="tl-place">Barcelona &rarr; Montpellier</div>
+        <div class="tl-desc">Carcassonne de paso (medieval UNESCO). Montpellier: Place de la Com&eacute;die.</div>
+        <div class="tl-meta">
+          <div class="tl-meta-item"><span class="ml">Transporte</span><span class="mv">TGV 3h &euro;25-60 / BlaBlaCar &euro;25-35</span></div>
+          <div class="tl-meta-item"><span class="ml">Dormir</span><span class="mv">Hostel &euro;15-20</span></div>
+          <div class="tl-meta-item"><span class="ml">Noches</span><span class="mv">1</span></div>
+          <div class="tl-meta-item"><span class="ml">Comer</span><span class="mv">Mercado Les Halles &middot; &euro;15-25/d</span></div>
+        </div>
+      </div>
+      <div class="tl-cost"><div class="day-cost">&euro;75</div><div class="running"><em>&euro;240</em></div><div class="running">acumulado</div></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">16&ndash;17 may</div>
+      <div class="tl-body">
+        <div class="tl-place">Montpellier &rarr; Marseille</div>
+        <div class="tl-desc">Camargue de paso (caballos salvajes). Vieux Port, Le Panier, Calanques.</div>
+        <div class="tl-meta">
+          <div class="tl-meta-item"><span class="ml">Transporte</span><span class="mv">TGV 1.5h &euro;15-30</span></div>
+          <div class="tl-meta-item"><span class="ml">Dormir</span><span class="mv">Hostel &euro;10-15 / Airbnb &euro;30-45</span></div>
+          <div class="tl-meta-item"><span class="ml">Noches</span><span class="mv">2</span></div>
+          <div class="tl-meta-item"><span class="ml">Comer</span><span class="mv">Bouillabaisse, mercado Noailles &middot; &euro;20-30/d</span></div>
+        </div>
+      </div>
+      <div class="tl-cost"><div class="day-cost">&euro;55/d</div><div class="running"><em>&euro;350</em></div><div class="running">acumulado</div></div>
+    </div>
+    <div class="tl-item epic">
+      <div class="tl-date">18 may</div>
+      <div class="tl-body">
+        <div class="tl-place">Marseille &rarr; Cassis &rarr; Saint-Tropez</div>
+        <div class="tl-desc">Calanques en kayak. Acantilados blancos. Saint-Tropez: puerto ic&oacute;nico, playas.</div>
+        <div class="tl-meta">
+          <div class="tl-meta-item"><span class="ml">Transporte</span><span class="mv">Auto alquiler &euro;30-50/d &mdash; inicio tramo esc&eacute;nico</span></div>
+          <div class="tl-meta-item"><span class="ml">Dormir</span><span class="mv">Hostel &euro;20-30</span></div>
+          <div class="tl-meta-item"><span class="ml">Noches</span><span class="mv">1</span></div>
+          <div class="tl-meta-item"><span class="ml">Comer</span><span class="mv">Mercado proven&ccedil;al, socca &middot; &euro;25-35/d</span></div>
+        </div>
+      </div>
+      <div class="tl-cost"><div class="day-cost">&euro;105</div><div class="running"><em>&euro;455</em></div><div class="running">acumulado</div></div>
+    </div>
+    <div class="tl-item epic">
+      <div class="tl-date">19&ndash;20 may</div>
+      <div class="tl-body">
+        <div class="tl-place">Corniche de l'Est&eacute;rel &rarr; Cannes &rarr; Nice</div>
+        <div class="tl-desc">Rocas rojas volc&aacute;nicas contra Mediterr&aacute;neo azul. La ruta costera m&aacute;s espectacular del planeta.</div>
+        <div class="tl-meta">
+          <div class="tl-meta-item"><span class="ml">Transporte</span><span class="mv">Auto &middot; 115 km &middot; imperdible</span></div>
+          <div class="tl-meta-item"><span class="ml">Dormir</span><span class="mv">Nice &mdash; Hostel &euro;15-25 / Airbnb &euro;40-60</span></div>
+          <div class="tl-meta-item"><span class="ml">Comer</span><span class="mv">Salade ni&ccedil;oise, socca en Cours Saleya &middot; &euro;20-30/d</span></div>
+        </div>
+      </div>
+      <div class="tl-cost"><div class="day-cost">&euro;95/d</div><div class="running"><em>&euro;645</em></div><div class="running">acumulado</div></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">21&ndash;23 may</div>
+      <div class="tl-body">
+        <div class="tl-place">Nice</div>
+        <div class="tl-desc">Vieux Nice, Promenade, Cours Saleya. Day trips: Monaco, &Egrave;ze, Villefranche, Corniches.</div>
+        <div class="tl-meta">
+          <div class="tl-meta-item"><span class="ml">Day trips</span><span class="mv">Monaco &euro;4 &middot; &Egrave;ze &euro;1.50 &middot; Villefranche &euro;2 &middot; Corniches auto</span></div>
+          <div class="tl-meta-item"><span class="ml">Dormir</span><span class="mv">Airbnb &euro;40-60 (vale privado ac&aacute;)</span></div>
+          <div class="tl-meta-item"><span class="ml">Noches</span><span class="mv">3</span></div>
+          <div class="tl-meta-item"><span class="ml">Comer</span><span class="mv">Cours Saleya mercado, pan bagnat, ratatouille &middot; &euro;20-30/d</span></div>
+        </div>
+      </div>
+      <div class="tl-cost"><div class="day-cost">&euro;75/d</div><div class="running"><em>&euro;870</em></div><div class="running">acumulado</div></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">24 may</div>
+      <div class="tl-body">
+        <div class="tl-place">Nice &rarr; San Remo &rarr; Genova</div>
+        <div class="tl-desc">Menton, Riviera dei Fiori, Finale Ligure. Centro medieval, pesto, focaccia.</div>
+        <div class="tl-meta">
+          <div class="tl-meta-item"><span class="ml">Transporte</span><span class="mv">Auto costero / Tren 2.5h &euro;10-15 &mdash; devolver auto Genova</span></div>
+          <div class="tl-meta-item"><span class="ml">Dormir</span><span class="mv">Hostel &euro;15-20</span></div>
+          <div class="tl-meta-item"><span class="ml">Noches</span><span class="mv">1</span></div>
+          <div class="tl-meta-item"><span class="ml">Comer</span><span class="mv">Pesto genovese, focaccia di Recco &middot; &euro;15-25/d</span></div>
+        </div>
+      </div>
+      <div class="tl-cost"><div class="day-cost">&euro;55</div><div class="running"><em>&euro;925</em></div><div class="running">acumulado</div></div>
+    </div>
+    <div class="tl-item epic">
+      <div class="tl-date">25&ndash;27 may</div>
+      <div class="tl-body">
+        <div class="tl-place">Portofino &rarr; Cinque Terre</div>
+        <div class="tl-desc">Camogli de paso. 5 aldeas, trekking costero, vino ligure. Mayo = sin hordas.</div>
+        <div class="tl-meta">
+          <div class="tl-meta-item"><span class="ml">Transporte</span><span class="mv">Tren regional &euro;5-10 &middot; entre aldeas &euro;4</span></div>
+          <div class="tl-meta-item"><span class="ml">Dormir</span><span class="mv">Hostel &euro;19-25 / Airbnb &euro;70-85</span></div>
+          <div class="tl-meta-item"><span class="ml">Noches</span><span class="mv">2-3</span></div>
+          <div class="tl-meta-item"><span class="ml">Comer</span><span class="mv">Trofie al pesto, anchoas, vino Sciacchetr&agrave; &middot; &euro;20-35/d</span></div>
+        </div>
+      </div>
+      <div class="tl-cost"><div class="day-cost">&euro;65/d</div><div class="running"><em>&euro;1,120</em></div><div class="running">acumulado</div></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">27&ndash;28 may</div>
+      <div class="tl-body">
+        <div class="tl-place">Cinque Terre &rarr; Milan</div>
+        <div class="tl-desc">Parma de paso (parmigiano, prosciutto). Duomo, Navigli. Fin del road trip.</div>
+        <div class="tl-meta">
+          <div class="tl-meta-item"><span class="ml">Transporte</span><span class="mv">Intercity 3h &euro;15-30</span></div>
+          <div class="tl-meta-item"><span class="ml">Dormir</span><span class="mv">Hostel &euro;20-30</span></div>
+          <div class="tl-meta-item"><span class="ml">Comer</span><span class="mv">Navigli aperitivo, risotto, cotoletta &middot; &euro;25-35/d</span></div>
+        </div>
+      </div>
+      <div class="tl-cost"><div class="day-cost">&euro;70/d</div><div class="running"><em>&euro;1,260</em></div><div class="running">acumulado</div></div>
+    </div>
+    <div class="tl-item free">
+      <div class="tl-date">28&ndash;29 may</div>
+      <div class="tl-body">
+        <div class="tl-place">Milan &mdash; 2 d&iacute;as</div>
+        <div class="tl-desc">Duomo, Navigli, La &Uacute;ltima Cena. Opcionalmente: Como 1h &euro;5, Tur&iacute;n 1h.</div>
+        <div class="tl-meta">
+          <div class="tl-meta-item"><span class="ml">Transporte</span><span class="mv">Frecciarossa / Italo desde Milan</span></div>
+          <div class="tl-meta-item"><span class="ml">Dormir</span><span class="mv">Hostel &euro;20-30 / Airbnb &euro;40-60</span></div>
+          <div class="tl-meta-item"><span class="ml">Noches</span><span class="mv">2</span></div>
+          <div class="tl-meta-item"><span class="ml">Comer</span><span class="mv">Mercato, Conad/Lidl, pizza al taglio &euro;2-4 &middot; &euro;20-30/d</span></div>
+        </div>
+      </div>
+      <div class="tl-cost"><div class="day-cost">&euro;55/d</div><div class="running"><em>&euro;1,370</em></div><div class="running">acumulado</div></div>
+    </div>
+    <div class="tl-item fly">
+      <div class="tl-date">29 may</div>
+      <div class="tl-body">
+        <div class="tl-place">Milan &rarr; Barcelona</div>
+        <div class="tl-desc">Ryanair/Vueling MXP&rarr;BCN &middot; 1.5h &middot; &euro;20-50</div>
+      </div>
+      <div class="tl-cost"><div class="day-cost">&euro;40</div><div class="running"><em>&euro;1,905</em></div><div class="running">acumulado</div></div>
+    </div>
+    <div class="tl-item bday">
+      <div class="tl-date">30&ndash;31 may<br>1 jun</div>
+      <div class="tl-body">
+        <div class="tl-place">Cumplea&ntilde;os 40 &mdash; Barcelona</div>
+        <div class="tl-desc">Con familia. Tu ciudad, tu gente, tus 40.</div>
+        <div class="tl-meta">
+          <div class="tl-meta-item"><span class="ml">Dormir</span><span class="mv">Airbnb con espacio &euro;40-60/n</span></div>
+          <div class="tl-meta-item"><span class="ml">Noches</span><span class="mv">5 (29 may&ndash;3 jun)</span></div>
+          <div class="tl-meta-item"><span class="ml">Comer</span><span class="mv">Cena cumple, paella, cava &middot; &euro;35-50/d</span></div>
+        </div>
+      </div>
+      <div class="tl-cost"><div class="day-cost">&euro;95/d</div><div class="running"><em>&euro;1,845</em></div><div class="running">acumulado</div></div>
+    </div>
+    <div class="tl-item fly">
+      <div class="tl-date">~5 jun</div>
+      <div class="tl-body">
+        <div class="tl-place">Barcelona &rarr; Buenos Aires</div>
+        <div class="tl-desc">Vuelo de regreso.</div>
+      </div>
+      <div class="tl-cost"><div class="running"><em>&euro;1,845</em></div><div class="running">+ $1,171 vuelos</div><div class="running" style="margin-top:4px;color:var(--accent);font-weight:600;font-size:13px">&asymp; $3,016</div></div>
+    </div>
+  </div>
+
+  <div class="c glow" style="margin:24px 0">
+    <h4>Nota sobre el auto</h4>
+    <p>Alquil&aacute;s en <strong>Marseille</strong> (6 may). Cassis &rarr; Saint-Tropez &rarr; Est&eacute;rel &rarr; Cannes &rarr; Nice. Devolvés en <strong>Nice o Genova</strong>. 4-6 d&iacute;as, &euro;120-250 + &euro;50-70 nafta/peajes. Seguro: RentalCover.com ~&euro;5/d. Reservar en DiscoverCars o SIXT.</p>
+  </div>
+
+  <div class="sl">Presupuesto</div>
+  <div id="budget-section"></div>
+  <script>
+    // Dynamic budget based on current flight price
+    (function() {
+      const latest = priceData[priceData.length-1];
+      const cheapest = latest.flights[0];
+      const flightUsd = cheapest.price_usd || 1413;
+      const mxpBcn = 40; // intra-EU low-cost
+
+      // Fixed EUR costs
+      const tiers = {
+        budget:   { transport: 130, aloj: 540, comida: 450, extras: 80 },
+        balanced: { transport: 380, aloj: 950, comida: 875, extras: 150 },
+        comfort:  { transport: 530, aloj: 1600, comida: 1400, extras: 300 },
+      };
+
+      function total(tier) {
+        const eur = tier.transport + tier.aloj + tier.comida + tier.extras;
+        return Math.round(flightUsd + mxpBcn + eur); // EUR ≈ USD for estimation
+      }
+
+      const b = total(tiers.budget);
+      const bl = total(tiers.balanced);
+      const c = total(tiers.comfort);
+
+      let html = '<div class="g3">';
+      html += '<div class="budget-card"><div class="lbl">Budget</div><div class="amt">$'+b.toLocaleString('es')+'</div><div class="pd">vuelo $'+flightUsd.toLocaleString('es')+' + &euro;'+tiers.budget.transport+'+'+tiers.budget.aloj+'+'+tiers.budget.comida+'</div></div>';
+      html += '<div class="budget-card pick"><div class="lbl">Balanced</div><div class="amt">$'+bl.toLocaleString('es')+'</div><div class="pd">vuelo $'+flightUsd.toLocaleString('es')+' + &euro;'+tiers.balanced.transport+'+'+tiers.balanced.aloj+'+'+tiers.balanced.comida+'</div></div>';
+      html += '<div class="budget-card"><div class="lbl">Comfort</div><div class="amt">$'+c.toLocaleString('es')+'</div><div class="pd">vuelo $'+flightUsd.toLocaleString('es')+' + &euro;'+tiers.comfort.transport+'+'+tiers.comfort.aloj+'+'+tiers.comfort.comida+'</div></div>';
+      html += '</div>';
+
+      html += '<div class="c" style="margin-top:14px"><table class="bt">';
+      html += '<tr><td class="concept">Vuelo RT EZE&harr;BCN <span style="font-size:10px;color:var(--text-dim)">('+((airlineInfo[cheapest.airline]||{}).name||cheapest.airline)+' · precio actual)</span></td><td class="val">$'+flightUsd.toLocaleString('es')+'</td><td class="val">$'+flightUsd.toLocaleString('es')+'</td><td class="val">$'+flightUsd.toLocaleString('es')+'</td></tr>';
+      html += '<tr><td class="concept">Vuelo MXP&rarr;BCN</td><td class="val">$25</td><td class="val">$40</td><td class="val">$50</td></tr>';
+      html += '<tr><td class="concept">Transporte mix</td><td class="val">&euro;130</td><td class="val">&euro;380</td><td class="val">&euro;530</td></tr>';
+      html += '<tr><td class="concept">Alojamiento 33n</td><td class="val">&euro;540</td><td class="val">&euro;950</td><td class="val">&euro;1,600</td></tr>';
+      html += '<tr><td class="concept">Comida 35d</td><td class="val">&euro;450</td><td class="val">&euro;875</td><td class="val">&euro;1,400</td></tr>';
+      html += '<tr><td class="concept">Extras</td><td class="val">&euro;80</td><td class="val">&euro;150</td><td class="val">&euro;300</td></tr>';
+      html += '<tr class="final"><td class="concept"><strong>Total</strong></td><td class="val">~$'+b.toLocaleString('es')+'</td><td class="val">~$'+bl.toLocaleString('es')+'</td><td class="val">~$'+c.toLocaleString('es')+'</td></tr>';
+      html += '</table>';
+      html += '<div style="font-size:11px;color:var(--text-dim);margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">Presupuesto se recalcula autom&aacute;ticamente con el precio actual del vuelo m&aacute;s barato (USD '+flightUsd.toLocaleString('es')+' · ARS '+(cheapest.price_ars||0).toLocaleString('es')+'). EUR &asymp; USD para estimaci&oacute;n.</div>';
+      html += '</div>';
+
+      document.getElementById('budget-section').innerHTML = html;
+
+      // Update stats bar
+      const sv = document.getElementById('stat-vuelo');
+      const st = document.getElementById('stat-total');
+      const sa = document.getElementById('stat-ars');
+      if (sv) sv.textContent = 'USD ' + flightUsd.toLocaleString('es');
+      if (st) st.textContent = 'USD ' + bl.toLocaleString('es');
+      if (sa) sa.textContent = 'ARS ' + ((cheapest.price_ars||0)/1000000).toFixed(1) + 'M';
+    })();
+  </script>
+
+  <div class="sl">Herramientas</div>
+  <div class="g4">
+    <div class="c"><h4>Vuelos</h4><ul><li>Google Flights</li><li>Kiwi.com</li><li>Skyscanner</li><li>Secret Flying</li></ul></div>
+    <div class="c"><h4>Trenes</h4><ul><li>Seat61.com</li><li>Trainline</li><li>Omio</li><li>SNCF / Trenitalia</li></ul></div>
+    <div class="c"><h4>Alojamiento</h4><ul><li>Hostelworld</li><li>Booking.com</li><li>Flatio</li><li>TrustedHousesitters</li></ul></div>
+    <div class="c"><h4>En ruta</h4><ul><li>TravelSpend</li><li>yr.no</li><li>Citymapper</li><li>BlaBlaCar</li></ul></div>
+  </div>
+
+  <div class="sl">Pr&oacute;ximos pasos</div>
+  <div class="g2">
+    <div class="c glow">
+      <h4>Esta semana</h4>
+      <ul>
+        <li>Alertas Google Flights &mdash; EZE&rarr;BCN 11 may + BCN&rarr;EZE 5 jun</li>
+        <li>Comparar RT vs 2x one-way</li>
+        <li>Secret Flying WhatsApp para error fares</li>
+      </ul>
+    </div>
+    <div class="c">
+      <h4>Pr&oacute;ximas semanas</h4>
+      <ul>
+        <li>Reservar vuelo cuando baje o en 2-3 semanas</li>
+        <li>Airbnb BCN para cumple (30 may &ndash; 3 jun)</li>
+        <li>Trenes BCN&rarr;Montpellier, Montpellier&rarr;Marseille</li>
+        <li>Roma: decidir all&aacute;</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  Skywalking &middot; Mentat &middot; 2026-03-19
+  <div class="tag">35 d&iacute;as &middot; 1,330 km &middot; 40 a&ntilde;os</div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const map = L.map('map',{scrollWheelZoom:false,zoomControl:false}).setView([43.5,5.5],6);
+  L.control.zoom({position:'topright'}).addTo(map);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',{maxZoom:18}).addTo(map);
+  // subtle labels layer on top
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png',{maxZoom:18,opacity:0.4}).addTo(map);
+
+  const A='#D4AF37',W='#EFEEE9';
+
+  // Main stops with visible labels
+  const main = [
+    [41.3874,2.1686,'Barcelona','Inicio + Cumple 40','bottom'],
+    [43.6108,3.8767,'Montpellier','1 noche','top'],
+    [43.2965,5.3698,'Marseille','2 noches','bottom'],
+    [43.2677,6.6407,'St-Tropez','1 noche','bottom'],
+    [43.7102,7.2620,'Nice','3 noches','top'],
+    [44.4056,8.9463,'Genova','1 noche','top'],
+    [44.1461,9.6439,'Cinque Terre','2-3 noches','bottom'],
+    [45.4642,9.1900,'Milan','11 d\u00edas libres','top'],
+  ];
+
+  // Minor stops — small dots, no labels, tooltip on hover
+  const minor = [
+    [43.2115,2.3534,'Carcassonne'],
+    [43.5283,4.0769,'Camargue'],
+    [43.2141,5.5363,'Cassis'],
+    [43.5485,6.8684,'Est\u00e9rel'],
+    [43.5528,7.0174,'Cannes'],
+    [43.5862,7.1280,'Antibes'],
+    [43.7323,7.4191,'Monaco'],
+    [43.7741,7.5034,'Menton'],
+    [43.8172,7.7754,'San Remo'],
+    [44.3033,9.2085,'Portofino'],
+    [44.8015,10.3280,'Parma'],
+  ];
+
+  // Labeled markers for main stops
+  main.forEach((s,i)=>{
+    const isStart = i===0;
+    const isEnd = i===main.length-1;
+    const isBday = i===0; // Barcelona = cumple
+    const dotSize = (isStart||isEnd) ? 14 : 10;
+    const pos = s[4]; // label position
+
+    // Numbered dot
+    const num = i+1;
+    const dotHtml = '<div style="position:relative">'
+      +'<div style="width:'+dotSize+'px;height:'+dotSize+'px;background:'+A+';border-radius:50%;border:2px solid #0a0f14;box-shadow:0 0 16px rgba(212,175,55,0.35);"></div>'
+      +'<div style="position:absolute;'+(pos==='top'?'bottom:'+(dotSize+4)+'px':'top:'+(dotSize+4)+'px')+';left:50%;transform:translateX(-50%);white-space:nowrap;text-align:center;pointer-events:none;">'
+        +'<div style="font-family:Plus Jakarta Sans,system-ui;font-size:12px;font-weight:600;color:'+W+';text-shadow:0 1px 6px rgba(0,0,0,0.8),0 0 2px rgba(0,0,0,0.9);">'+s[2]+'</div>'
+        +'<div style="font-family:Plus Jakarta Sans,system-ui;font-size:9px;color:rgba(239,238,233,0.5);text-shadow:0 1px 4px rgba(0,0,0,0.9);letter-spacing:0.5px;">'+s[3]+'</div>'
+      +'</div>'
+    +'</div>';
+
+    L.marker([s[0],s[1]],{
+      icon: L.divIcon({className:'',html:dotHtml,iconSize:[dotSize,dotSize],iconAnchor:[dotSize/2,dotSize/2]}),
+      zIndexOffset: 1000
+    }).addTo(map);
+  });
+
+  // Minor stops — subtle small dots with tooltip
+  minor.forEach(s=>{
+    L.circleMarker([s[0],s[1]],{
+      radius:3, fillColor:'rgba(239,238,233,0.3)', fillOpacity:1,
+      stroke:true, color:'rgba(239,238,233,0.15)', weight:1
+    }).bindTooltip(s[2],{
+      className:'minor-tip', direction:'top', offset:[0,-6]
+    }).addTo(map);
+  });
+
+  // Add tooltip styles
+  const tipStyle = document.createElement('style');
+  tipStyle.textContent = '.minor-tip{background:rgba(10,15,20,0.9)!important;border:1px solid rgba(255,255,255,0.1)!important;color:#EFEEE9!important;font-family:Plus Jakarta Sans,system-ui!important;font-size:11px!important;padding:4px 10px!important;border-radius:4px!important;box-shadow:0 4px 12px rgba(0,0,0,0.4)!important;}.minor-tip::before{border-top-color:rgba(10,15,20,0.9)!important;}';
+  document.head.appendChild(tipStyle);
+
+  // === ROUTES BY TRANSPORT MODE ===
+
+  // AUTO segments (solid line, OSRM road routing)
+  const auto1=[[5.3698,43.2965],[5.5363,43.2141],[6.6407,43.2677],[6.8684,43.5485],[7.0174,43.5528],[7.1280,43.5862],[7.2620,43.7102]]; // Marseille→Nice
+  const auto2=[[7.2620,43.7102],[7.5034,43.7741],[7.7754,43.8172],[8.2941,44.1808],[8.9463,44.4056]]; // Nice→Genova (optional)
+
+  // TREN segments (dashed line, OSRM for path but styled different)
+  const tren1=[[2.1686,41.3874],[2.3534,43.2115],[3.8767,43.6108]]; // BCN→Carcassonne→Montpellier
+  const tren2=[[3.8767,43.6108],[4.0769,43.5283],[5.3698,43.2965]]; // Montpellier→Camargue→Marseille
+  const tren3=[[8.9463,44.4056],[9.2105,44.3037],[9.6439,44.1461]]; // Genova→Portofino→Cinque Terre
+  const tren4=[[9.6439,44.1461],[10.3280,44.8015],[9.1900,45.4642]]; // Cinque Terre→Parma→Milan
+
+  async function drawRoad(c,col,w,dash){
+    try{
+      const r=await fetch('https://router.project-osrm.org/route/v1/driving/'+c.map(p=>p[0]+','+p[1]).join(';')+'?overview=full&geometries=geojson');
+      const j=await r.json();
+      if(j.routes&&j.routes[0]) L.geoJSON(j.routes[0].geometry,{style:{color:col,weight:w,opacity:0.5,dashArray:dash||null}}).addTo(map);
+    }catch(e){L.polyline(c.map(p=>[p[1],p[0]]),{color:col,weight:w,opacity:0.3,dashArray:dash||'4 4'}).addTo(map);}
+  }
+
+  // FLIGHT arc (MXP→BCN) — curved bezier
+  function drawFlightArc(from, to, col) {
+    const midLat = (from[0]+to[0])/2 + 1.5; // curve northward
+    const midLng = (from[1]+to[1])/2;
+    const pts = [];
+    for(let t=0; t<=1; t+=0.02) {
+      const lat = (1-t)*(1-t)*from[0] + 2*(1-t)*t*midLat + t*t*to[0];
+      const lng = (1-t)*(1-t)*from[1] + 2*(1-t)*t*midLng + t*t*to[1];
+      pts.push([lat,lng]);
+    }
+    L.polyline(pts, {color:col, weight:1.5, opacity:0.35, dashArray:'6 8'}).addTo(map);
+  }
+
+  (async()=>{
+    // Draw auto routes (solid)
+    await Promise.all([
+      drawRoad(auto1, A, 3.5),
+      drawRoad(auto2, A, 3.5),
+    ]);
+    // Draw train routes (dashed)
+    await Promise.all([
+      drawRoad(tren1, W, 2, '8 6'),
+      drawRoad(tren2, W, 2, '8 6'),
+      drawRoad(tren3, W, 2, '8 6'),
+      drawRoad(tren4, W, 2, '8 6'),
+    ]);
+    // Draw flights
+    drawFlightArc([45.4642,9.1900],[41.3874,2.1686], W); // MXP→BCN
+  })();
+
+  // Fit bounds
+  const allPts = main.map(s=>[s[0],s[1]]).concat(minor.map(s=>[s[0],s[1]]));
+  map.fitBounds(L.latLngBounds(allPts).pad(0.18));
+
+  // Legend
+  const lg=L.control({position:'bottomleft'});
+  lg.onAdd=function(){
+    const d=L.DomUtil.create('div');
+    d.style.cssText='background:rgba(10,15,20,0.92);padding:12px 16px;border-radius:8px;font-family:Plus Jakarta Sans,system-ui;font-size:11px;color:rgba(239,238,233,0.6);border:1px solid rgba(255,255,255,0.06);line-height:2';
+    d.innerHTML='<div style="display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:24px;height:3px;background:#D4AF37;border-radius:2px"></span>Auto</div>'
+      +'<div style="display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:24px;height:0;border-top:2px dashed #EFEEE9;opacity:0.5"></span>Tren</div>'
+      +'<div style="display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:24px;height:0;border-top:1.5px dashed #EFEEE9;opacity:0.35"></span>Vuelo</div>';
+    return d;
+  };
+  lg.addTo(map);
+</script>
+</body>
+</html>
