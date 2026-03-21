@@ -192,6 +192,8 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.4-.1.9.3 1.1L11 12l-2 3H6l-1 1 3 2 2 3 1-1v-3l3-2 3.8 7.3c.2.4.7.5 1.1.3l.5-.3c.4-.2.6-.6.5-1.1z"/></svg>
         <h4 style="margin:0;color:var(--green)">Vuelos reservados</h4>
       </div>
+      <div style="font-size:28px;font-weight:300;color:var(--green);letter-spacing:-1px;margin-bottom:4px">&euro;798 <span style="font-size:14px;color:var(--text-dim);font-weight:400">~USD 862</span></div>
+      <div style="font-size:11px;color:var(--text-dim);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)">2 legs &middot; ida completa</div>
       <div style="margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)">
         <div style="font-size:12px;color:var(--text-dim);margin-bottom:4px">Leg 1 &middot; LEVEL LL 2602</div>
         <div style="font-size:16px;font-weight:500;color:var(--text-bright)">EZE &rarr; BCN</div>
@@ -225,7 +227,7 @@
         <div class="tl-place">Buenos Aires &rarr; Barcelona</div>
         <div class="tl-desc">LEVEL LL 2602 directo. Salida 11:00, llegada 9 may 04:35.</div>
       </div>
-      <div class="tl-cost"><div class="running"><em>booked</em></div></div>
+      <div class="tl-cost"><div class="running"><em>&euro;798</em></div><div class="running">~$862</div></div>
     </div>
 
     <div class="tl-item booked">
@@ -425,8 +427,9 @@
   <div id="budget-section"></div>
   <script>
     (function() {
-      const flightVuelta = 600;
-      // 11 paid nights (Roma 2, Firenze 2, CT 2, San Remo 1, Nice 2, St-Tropez 1, Marseille 1, Montpellier 1 = 12)
+      const flightIda = 862; // €798 ≈ USD 862 (booked)
+      const flightVuelta = 600; // estimate
+      // 12 paid nights (Roma 2, Firenze 2, CT 2, San Remo 1, Nice 2, St-Tropez 1, Marseille 1, Montpellier 1)
       // 11 free nights (Milan 5, BCN 6)
       const tiers = {
         budget:   { transport: 170, aloj: 220, comida: 450, extras: 80 },
@@ -436,7 +439,7 @@
 
       function total(tier) {
         const eur = tier.transport + tier.aloj + tier.comida + tier.extras;
-        return Math.round(flightVuelta + eur);
+        return Math.round(flightIda + flightVuelta + eur);
       }
 
       const b = total(tiers.budget);
@@ -444,13 +447,13 @@
       const c = total(tiers.comfort);
 
       let html = '<div class="g3">';
-      html += '<div class="budget-card"><div class="lbl">Budget</div><div class="amt">$'+b.toLocaleString('es')+'</div><div class="pd">vuelta ~$'+flightVuelta+' + &euro;'+Object.values(tiers.budget).reduce((a,b)=>a+b,0)+'</div></div>';
-      html += '<div class="budget-card pick"><div class="lbl">Balanced</div><div class="amt">$'+bl.toLocaleString('es')+'</div><div class="pd">vuelta ~$'+flightVuelta+' + &euro;'+Object.values(tiers.balanced).reduce((a,b)=>a+b,0)+'</div></div>';
-      html += '<div class="budget-card"><div class="lbl">Comfort</div><div class="amt">$'+c.toLocaleString('es')+'</div><div class="pd">vuelta ~$'+flightVuelta+' + &euro;'+Object.values(tiers.comfort).reduce((a,b)=>a+b,0)+'</div></div>';
+      html += '<div class="budget-card"><div class="lbl">Budget</div><div class="amt">$'+b.toLocaleString('es')+'</div><div class="pd">vuelos $'+(flightIda+500)+' + &euro;'+Object.values(tiers.budget).reduce((a,b)=>a+b,0)+'</div></div>';
+      html += '<div class="budget-card pick"><div class="lbl">Balanced</div><div class="amt">$'+bl.toLocaleString('es')+'</div><div class="pd">vuelos $'+(flightIda+flightVuelta)+' + &euro;'+Object.values(tiers.balanced).reduce((a,b)=>a+b,0)+'</div></div>';
+      html += '<div class="budget-card"><div class="lbl">Comfort</div><div class="amt">$'+c.toLocaleString('es')+'</div><div class="pd">vuelos $'+(flightIda+700)+' + &euro;'+Object.values(tiers.comfort).reduce((a,b)=>a+b,0)+'</div></div>';
       html += '</div>';
 
       html += '<div class="c" style="margin-top:14px"><table class="bt">';
-      html += '<tr><td class="concept">Vuelo ida EZE&rarr;BCN&rarr;FCO <span style="font-size:10px;color:var(--green)">BOOKED</span></td><td class="val" colspan="3" style="text-align:center;color:var(--green)">Pagado</td></tr>';
+      html += '<tr><td class="concept">Vuelo ida EZE&rarr;BCN&rarr;FCO <span style="font-size:10px;color:var(--green)">BOOKED</span></td><td class="val" colspan="3" style="text-align:center;color:var(--green)">&euro;798 (~$862)</td></tr>';
       html += '<tr><td class="concept">Vuelo vuelta BCN&rarr;EZE <span style="font-size:10px;color:#fbbf24">PENDIENTE</span></td><td class="val">~$500</td><td class="val">~$600</td><td class="val">~$700</td></tr>';
       html += '<tr><td class="concept">Transporte <span style="font-size:10px;color:var(--text-dim)">(trenes + auto 7d)</span></td><td class="val">&euro;170</td><td class="val">&euro;420</td><td class="val">&euro;580</td></tr>';
       html += '<tr><td class="concept">Alojamiento ~12n <span style="font-size:10px;color:var(--text-dim)">(BCN+Milan gratis)</span></td><td class="val">&euro;220</td><td class="val">&euro;400</td><td class="val">&euro;700</td></tr>';
@@ -458,7 +461,7 @@
       html += '<tr><td class="concept">Extras</td><td class="val">&euro;80</td><td class="val">&euro;150</td><td class="val">&euro;300</td></tr>';
       html += '<tr class="final"><td class="concept"><strong>Total (sin ida)</strong></td><td class="val">~$'+b.toLocaleString('es')+'</td><td class="val">~$'+bl.toLocaleString('es')+'</td><td class="val">~$'+c.toLocaleString('es')+'</td></tr>';
       html += '</table>';
-      html += '<div style="font-size:11px;color:var(--text-dim);margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">Ida ya pagada (no incluida). Vuelta estimada ~$600 LEVEL one-way BCN&rarr;EZE. EUR &asymp; USD para estimaci&oacute;n. 11 noches gratis (Mary Carmen 6 + Christian&amp;Gus 5). Ruta optimizada: cero backtrack.</div>';
+      html += '<div style="font-size:11px;color:var(--text-dim);margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">Ida &euro;798 (~$862) pagada. Vuelta estimada ~$600 LEVEL one-way BCN&rarr;EZE. EUR &asymp; USD para estimaci&oacute;n. 11 noches gratis (Mary Carmen 6 + Christian&amp;Gus 5). Ruta optimizada: cero backtrack.</div>';
       html += '</div>';
 
       document.getElementById('budget-section').innerHTML = html;
