@@ -470,11 +470,37 @@
   <!-- ==================== HERRAMIENTAS ==================== -->
 
   <div class="sl">Herramientas</div>
+  <style>
+    .tool-link { display:block; font-size:13px; color:var(--text); text-decoration:none; padding:6px 0; border-bottom:1px solid var(--border); transition:color 0.15s; }
+    .tool-link:last-child { border-bottom:none; }
+    .tool-link:hover { color:var(--accent); }
+    .tool-link span { font-size:11px; color:var(--text-dim); margin-left:6px; }
+  </style>
   <div class="g4">
-    <div class="c"><h4>Vuelos</h4><ul><li>Google Flights</li><li>Kiwi.com</li><li>Skyscanner</li><li>Secret Flying</li></ul></div>
-    <div class="c"><h4>Trenes</h4><ul><li>Seat61.com</li><li>Trainline</li><li>Italo / Trenitalia</li><li>SNCF (TGV)</li></ul></div>
-    <div class="c"><h4>Alojamiento</h4><ul><li>Hostelworld</li><li>Booking.com</li><li>Flatio</li><li>TrustedHousesitters</li></ul></div>
-    <div class="c"><h4>En ruta</h4><ul><li>DiscoverCars / SIXT</li><li>TravelSpend</li><li>yr.no</li><li>BlaBlaCar</li></ul></div>
+    <div class="c"><h4>Vuelos</h4>
+      <a class="tool-link" href="https://www.google.com/travel/flights" target="_blank" rel="noopener">Google Flights <span>tracking, calendario</span></a>
+      <a class="tool-link" href="https://www.kiwi.com/en/nomad" target="_blank" rel="noopener">Kiwi.com <span>multi-city</span></a>
+      <a class="tool-link" href="https://www.skyscanner.com" target="_blank" rel="noopener">Skyscanner <span>grilla mensual</span></a>
+      <a class="tool-link" href="https://www.secretflying.com/cheap-flights-from/argentina/" target="_blank" rel="noopener">Secret Flying <span>error fares</span></a>
+    </div>
+    <div class="c"><h4>Trenes</h4>
+      <a class="tool-link" href="https://www.seat61.com" target="_blank" rel="noopener">Seat61.com <span>biblia del tren</span></a>
+      <a class="tool-link" href="https://www.thetrainline.com" target="_blank" rel="noopener">Trainline <span>split tickets</span></a>
+      <a class="tool-link" href="https://www.italotreno.it/en" target="_blank" rel="noopener">Italo <span>Roma-Firenze-Milan</span></a>
+      <a class="tool-link" href="https://www.sncf-connect.com/en-en/" target="_blank" rel="noopener">SNCF <span>TGV Francia</span></a>
+    </div>
+    <div class="c"><h4>Alojamiento</h4>
+      <a class="tool-link" href="https://www.hostelworld.com" target="_blank" rel="noopener">Hostelworld <span>hostels</span></a>
+      <a class="tool-link" href="https://www.booking.com" target="_blank" rel="noopener">Booking.com <span>Genius descuentos</span></a>
+      <a class="tool-link" href="https://www.flatio.com" target="_blank" rel="noopener">Flatio <span>mensual, sin dep&oacute;sito</span></a>
+      <a class="tool-link" href="https://www.trustedhousesitters.com" target="_blank" rel="noopener">TrustedHousesitters <span>gratis</span></a>
+    </div>
+    <div class="c"><h4>En ruta</h4>
+      <a class="tool-link" href="https://www.discovercars.com" target="_blank" rel="noopener">DiscoverCars <span>auto sin sorpresas</span></a>
+      <a class="tool-link" href="https://www.viamichelin.com" target="_blank" rel="noopener">ViaMichelin <span>peajes + nafta</span></a>
+      <a class="tool-link" href="https://www.yr.no" target="_blank" rel="noopener">yr.no <span>clima preciso</span></a>
+      <a class="tool-link" href="https://www.blablacar.com" target="_blank" rel="noopener">BlaBlaCar <span>rideshare</span></a>
+    </div>
   </div>
 
   <!-- ==================== PR&Oacute;XIMOS PASOS ==================== -->
