@@ -118,6 +118,25 @@
     .tl-item.booked::after { border-color:var(--green); background:var(--green-dim); }
     .tl-item.booked .tl-place { color:var(--green); }
 
+    /* inline private expansions */
+    .tl-private {
+      margin-top:16px; padding-top:12px;
+      border-top:1px solid rgba(212,175,55,0.1);
+      max-height:0; opacity:0; overflow:hidden;
+      transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease-out;
+      pointer-events:none;
+    }
+    body.full .tl-private { max-height:1200px; opacity:1; pointer-events:auto; }
+    .tl-prv { border-left:2px solid rgba(212,175,55,0.25); padding-left:14px; margin-bottom:14px; }
+    .tl-prv h5 { font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--accent); opacity:0.6; margin-bottom:8px; }
+    .tl-prv-item { font-size:12px; color:var(--text-dim); margin-bottom:6px; line-height:1.5; }
+    .tl-prv-item strong { color:var(--accent); font-weight:500; }
+    .tl-prv-item .pr { color:var(--accent); font-weight:600; font-size:11px; }
+    .tl-prv-item .sub { font-size:11px; color:var(--text-dim); margin-top:1px; }
+    .tl-prv-tip { font-size:11px; color:var(--accent); opacity:0.8; margin-top:8px; padding-top:6px; border-top:1px solid rgba(212,175,55,0.08); }
+    .tl-prv a { color:var(--accent); text-decoration:none; font-size:11px; }
+    .tl-prv a:hover { text-decoration:underline; }
+
     .badge { display:inline-block; font-size:9px; font-weight:600; letter-spacing:1px; text-transform:uppercase; padding:3px 8px; border-radius:4px; }
     .badge-green { background:var(--green-dim); color:var(--green); border:1px solid rgba(74,222,128,0.15); }
     .badge-pending { background:rgba(251,191,36,0.08); color:#fbbf24; border:1px solid rgba(251,191,36,0.15); }
@@ -142,11 +161,6 @@
     .footer { padding:40px 56px; text-align:center; font-size:11px; color:var(--text-dim); letter-spacing:0.5px; }
     .footer .tag { color:var(--accent); opacity:0.5; margin-top:4px; }
 
-    /* private mode */
-    .private-only { display:none; }
-    body.full .private-only { display:block; }
-    body.full .private-grid { display:grid; }
-
     /* secret toggle */
     .secret-toggle {
       position:fixed; top:16px; right:16px; z-index:9999;
@@ -158,9 +172,6 @@
     .secret-toggle:hover { border-color:rgba(255,255,255,0.08); box-shadow:inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 6px rgba(0,0,0,0.15); }
     .secret-toggle:active { transform:scale(0.95); }
     body.full .secret-toggle { border-color:rgba(212,175,55,0.12); box-shadow:inset 0 1px 0 rgba(212,175,55,0.06), 0 1px 4px rgba(0,0,0,0.1); }
-
-    /* private section styling */
-    .private-section { border-left:2px solid rgba(212,175,55,0.15); padding-left:20px; margin:14px 0; }
 
     @media(max-width:900px) {
       .g2,.g3,.g4 { grid-template-columns:1fr; }
@@ -290,6 +301,22 @@
           <div class="tl-meta-item"><span class="ml">Noches</span><span class="mv">2</span></div>
           <div class="tl-meta-item"><span class="ml">Comer</span><span class="mv">Testaccio, Trastevere &middot; &euro;20-30/d</span></div>
         </div>
+        <div class="tl-private">
+          <div class="tl-prv">
+            <h5>Alojamiento</h5>
+            <div class="tl-prv-item"><strong>YellowSquare</strong> &mdash; <span class="pr">~&euro;39/n</span><div class="sub">9.2&#9733; Termini. Bar con DJ cada noche, karaoke, cooking classes. El m&aacute;s social. <a href="https://www.hostelworld.com/hostels/p/743/yellowsquare-rome/" target="_blank">Reservar &rarr;</a></div></div>
+            <div class="tl-prv-item"><strong>Ostello Bello</strong> &mdash; <span class="pr">~&euro;25-35/n</span><div class="sub">9.0&#9733; Colosseo. Aperitivo diario, pub crawls. Mejor ubicaci&oacute;n.</div></div>
+            <div class="tl-prv-item"><strong>Generator</strong> &mdash; <span class="pr">~&euro;20-30/n</span><div class="sub">8.5&#9733; Termini. Rooftop bar, eventos nocturnos, dise&ntilde;o moderno.</div></div>
+          </div>
+          <div class="tl-prv">
+            <h5>Bares &amp; aperitivo</h5>
+            <div class="tl-prv-item"><strong>Freni e Frizioni</strong> (Trastevere) &mdash; buffet aperitivo, crowd joven universitario, siempre lleno.</div>
+            <div class="tl-prv-item"><strong>Bar San Calisto</strong> (Trastevere) &mdash; instituci&oacute;n, birra &lt;&euro;2, 100% locales.</div>
+            <div class="tl-prv-item"><strong>Ma Che Siete Venuti A F&agrave;</strong> &mdash; craft beer, gente en la calle, f&aacute;cil charlar.</div>
+            <div class="tl-prv-item"><strong>Testaccio</strong> &mdash; barrio m&aacute;s romano, clubs hasta tarde. <strong>San Lorenzo</strong> &mdash; universitario.</div>
+            <div class="tl-prv-tip">Freni e Frizioni viernes mayo = repleto. Llegar 18:30. Tinder passport activar 1 semana antes.</div>
+          </div>
+        </div>
       </div>
       <div class="tl-cost"><div class="day-cost">&euro;50/d</div><div class="running"><em>&euro;120</em></div><div class="running">acumulado</div></div>
     </div>
@@ -304,6 +331,22 @@
           <div class="tl-meta-item"><span class="ml">Dormir</span><span class="mv">Hostel &euro;20-30</span></div>
           <div class="tl-meta-item"><span class="ml">Noches</span><span class="mv">2</span></div>
           <div class="tl-meta-item"><span class="ml">Comer</span><span class="mv">Mercato Centrale, Oltrarno &middot; &euro;20-30/d</span></div>
+        </div>
+        <div class="tl-private">
+          <div class="tl-prv">
+            <h5>Alojamiento</h5>
+            <div class="tl-prv-item"><strong>YellowSquare Firenze</strong> &mdash; <span class="pr">~&euro;25-40/n</span><div class="sub">Nightclub subterr&aacute;neo 110m&sup2;, conciertos, wine tastings, piscina. El m&aacute;s fiestero.</div></div>
+            <div class="tl-prv-item"><strong>Ostello Bello Firenze</strong> &mdash; <span class="pr">~&euro;25-35/n</span><div class="sub">Welcome drink, aperitivo italiano, rooftop BBQ, bar 24h. Centro.</div></div>
+            <div class="tl-prv-item"><strong>Ostello Tasso</strong> &mdash; <span class="pr">~&euro;20-30/n</span><div class="sub">Mini teatro, m&uacute;sica en vivo, poes&iacute;a, pub crawls. Art&iacute;stico.</div></div>
+          </div>
+          <div class="tl-prv">
+            <h5>Bares &amp; aperitivo</h5>
+            <div class="tl-prv-item"><strong>Moyo</strong> (Via de' Benci) &mdash; aperitivo cl&aacute;sico florentino, siempre lleno.</div>
+            <div class="tl-prv-item"><strong>Red Garter</strong> (Santa Croce) &mdash; live music + karaoke, mezcla turistas y locales.</div>
+            <div class="tl-prv-item"><strong>Lo Sverso</strong> (San Lorenzo) &mdash; cocktails craft, barrio estudiantil, moscow mule casero.</div>
+            <div class="tl-prv-item"><strong>L'Gottino</strong> (Piazza Beccaria) &mdash; fuera del centro, 100% local, vinos + bruschetta.</div>
+            <div class="tl-prv-tip">Aperitivo 18-21h con buffet incluido. San Lorenzo = universitarias. Santa Croce viernes explota.</div>
+          </div>
         </div>
       </div>
       <div class="tl-cost"><div class="day-cost">&euro;55/d</div><div class="running"><em>&euro;230</em></div><div class="running">acumulado</div></div>
@@ -336,6 +379,19 @@
           <div class="tl-meta-item"><span class="ml">Noches</span><span class="mv">2</span></div>
           <div class="tl-meta-item"><span class="ml">Comer</span><span class="mv">Trofie al pesto, anchoas, focaccia &middot; &euro;20-35/d</span></div>
         </div>
+        <div class="tl-private">
+          <div class="tl-prv">
+            <h5>Alojamiento</h5>
+            <div class="tl-prv-item" style="color:#fbbf24;margin-bottom:8px">Reservar con anticipaci&oacute;n &mdash; CT se agota r&aacute;pido en mayo.</div>
+            <div class="tl-prv-item"><strong>Mar-Mar</strong> (Riomaggiore) &mdash; <span class="pr">~&euro;22-30/n</span><div class="sub">El m&aacute;s social de CT. Cocina compartida, tours, vibrante. <a href="https://www.hostelworld.com/hostels/p/27194/mar-mar/" target="_blank">Reservar &rarr;</a></div></div>
+            <div class="tl-prv-item"><strong>Ostello Corniglia</strong> &mdash; <span class="pr">9.1&#9733;</span><div class="sub">Mejor rating. Jard&iacute;n, 500m playa. M&aacute;s tranquilo.</div></div>
+            <div class="tl-prv-item"><strong>5 Terre Backpackers</strong> (Corvara) &mdash; <span class="pr">~&euro;19-25/n</span><div class="sub">Justo afuera del parque. Mejor overall.</div></div>
+          </div>
+          <div class="tl-prv">
+            <h5>Tips</h5>
+            <div class="tl-prv-tip">CT es m&aacute;s trekking/relax que nightlife. Socializar en el hostel. Vino al atardecer en Manarola = m&aacute;gico.</div>
+          </div>
+        </div>
       </div>
       <div class="tl-cost"><div class="day-cost">&euro;70/d</div><div class="running"><em>&euro;520</em></div><div class="running">acumulado</div></div>
     </div>
@@ -365,6 +421,22 @@
           <div class="tl-meta-item"><span class="ml">Dormir</span><span class="mv">Nice &mdash; Hostel &euro;15-25 / Airbnb &euro;40-60</span></div>
           <div class="tl-meta-item"><span class="ml">Noches</span><span class="mv">2</span></div>
           <div class="tl-meta-item"><span class="ml">Comer</span><span class="mv">Salade ni&ccedil;oise, socca, pan bagnat &middot; &euro;20-30/d</span></div>
+        </div>
+        <div class="tl-private">
+          <div class="tl-prv">
+            <h5>Alojamiento</h5>
+            <div class="tl-prv-item"><strong>Villa Saint Exup&eacute;ry Beach</strong> &mdash; <span class="pr">~&euro;35-45/n</span><div class="sub">THE party hostel de la Riviera. Happy hour diario, live music, pub crawl legendario, scuba, sailing. <a href="https://www.hostelworld.com/hostels/europe/france/nice/" target="_blank">Hostelworld &rarr;</a></div></div>
+            <div class="tl-prv-item"><strong>Antares Hostel</strong> &mdash; <span class="pr">~&euro;25-35/n</span><div class="sub">Ganador Hoscar. Centro, 10 min playa.</div></div>
+            <div class="tl-prv-item"><strong>H&ocirc;tel Ozz</strong> &mdash; <span class="pr">~&euro;20-30/n</span><div class="sub">Tema musical/art&iacute;stico, decor quirky.</div></div>
+          </div>
+          <div class="tl-prv">
+            <h5>Bares &amp; nightlife</h5>
+            <div class="tl-prv-item"><strong>Wayne's Bar</strong> (Vieux Nice) &mdash; cl&aacute;sico desde 1991, mezcla francesas + expats + viajeros.</div>
+            <div class="tl-prv-item"><strong>Shapko</strong> &mdash; jazz/blues en vivo cada noche. Relajado, &iacute;ntimo, local.</div>
+            <div class="tl-prv-item"><strong>Waka Bar</strong> &mdash; terraza frente al mar, cocktails, favorito de locales.</div>
+            <div class="tl-prv-item"><strong>Riviera Bar Crawl</strong> &mdash; pub crawl organizado, mejor forma de conocer gente r&aacute;pido.</div>
+            <div class="tl-prv-tip">Vieux Nice viernes/s&aacute;bado explota. Wayne's para arrancar, Shapko para cerrar. Francesas m&aacute;s reservadas que italianas &mdash; jazz bar > club.</div>
+          </div>
         </div>
       </div>
       <div class="tl-cost"><div class="day-cost">&euro;70/d</div><div class="running"><em>&euro;725</em></div><div class="running">acumulado</div></div>
@@ -567,212 +639,6 @@
   </div>
 
   </div>
-
-  <!-- ==================== SECCIONES PRIVADAS ==================== -->
-
-  <div class="private-only">
-
-    <div class="sl" style="color:var(--accent);opacity:0.6">Alojamiento &mdash; Personal</div>
-
-    <!-- ROMA -->
-    <div class="private-section">
-      <div class="c" style="margin-bottom:14px">
-        <h4>Roma &middot; 9&ndash;12 mayo &middot; 2 noches</h4>
-        <div class="g3" style="margin:0">
-          <div>
-            <div style="font-size:16px;font-weight:500;color:var(--accent);margin-bottom:4px">YellowSquare</div>
-            <div style="font-size:12px;color:var(--text)">Rating: <strong style="color:var(--text-bright)">9.2/10</strong> Hostelworld</div>
-            <div style="font-size:12px;color:var(--text)">Dorm: <strong style="color:var(--text-bright)">~&euro;39/n</strong></div>
-            <div style="font-size:12px;color:var(--text)">Zona: Termini (10 min walk)</div>
-            <div style="font-size:11px;color:var(--text-dim);margin-top:6px">Bar propio con DJ cada noche, karaoke, cooking classes. El m&aacute;s social de Roma por lejos. Mezcla viajeros + locales en el bar.</div>
-            <a class="tool-link" href="https://www.hostelworld.com/hostels/p/743/yellowsquare-rome/" target="_blank" rel="noopener" style="margin-top:8px;color:var(--accent)">Reservar en Hostelworld &rarr;</a>
-          </div>
-          <div>
-            <div style="font-size:16px;font-weight:500;color:var(--text-bright);margin-bottom:4px">Ostello Bello</div>
-            <div style="font-size:12px;color:var(--text)">Rating: <strong style="color:var(--text-bright)">9.0+/10</strong></div>
-            <div style="font-size:12px;color:var(--text)">Dorm: <strong style="color:var(--text-bright)">~&euro;25-35/n</strong></div>
-            <div style="font-size:12px;color:var(--text)">Zona: Colosseo</div>
-            <div style="font-size:11px;color:var(--text-dim);margin-top:6px">Aperitivo diario, pub crawls, karaoke. Staff organiza actividades grupales. Mejor ubicaci&oacute;n.</div>
-            <a class="tool-link" href="https://www.hostelworld.com/hostels/europe/italy/rome/" target="_blank" rel="noopener" style="margin-top:8px">Buscar en Hostelworld &rarr;</a>
-          </div>
-          <div>
-            <div style="font-size:16px;font-weight:500;color:var(--text-bright);margin-bottom:4px">Generator Rome</div>
-            <div style="font-size:12px;color:var(--text)">Rating: <strong style="color:var(--text-bright)">8.5+/10</strong></div>
-            <div style="font-size:12px;color:var(--text)">Dorm: <strong style="color:var(--text-bright)">~&euro;20-30/n</strong></div>
-            <div style="font-size:12px;color:var(--text)">Zona: Termini</div>
-            <div style="font-size:11px;color:var(--text-dim);margin-top:6px">Rooftop bar, chill-out bar, eventos nocturnos. Dise&ntilde;o moderno, ambiente internacional.</div>
-            <a class="tool-link" href="https://staygenerator.com/hostels/rome" target="_blank" rel="noopener" style="margin-top:8px">Generator &rarr;</a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- FIRENZE -->
-    <div class="private-section">
-      <div class="c" style="margin-bottom:14px">
-        <h4>Firenze &middot; 12&ndash;13 mayo &middot; 2 noches</h4>
-        <div class="g3" style="margin:0">
-          <div>
-            <div style="font-size:16px;font-weight:500;color:var(--accent);margin-bottom:4px">YellowSquare Firenze</div>
-            <div style="font-size:12px;color:var(--text)">Dorm: <strong style="color:var(--text-bright)">~&euro;25-40/n</strong></div>
-            <div style="font-size:11px;color:var(--text-dim);margin-top:6px">Nightclub subterr&aacute;neo con pista de 110m&sup2;, conciertos en vivo, cooking classes, wine tastings, yoga en la piscina. El m&aacute;s fiestero de Firenze.</div>
-            <a class="tool-link" href="https://www.hostelworld.com/hostels/europe/italy/florence/" target="_blank" rel="noopener" style="margin-top:8px;color:var(--accent)">Hostelworld &rarr;</a>
-          </div>
-          <div>
-            <div style="font-size:16px;font-weight:500;color:var(--text-bright);margin-bottom:4px">Ostello Bello Firenze</div>
-            <div style="font-size:12px;color:var(--text)">Dorm: <strong style="color:var(--text-bright)">~&euro;25-35/n</strong></div>
-            <div style="font-size:11px;color:var(--text-dim);margin-top:6px">Welcome drink, aperitivo italiano, fiestas tem&aacute;ticas, live music. Rooftop con BBQ. Bar 24h. Centro hist&oacute;rico.</div>
-          </div>
-          <div>
-            <div style="font-size:16px;font-weight:500;color:var(--text-bright);margin-bottom:4px">Ostello Tasso</div>
-            <div style="font-size:12px;color:var(--text)">Dorm: <strong style="color:var(--text-bright)">~&euro;20-30/n</strong></div>
-            <div style="font-size:11px;color:var(--text-dim);margin-top:6px">Mini teatro con m&uacute;sica en vivo, poes&iacute;a, movie nights. Staff organiza pub crawls. Atm&oacute;sfera art&iacute;stica.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- CINQUE TERRE -->
-    <div class="private-section">
-      <div class="c" style="margin-bottom:14px">
-        <h4>Cinque Terre &middot; 20&ndash;21 mayo &middot; 2 noches</h4>
-        <p style="font-size:11px;color:#fbbf24;margin-bottom:10px">Reservar con anticipaci&oacute;n &mdash; capacidad muy limitada en CT, se agotan r&aacute;pido en mayo.</p>
-        <div class="g3" style="margin:0">
-          <div>
-            <div style="font-size:16px;font-weight:500;color:var(--accent);margin-bottom:4px">Mar-Mar</div>
-            <div style="font-size:12px;color:var(--text)">Zona: <strong style="color:var(--text-bright)">Riomaggiore</strong></div>
-            <div style="font-size:12px;color:var(--text)">Dorm: <strong style="color:var(--text-bright)">~&euro;22-30/n</strong></div>
-            <div style="font-size:11px;color:var(--text-dim);margin-top:6px">El m&aacute;s social de CT. Cocina compartida, eventos, tours organizados. Vibrante para solo travelers.</div>
-            <a class="tool-link" href="https://www.hostelworld.com/hostels/p/27194/mar-mar/" target="_blank" rel="noopener" style="margin-top:8px;color:var(--accent)">Reservar &rarr;</a>
-          </div>
-          <div>
-            <div style="font-size:16px;font-weight:500;color:var(--text-bright);margin-bottom:4px">Ostello Corniglia</div>
-            <div style="font-size:12px;color:var(--text)">Zona: <strong style="color:var(--text-bright)">Corniglia</strong></div>
-            <div style="font-size:12px;color:var(--text)">Rating: <strong style="color:var(--text-bright)">9.1/10</strong></div>
-            <div style="font-size:11px;color:var(--text-dim);margin-top:6px">El mejor rating. Jard&iacute;n, common area, 500m de la playa. M&aacute;s tranquilo.</div>
-          </div>
-          <div>
-            <div style="font-size:16px;font-weight:500;color:var(--text-bright);margin-bottom:4px">5 Terre Backpackers</div>
-            <div style="font-size:12px;color:var(--text)">Zona: <strong style="color:var(--text-bright)">Corvara</strong></div>
-            <div style="font-size:12px;color:var(--text)">Dorm: <strong style="color:var(--text-bright)">~&euro;19-25/n</strong></div>
-            <div style="font-size:11px;color:var(--text-dim);margin-top:6px">Justo afuera del parque nacional. El mejor overall seg&uacute;n Broke Backpacker.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- NICE -->
-    <div class="private-section">
-      <div class="c" style="margin-bottom:14px">
-        <h4>Nice &middot; 23&ndash;24 mayo &middot; 2 noches</h4>
-        <div class="g3" style="margin:0">
-          <div>
-            <div style="font-size:16px;font-weight:500;color:var(--accent);margin-bottom:4px">Villa Saint Exup&eacute;ry Beach</div>
-            <div style="font-size:12px;color:var(--text)">Dorm: <strong style="color:var(--text-bright)">~&euro;35-45/n</strong></div>
-            <div style="font-size:11px;color:var(--text-dim);margin-top:6px">THE party hostel de la Riviera. Happy hour diario con live music, pub crawl legendario, scuba, sailing. Una pinta tranquila puede terminar en all-nighter.</div>
-            <a class="tool-link" href="https://www.hostelworld.com/hostels/europe/france/nice/" target="_blank" rel="noopener" style="margin-top:8px;color:var(--accent)">Hostelworld &rarr;</a>
-          </div>
-          <div>
-            <div style="font-size:16px;font-weight:500;color:var(--text-bright);margin-bottom:4px">Antares Hostel</div>
-            <div style="font-size:12px;color:var(--text)">Dorm: <strong style="color:var(--text-bright)">~&euro;25-35/n</strong></div>
-            <div style="font-size:11px;color:var(--text-dim);margin-top:6px">Ganador Hoscar &ldquo;Most Popular Nice&rdquo;. Centro, 10 min a la playa. Buen ambiente social.</div>
-          </div>
-          <div>
-            <div style="font-size:16px;font-weight:500;color:var(--text-bright);margin-bottom:4px">H&ocirc;tel Ozz</div>
-            <div style="font-size:12px;color:var(--text)">Dorm: <strong style="color:var(--text-bright)">~&euro;20-30/n</strong></div>
-            <div style="font-size:11px;color:var(--text-dim);margin-top:6px">Tema musical/art&iacute;stico, decor quirky, vibe moderna.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- BARES POR CIUDAD -->
-    <div class="sl" style="color:var(--accent);opacity:0.6">Bares &amp; vida nocturna &mdash; Personal</div>
-
-    <div class="private-section">
-      <div class="c" style="margin-bottom:14px">
-        <h4>Roma &middot; Aperitivo &amp; Bares</h4>
-        <p style="font-size:12px;color:var(--text-dim);margin-bottom:12px">Aperitivo = happy hour, 18:00&ndash;20:30. El mejor momento para socializar.</p>
-        <div class="g2" style="margin:0">
-          <div>
-            <div style="font-size:14px;font-weight:500;color:var(--accent);margin-bottom:8px">Trastevere</div>
-            <div style="font-size:13px;color:var(--text);margin-bottom:6px"><strong style="color:var(--text-bright)">Freni e Frizioni</strong> &mdash; buffet aperitivo, crowd joven universitario, siempre lleno. Tu mejor apuesta.</div>
-            <div style="font-size:13px;color:var(--text);margin-bottom:6px"><strong style="color:var(--text-bright)">Bar San Calisto</strong> &mdash; instituci&oacute;n romana, birra &lt;&euro;2, mezcla total de locales.</div>
-            <div style="font-size:13px;color:var(--text);margin-bottom:6px"><strong style="color:var(--text-bright)">Ma Che Siete Venuti A F&agrave;</strong> &mdash; cervecer&iacute;a craft, locales en la calle.</div>
-            <div style="font-size:13px;color:var(--text);margin-bottom:6px"><strong style="color:var(--text-bright)">Culto Trastevere</strong> &mdash; &iacute;ntimo, tapas con cada drink, Piazza Trilussa.</div>
-          </div>
-          <div>
-            <div style="font-size:14px;font-weight:500;color:var(--accent);margin-bottom:8px">Otros barrios</div>
-            <div style="font-size:13px;color:var(--text);margin-bottom:6px"><strong style="color:var(--text-bright)">Testaccio</strong> &mdash; el m&aacute;s romano, clubs hasta tarde.</div>
-            <div style="font-size:13px;color:var(--text);margin-bottom:6px"><strong style="color:var(--text-bright)">San Lorenzo</strong> &mdash; universitario, barato, joven.</div>
-            <div style="font-size:13px;color:var(--text);margin-bottom:6px"><strong style="color:var(--text-bright)">Monti</strong> &mdash; wine bars &iacute;ntimos, sofisticado.</div>
-            <div style="font-size:12px;color:var(--accent);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">Pro tip: Freni e Frizioni viernes mayo = repleto. Llegar 18:30.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="c" style="margin-bottom:14px">
-        <h4>Firenze &middot; Aperitivo &amp; Bares</h4>
-        <div class="g2" style="margin:0">
-          <div>
-            <div style="font-size:14px;font-weight:500;color:var(--accent);margin-bottom:8px">Santa Croce / Centro</div>
-            <div style="font-size:13px;color:var(--text);margin-bottom:6px"><strong style="color:var(--text-bright)">Piazza Santa Croce</strong> &mdash; zona m&aacute;s din&aacute;mica, pubs + bares casuales, crowd joven diverso.</div>
-            <div style="font-size:13px;color:var(--text);margin-bottom:6px"><strong style="color:var(--text-bright)">Moyo</strong> (Via de' Benci) &mdash; aperitivo cl&aacute;sico florentino, siempre lleno.</div>
-            <div style="font-size:13px;color:var(--text);margin-bottom:6px"><strong style="color:var(--text-bright)">Red Garter</strong> &mdash; bar m&aacute;s antiguo, live music + karaoke, mezcla turistas y locales.</div>
-            <div style="font-size:13px;color:var(--text);margin-bottom:6px"><strong style="color:var(--text-bright)">Oib&ograve;</strong> (Borgo dei Greci) &mdash; aperitivo con buffet.</div>
-          </div>
-          <div>
-            <div style="font-size:14px;font-weight:500;color:var(--accent);margin-bottom:8px">Locales</div>
-            <div style="font-size:13px;color:var(--text);margin-bottom:6px"><strong style="color:var(--text-bright)">San Lorenzo</strong> &mdash; barrio estudiantil, bares budget, craft beer. Lo Sverso para cocktails.</div>
-            <div style="font-size:13px;color:var(--text);margin-bottom:6px"><strong style="color:var(--text-bright)">San Niccol&ograve;</strong> &mdash; Rifrullo para aperitivo, m&aacute;s local y tranquilo.</div>
-            <div style="font-size:13px;color:var(--text);margin-bottom:6px"><strong style="color:var(--text-bright)">L'Gottino</strong> (Piazza Beccaria) &mdash; fuera del centro, 100% local, vinos + bruschetta.</div>
-            <div style="font-size:12px;color:var(--accent);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">Pro tip: Aperitivo 18-21h con buffet incluido en la mayor&iacute;a de bares. San Lorenzo = universitarias.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="c" style="margin-bottom:14px">
-        <h4>Nice &middot; Bares &amp; Vida nocturna</h4>
-        <div class="g2" style="margin:0">
-          <div>
-            <div style="font-size:14px;font-weight:500;color:var(--accent);margin-bottom:8px">Vieux Nice (Old Town)</div>
-            <div style="font-size:13px;color:var(--text);margin-bottom:6px"><strong style="color:var(--text-bright)">Wayne's Bar</strong> &mdash; cl&aacute;sico desde 1991, mezcla francesas + expats + viajeros. Buen punto de partida.</div>
-            <div style="font-size:13px;color:var(--text);margin-bottom:6px"><strong style="color:var(--text-bright)">Shapko</strong> &mdash; jazz/blues en vivo cada noche. Relajado, &iacute;ntimo, local.</div>
-            <div style="font-size:13px;color:var(--text);margin-bottom:6px"><strong style="color:var(--text-bright)">Bella Ciao</strong> &mdash; peque&ntilde;o, alegre, pastis y ambiente del sur de Francia.</div>
-          </div>
-          <div>
-            <div style="font-size:14px;font-weight:500;color:var(--accent);margin-bottom:8px">Playa &amp; otros</div>
-            <div style="font-size:13px;color:var(--text);margin-bottom:6px"><strong style="color:var(--text-bright)">Waka Bar</strong> &mdash; terraza frente al mar, cocktails, favorito de locales y turistas.</div>
-            <div style="font-size:13px;color:var(--text);margin-bottom:6px"><strong style="color:var(--text-bright)">Riviera Bar Crawl</strong> &mdash; pub crawl organizado, mejor forma de conocer gente r&aacute;pido.</div>
-            <div style="font-size:12px;color:var(--accent);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">Pro tip: Vieux Nice viernes/s&aacute;bado explota. Wayne's para arrancar, Shapko para cerrar con jazz.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- NOTAS PERSONALES -->
-    <div class="sl" style="color:var(--accent);opacity:0.6">Notas personales</div>
-    <div class="private-section">
-      <div class="c">
-        <h4>Tips</h4>
-        <ul>
-          <li>Hostel con bar propio = conocer gente sin esfuerzo</li>
-          <li>Aperitivo 18-20:30 es la ventana social clave en Italia</li>
-          <li>Trastevere viernes/s&aacute;bado &gt; cualquier otro d&iacute;a</li>
-          <li>Aprender frases b&aacute;sicas en italiano = game changer</li>
-          <li>Testaccio para una noche m&aacute;s local, San Lorenzo si quer&eacute;s universitarias</li>
-          <li>En Firenze: Santa Croce viernes, San Lorenzo entre semana</li>
-          <li>CT: m&aacute;s para trekking/relax que nightlife, socializar en el hostel</li>
-          <li>Nice: Vieux Nice es todo &mdash; arrancar en Wayne's, cerrar en Shapko</li>
-          <li>Apps: Tinder en modo passport activar Roma 1 semana antes</li>
-          <li>Francesas: m&aacute;s reservadas que italianas, aperitivo/jazz bar funciona mejor que club</li>
-        </ul>
-      </div>
-    </div>
-
-  </div>
-
-</div>
 
 <div class="footer">
   Skywalking &middot; Mentat &middot; 2026-03-21
