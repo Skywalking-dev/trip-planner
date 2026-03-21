@@ -142,6 +142,26 @@
     .footer { padding:40px 56px; text-align:center; font-size:11px; color:var(--text-dim); letter-spacing:0.5px; }
     .footer .tag { color:var(--accent); opacity:0.5; margin-top:4px; }
 
+    /* private mode */
+    .private-only { display:none; }
+    body.full .private-only { display:block; }
+    body.full .private-grid { display:grid; }
+
+    /* secret toggle */
+    .secret-toggle {
+      position:fixed; top:16px; right:16px; z-index:9999;
+      width:36px; height:36px; border-radius:8px;
+      background:transparent; border:1px solid rgba(255,255,255,0.04);
+      cursor:pointer; transition:all 0.2s;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,0.03), 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .secret-toggle:hover { border-color:rgba(255,255,255,0.08); box-shadow:inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 6px rgba(0,0,0,0.15); }
+    .secret-toggle:active { transform:scale(0.95); }
+    body.full .secret-toggle { border-color:rgba(212,175,55,0.12); box-shadow:inset 0 1px 0 rgba(212,175,55,0.06), 0 1px 4px rgba(0,0,0,0.1); }
+
+    /* private section styling */
+    .private-section { border-left:2px solid rgba(212,175,55,0.15); padding-left:20px; margin:14px 0; }
+
     @media(max-width:900px) {
       .g2,.g3,.g4 { grid-template-columns:1fr; }
       .cx { padding:24px 20px 48px; }
@@ -153,6 +173,23 @@
   </style>
 </head>
 <body>
+
+<button class="secret-toggle" id="secretBtn" title=" "></button>
+<script>
+  // Toggle private mode
+  (function(){
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('mode') === 'full') document.body.classList.add('full');
+    document.getElementById('secretBtn').addEventListener('click', function(){
+      document.body.classList.toggle('full');
+      const isFull = document.body.classList.contains('full');
+      const url = new URL(window.location);
+      if (isFull) url.searchParams.set('mode','full');
+      else url.searchParams.delete('mode');
+      window.history.replaceState({},'',url);
+    });
+  })();
+</script>
 
 <div class="hero">
   <div id="map"></div>
@@ -527,6 +564,91 @@
         <li>TravelSpend configurado con presupuesto diario</li>
       </ul>
     </div>
+  </div>
+
+  </div>
+
+  <!-- ==================== SECCIONES PRIVADAS ==================== -->
+
+  <div class="private-only">
+
+    <div class="sl" style="color:var(--accent);opacity:0.6">Alojamiento &mdash; Personal</div>
+
+    <!-- ROMA -->
+    <div class="private-section">
+      <div class="c" style="margin-bottom:14px">
+        <h4>Roma &middot; 9&ndash;12 mayo &middot; 2 noches</h4>
+        <div class="g3" style="margin:0">
+          <div>
+            <div style="font-size:16px;font-weight:500;color:var(--accent);margin-bottom:4px">YellowSquare</div>
+            <div style="font-size:12px;color:var(--text)">Rating: <strong style="color:var(--text-bright)">9.2/10</strong> Hostelworld</div>
+            <div style="font-size:12px;color:var(--text)">Dorm: <strong style="color:var(--text-bright)">~&euro;39/n</strong></div>
+            <div style="font-size:12px;color:var(--text)">Zona: Termini (10 min walk)</div>
+            <div style="font-size:11px;color:var(--text-dim);margin-top:6px">Bar propio con DJ cada noche, karaoke, cooking classes. El m&aacute;s social de Roma por lejos. Mezcla viajeros + locales en el bar.</div>
+            <a class="tool-link" href="https://www.hostelworld.com/hostels/p/743/yellowsquare-rome/" target="_blank" rel="noopener" style="margin-top:8px;color:var(--accent)">Reservar en Hostelworld &rarr;</a>
+          </div>
+          <div>
+            <div style="font-size:16px;font-weight:500;color:var(--text-bright);margin-bottom:4px">Ostello Bello</div>
+            <div style="font-size:12px;color:var(--text)">Rating: <strong style="color:var(--text-bright)">9.0+/10</strong></div>
+            <div style="font-size:12px;color:var(--text)">Dorm: <strong style="color:var(--text-bright)">~&euro;25-35/n</strong></div>
+            <div style="font-size:12px;color:var(--text)">Zona: Colosseo</div>
+            <div style="font-size:11px;color:var(--text-dim);margin-top:6px">Aperitivo diario, pub crawls, karaoke. Staff organiza actividades grupales. Mejor ubicaci&oacute;n.</div>
+            <a class="tool-link" href="https://www.hostelworld.com/hostels/europe/italy/rome/" target="_blank" rel="noopener" style="margin-top:8px">Buscar en Hostelworld &rarr;</a>
+          </div>
+          <div>
+            <div style="font-size:16px;font-weight:500;color:var(--text-bright);margin-bottom:4px">Generator Rome</div>
+            <div style="font-size:12px;color:var(--text)">Rating: <strong style="color:var(--text-bright)">8.5+/10</strong></div>
+            <div style="font-size:12px;color:var(--text)">Dorm: <strong style="color:var(--text-bright)">~&euro;20-30/n</strong></div>
+            <div style="font-size:12px;color:var(--text)">Zona: Termini</div>
+            <div style="font-size:11px;color:var(--text-dim);margin-top:6px">Rooftop bar, chill-out bar, eventos nocturnos. Dise&ntilde;o moderno, ambiente internacional.</div>
+            <a class="tool-link" href="https://staygenerator.com/hostels/rome" target="_blank" rel="noopener" style="margin-top:8px">Generator &rarr;</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BARES PARA CONOCER GENTE -->
+    <div class="sl" style="color:var(--accent);opacity:0.6">Bares &amp; vida nocturna &mdash; Personal</div>
+
+    <div class="private-section">
+      <div class="c" style="margin-bottom:14px">
+        <h4>Roma &middot; Aperitivo &amp; Bares (donde conocer italianas)</h4>
+        <p style="font-size:12px;color:var(--text-dim);margin-bottom:12px">Aperitivo = happy hour romano, 18:00&ndash;20:30. El mejor momento para socializar.</p>
+        <div class="g2" style="margin:0">
+          <div>
+            <div style="font-size:14px;font-weight:500;color:var(--accent);margin-bottom:8px">Trastevere</div>
+            <div style="font-size:13px;color:var(--text);margin-bottom:6px"><strong style="color:var(--text-bright)">Freni e Frizioni</strong> &mdash; buffet aperitivo, crowd joven universitario, siempre lleno. Tu mejor apuesta.</div>
+            <div style="font-size:13px;color:var(--text);margin-bottom:6px"><strong style="color:var(--text-bright)">Bar San Calisto</strong> &mdash; instituci&oacute;n romana, birra &lt;&euro;2, mezcla total de locales. Zero turistas.</div>
+            <div style="font-size:13px;color:var(--text);margin-bottom:6px"><strong style="color:var(--text-bright)">Ma Che Siete Venuti A F&agrave;</strong> &mdash; cervecer&iacute;a craft, locales en la calle, f&aacute;cil charlar.</div>
+            <div style="font-size:13px;color:var(--text);margin-bottom:6px"><strong style="color:var(--text-bright)">Culto Trastevere</strong> &mdash; &iacute;ntimo, tapas con cada drink, alley escondido junto a Piazza Trilussa.</div>
+          </div>
+          <div>
+            <div style="font-size:14px;font-weight:500;color:var(--accent);margin-bottom:8px">Otros barrios</div>
+            <div style="font-size:13px;color:var(--text);margin-bottom:6px"><strong style="color:var(--text-bright)">Testaccio</strong> &mdash; barrio m&aacute;s romano, menos turistas. Bares y clubs hasta tarde. Lo m&aacute;s aut&eacute;ntico.</div>
+            <div style="font-size:13px;color:var(--text);margin-bottom:6px"><strong style="color:var(--text-bright)">San Lorenzo</strong> &mdash; barrio universitario. Barato, joven, local.</div>
+            <div style="font-size:13px;color:var(--text);margin-bottom:6px"><strong style="color:var(--text-bright)">Monti</strong> &mdash; wine bars &iacute;ntimos, m&aacute;s sofisticado, buen mix de edad.</div>
+            <div style="font-size:12px;color:var(--accent);margin-top:12px;padding-top:8px;border-top:1px solid var(--border)">Pro tip: Freni e Frizioni un viernes de mayo = repleto de italianas. Llegar 18:30.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTAS PERSONALES -->
+    <div class="sl" style="color:var(--accent);opacity:0.6">Notas personales</div>
+    <div class="private-section">
+      <div class="c">
+        <h4>Tips</h4>
+        <ul>
+          <li>Hostel con bar propio = conocer gente sin esfuerzo</li>
+          <li>Aperitivo 18-20:30 es la ventana social clave en Italia</li>
+          <li>Trastevere viernes/s&aacute;bado &gt; cualquier otro d&iacute;a</li>
+          <li>Aprender frases b&aacute;sicas en italiano = game changer</li>
+          <li>Testaccio para una noche m&aacute;s local, San Lorenzo si quer&eacute;s universitarias</li>
+          <li>Apps: Tinder en modo passport activar Roma 1 semana antes</li>
+        </ul>
+      </div>
+    </div>
+
   </div>
 
 </div>
