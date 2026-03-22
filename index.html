@@ -1217,69 +1217,68 @@
       routeLines.push(line);
     });
 
-    // Route comparison panel (bottom-left of map)
-    const panel = L.control({ position:'bottomleft' });
-    panel.onAdd = function() {
-      const d = L.DomUtil.create('div');
-      d.style.cssText = 'background:rgba(10,15,20,0.94);border-radius:8px;border:1px solid rgba(255,255,255,0.06);font-family:Plus Jakarta Sans,system-ui;padding:0;min-width:320px;max-width:380px;';
-      d.setAttribute('data-testid','route-panel');
+    // Route comparison panel — right side of map, full height
+    const panelEl = document.createElement('div');
+    panelEl.setAttribute('data-testid','route-panel');
+    panelEl.style.cssText = 'position:absolute;top:0;right:0;width:300px;height:100%;z-index:1500;background:rgba(10,15,20,0.92);border-left:1px solid rgba(255,255,255,0.06);font-family:Plus Jakarta Sans,system-ui;display:none;flex-direction:column;overflow-y:auto;';
 
-      let html = '<div style="padding:10px 14px 6px;border-bottom:1px solid rgba(255,255,255,0.06)">'
-        + '<div style="font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(239,238,233,0.38)">Comparar rutas desde Milan</div>'
-        + '<div style="font-size:10px;color:rgba(239,238,233,0.25);margin-top:2px">Costos fijos: €' + FIXED_EUR + ' (Roma+Milan+BCN) · vuelos int. $' + FIXED_USD + '</div>'
-        + '</div>';
+    // Only show in private mode
+    if (document.body.classList.contains('full')) panelEl.style.display = 'flex';
 
-      routes.forEach((route, i) => {
-        const segmentCost = route.flightCost + route.busCost + (route.nights * route.dailyCost);
-        const totalEur = FIXED_EUR + segmentCost;
-        const totalUsd = FIXED_USD + Math.round(totalEur * 1.08);
+    let html = '<div style="padding:14px 16px 8px;border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0">'
+      + '<div style="font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(239,238,233,0.38)">Comparar rutas</div>'
+      + '<div style="font-size:10px;color:rgba(239,238,233,0.25);margin-top:4px">Fijos: €' + FIXED_EUR + ' (Roma+Milan+BCN)</div>'
+      + '<div style="font-size:10px;color:rgba(239,238,233,0.25)">Vuelos int: $' + FIXED_USD + ' (pagados)</div>'
+      + '</div>';
 
-        html += '<div class="route-row" data-route-idx="' + i + '" style="padding:8px 14px;border-bottom:1px solid rgba(255,255,255,0.03);cursor:pointer;transition:background 150ms">'
-          + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">'
-            + '<span style="display:inline-block;width:10px;height:3px;border-radius:2px;background:' + route.color + ';opacity:0.7"></span>'
-            + '<span style="font-size:12px;font-weight:500;color:#EFEEE9">' + route.name + '</span>'
-          + '</div>'
-          + '<div style="font-size:10px;color:rgba(239,238,233,0.4);margin-left:18px;margin-bottom:4px">' + route.stops + '</div>'
-          + '<div style="display:flex;gap:12px;margin-left:18px;font-size:10px">'
-            + '<span style="color:rgba(239,238,233,0.5)">Vuelos <strong style="color:' + route.color + '">€' + route.flightCost + '</strong></span>'
-            + '<span style="color:rgba(239,238,233,0.5)">' + (route.busCost > 100 ? 'Auto+peajes' : 'Buses') + ' <strong style="color:rgba(239,238,233,0.6)">€' + route.busCost + '</strong></span>'
-            + '<span style="color:rgba(239,238,233,0.5)">Vida <strong style="color:rgba(239,238,233,0.6)">€' + (route.nights * route.dailyCost) + '</strong></span>'
-            + '<span style="color:rgba(239,238,233,0.5)">Segmento <strong style="color:#EFEEE9">€' + segmentCost + '</strong></span>'
-          + '</div>'
-          + '<div style="display:flex;justify-content:space-between;margin-left:18px;margin-top:4px;padding-top:4px;border-top:1px solid rgba(255,255,255,0.03)">'
-            + '<span style="font-size:11px;color:rgba(239,238,233,0.4)">Total viaje</span>'
-            + '<span style="font-size:12px;font-weight:600;color:' + route.color + '">€' + totalEur + ' <span style="font-weight:400;font-size:10px;color:rgba(239,238,233,0.35)">~$' + totalUsd + '</span></span>'
-          + '</div>'
-        + '</div>';
-      });
+    routes.forEach((route, i) => {
+      const segmentCost = route.flightCost + route.busCost + (route.nights * route.dailyCost);
+      const totalEur = FIXED_EUR + segmentCost;
+      const totalUsd = FIXED_USD + Math.round(totalEur * 1.08);
 
-      d.innerHTML = html;
+      html += '<div class="route-row" data-route-idx="' + i + '" style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:background 150ms">'
+        + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">'
+          + '<span style="display:inline-block;width:12px;height:3px;border-radius:2px;background:' + route.color + '"></span>'
+          + '<span style="font-size:13px;font-weight:600;color:#EFEEE9">' + route.name + '</span>'
+        + '</div>'
+        + '<div style="font-size:10px;color:rgba(239,238,233,0.35);margin-left:20px;margin-bottom:6px">' + route.stops + '</div>'
+        + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin-left:20px;font-size:10px">'
+          + '<span style="color:rgba(239,238,233,0.45)">Vuelos</span><span style="color:' + route.color + ';font-weight:600;text-align:right">€' + route.flightCost + '</span>'
+          + '<span style="color:rgba(239,238,233,0.45)">' + (route.busCost > 100 ? 'Auto+peajes' : 'Buses') + '</span><span style="color:rgba(239,238,233,0.55);text-align:right">€' + route.busCost + '</span>'
+          + '<span style="color:rgba(239,238,233,0.45)">Vida (' + route.nights + 'n × €' + route.dailyCost + '/d)</span><span style="color:rgba(239,238,233,0.55);text-align:right">€' + (route.nights * route.dailyCost) + '</span>'
+        + '</div>'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-left:20px;margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.04)">'
+          + '<span style="font-size:10px;color:rgba(239,238,233,0.35)">Total viaje</span>'
+          + '<span style="font-size:14px;font-weight:600;color:' + route.color + '">€' + totalEur + ' <span style="font-weight:400;font-size:10px;color:rgba(239,238,233,0.3)">~$' + totalUsd + '</span></span>'
+        + '</div>'
+      + '</div>';
+    });
 
-      // Hover interaction
-      L.DomEvent.disableClickPropagation(d);
-      d.querySelectorAll('.route-row').forEach(row => {
-        row.addEventListener('mouseenter', function() {
-          const idx = parseInt(this.dataset.routeIdx);
-          this.style.background = 'rgba(255,255,255,0.03)';
-          routeLines.forEach((line, j) => {
-            if (j === idx) {
-              line.setStyle({ color: routes[j].color, weight: 3.5, opacity: 0.8 });
-            } else {
-              line.setStyle({ color: GRAY, weight: 2, opacity: 0.5 });
-            }
-          });
-        });
-        row.addEventListener('mouseleave', function() {
-          this.style.background = 'transparent';
-          routeLines.forEach(line => {
-            line.setStyle({ color: GRAY, weight: 2.5, opacity: 1 });
-          });
+    panelEl.innerHTML = html;
+
+    // Hover interaction
+    panelEl.querySelectorAll('.route-row').forEach(row => {
+      row.addEventListener('mouseenter', function() {
+        const idx = parseInt(this.dataset.routeIdx);
+        this.style.background = 'rgba(255,255,255,0.04)';
+        routeLines.forEach((line, j) => {
+          if (j === idx) {
+            line.setStyle({ color: routes[j].color, weight: 3.5, opacity: 0.85 });
+          } else {
+            line.setStyle({ color: 'rgba(239,238,233,0.08)', weight: 1.5, opacity: 1 });
+          }
         });
       });
+      row.addEventListener('mouseleave', function() {
+        this.style.background = 'transparent';
+        routeLines.forEach(line => {
+          line.setStyle({ color: GRAY, weight: 2.5, opacity: 1 });
+        });
+      });
+    });
 
-      return d;
-    };
-    panel.addTo(map);
+    // Append to hero container (not leaflet control)
+    document.querySelector('.hero').appendChild(panelEl);
   }
 
   function highlightDestCodes(text) {
