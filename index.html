@@ -239,7 +239,7 @@
     }
 
     /* Leaflet custom popup — dark theme */
-    .leaflet-popup-content-wrapper.dest-popup-wrap {
+    .dest-popup-wrap .leaflet-popup-content-wrapper {
       background:rgba(17,23,30,0.97) !important;
       border:1px solid rgba(212,175,55,0.18) !important;
       border-radius:8px !important;
@@ -247,9 +247,10 @@
       padding:0 !important;
       min-width:220px;
     }
-    .leaflet-popup-tip-container { display:none !important; }
-    .leaflet-popup-close-button { color:rgba(239,238,233,0.4) !important; top:8px !important; right:10px !important; font-size:16px !important; }
-    .leaflet-popup-close-button:hover { color:var(--accent) !important; }
+    .dest-popup-wrap .leaflet-popup-content { margin:0 !important; }
+    .dest-popup-wrap .leaflet-popup-tip { background:rgba(17,23,30,0.97) !important; border:1px solid rgba(212,175,55,0.18) !important; border-top:none !important; border-left:none !important; }
+    .dest-popup-wrap .leaflet-popup-close-button { color:rgba(239,238,233,0.4) !important; top:8px !important; right:10px !important; font-size:16px !important; }
+    .dest-popup-wrap .leaflet-popup-close-button:hover { color:var(--accent) !important; }
     .dest-popup-inner { padding:16px; }
     .dest-popup-header { display:flex; align-items:baseline; gap:8px; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.06); }
     .dest-popup-city { font-size:15px; font-weight:600; color:#EFEEE9; }
@@ -942,10 +943,36 @@
       +'</div>'
     +'</div>';
 
-    L.marker([s[0],s[1]],{
+    const m = L.marker([s[0],s[1]],{
       icon: L.divIcon({className:'',html:dotHtml,iconSize:[dotSize,dotSize],iconAnchor:[dotSize/2,dotSize/2]}),
       zIndexOffset: 1000
     }).addTo(map);
+
+    // Popup info for main cities (private only)
+    const cityInfo = {
+      'Roma':     { nights:'2', cost:'€50/d', tips:'Colosseo, Trastevere, cacio e pepe', transport:'Vuelo BCN→FCO incluido' },
+      'Firenze':  { nights:'2', cost:'€55/d', tips:'Duomo, Uffizi, lampredotto', transport:'Italo 1.5h €15-25' },
+      'Milan':    { nights:'5 (gratis)', cost:'€25/d', tips:'Navigli, Como day trip, Última Cena', transport:'Italo 1h45 €15-30' },
+      'Cinque Terre':{ nights:'2', cost:'€70/d', tips:'Trekking costero, Sciacchetrà', transport:'Auto desde Milan 3h' },
+      'Nice':     { nights:'2', cost:'€60/d', tips:'Promenade, Vieux Nice, Riviera', transport:'Auto costero' },
+      'Marseille': { nights:'1', cost:'€55/d', tips:'Vieux Port, calanques, bouillabaisse', transport:'Auto 2.5h' },
+      'Montpellier':{ nights:'1', cost:'€45/d', tips:'Place Comédie, Écusson', transport:'Tren 1.5h €15' },
+      'Barcelona': { nights:'15 (gratis)', cost:'€30/d', tips:'Cumple 31 may, Mary Carmen', transport:'Tren 3h €30-50' },
+    };
+    const ci = cityInfo[s[2]];
+    if (ci && document.body.classList.contains('full')) {
+      m.bindPopup(`
+        <div class="dest-popup-inner">
+          <div class="dest-popup-header">
+            <span class="dest-popup-city">${s[2]}</span>
+            <span class="dest-popup-country">${ci.nights} noches</span>
+          </div>
+          <div class="dest-popup-row"><span class="dest-popup-label">Costo diario</span><span class="dest-popup-val">${ci.cost}</span></div>
+          <div class="dest-popup-row"><span class="dest-popup-label">Transporte</span><span class="dest-popup-val" style="font-weight:400;color:var(--text);font-size:11px">${ci.transport}</span></div>
+          <hr class="dest-popup-divider">
+          <div style="font-size:11px;color:rgba(239,238,233,0.5);line-height:1.5">${ci.tips}</div>
+        </div>`, { className:'dest-popup-wrap', maxWidth:240, closeButton:true });
+    }
   });
 
   minor.forEach(s=>{
@@ -1083,17 +1110,19 @@
   const allPts = main.map(s=>[s[0],s[1]]).concat(minor.map(s=>[s[0],s[1]])).concat(destPts);
   map.fitBounds(L.latLngBounds(allPts).pad(0.08));
 
-  // Legend
-  const lg=L.control({position:'bottomleft'});
-  lg.onAdd=function(){
-    const d=L.DomUtil.create('div');
-    d.style.cssText='background:rgba(10,15,20,0.92);padding:12px 16px;border-radius:8px;font-family:Plus Jakarta Sans,system-ui;font-size:11px;color:rgba(239,238,233,0.6);border:1px solid rgba(255,255,255,0.06);line-height:2';
-    d.innerHTML='<div style="display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:24px;height:3px;background:#D4AF37;border-radius:2px"></span>Auto (road trip)</div>'
-      +'<div style="display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:24px;height:0;border-top:2px dashed #EFEEE9;opacity:0.5"></span>Tren</div>'
-      +'<div style="display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:24px;height:0;border-top:2px dashed #4ade80;opacity:0.6"></span>Vuelo (booked)</div>';
-    return d;
-  };
-  lg.addTo(map);
+  // Legend (public mode only — route panel replaces it in private)
+  if (!document.body.classList.contains('full')) {
+    const lg=L.control({position:'bottomleft'});
+    lg.onAdd=function(){
+      const d=L.DomUtil.create('div');
+      d.style.cssText='background:rgba(10,15,20,0.92);padding:12px 16px;border-radius:8px;font-family:Plus Jakarta Sans,system-ui;font-size:11px;color:rgba(239,238,233,0.6);border:1px solid rgba(255,255,255,0.06);line-height:2';
+      d.innerHTML='<div style="display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:24px;height:3px;background:#D4AF37;border-radius:2px"></span>Auto (road trip)</div>'
+        +'<div style="display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:24px;height:0;border-top:2px dashed #EFEEE9;opacity:0.5"></span>Tren</div>'
+        +'<div style="display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:24px;height:0;border-top:2px dashed #4ade80;opacity:0.6"></span>Vuelo (booked)</div>';
+      return d;
+    };
+    lg.addTo(map);
+  }
 
   // === DESTINATION MARKERS ===
   const destinations = [
@@ -1148,6 +1177,110 @@
     marker.addTo(map);
     destMarkerMap[dest.code] = marker;
   });
+
+  // === PROPOSED ROUTES (private only) ===
+  if (document.body.classList.contains('full')) {
+    const GRAY = 'rgba(239,238,233,0.2)';
+    const routes = [
+      { id:1, name:'Balcanes central', color:'#4ade80', stops:'Milan → Budapest → Belgrade → Sofia → BCN',
+        flightCost:67, busCost:27, nights:12, dailyCost:37, // avg
+        points:[[45.4642,9.19],[47.4979,19.04],[44.7866,20.4489],[42.6977,23.32],[41.3874,2.17]] },
+      { id:2, name:'Balcanes sur', color:'#60a5fa', stops:'Milan → Sofia → Skopje → Tirana → BCN',
+        flightCost:88, busCost:25, nights:12, dailyCost:32,
+        points:[[45.4642,9.19],[42.6977,23.32],[41.9973,21.43],[41.3275,19.82],[41.3874,2.17]] },
+      { id:3, name:'Grecia', color:'#f472b6', stops:'Milan → Atenas + islas → BCN',
+        flightCost:142, busCost:0, nights:12, dailyCost:45,
+        points:[[45.4642,9.19],[37.9838,23.73],[41.3874,2.17]] },
+      { id:4, name:'Riviera (original)', color:'#D4AF37', stops:'Milan → CT → Riviera → Nice → Marseille → BCN',
+        flightCost:0, busCost:180, nights:12, dailyCost:55, // auto+peajes+gasolina
+        points:[[45.4642,9.19],[44.1461,9.64],[43.8172,7.78],[43.7102,7.26],[43.2965,5.37],[43.6108,3.88],[41.3874,2.17]] },
+    ];
+
+    // Fixed costs (same for all routes)
+    const FIXED = {
+      intlFlights: 1424, // USD, already paid
+      roma: 120,   // 2n × €50/d + food
+      milan: 125,  // 5n × €25/d food only
+      bcn: 450,    // 15n × €30/d food only
+      trainToMilan: 25,
+    };
+    const FIXED_EUR = FIXED.roma + FIXED.milan + FIXED.bcn + FIXED.trainToMilan; // €720
+    const FIXED_USD = FIXED.intlFlights;
+
+    // Draw all routes gray
+    const routeLines = [];
+    routes.forEach((route, i) => {
+      const line = L.polyline(route.points, {
+        color: GRAY, weight: 2.5, opacity: 1,
+        dashArray: '8 6', smoothFactor: 1
+      }).addTo(map);
+      routeLines.push(line);
+    });
+
+    // Route comparison panel (bottom-left of map)
+    const panel = L.control({ position:'bottomleft' });
+    panel.onAdd = function() {
+      const d = L.DomUtil.create('div');
+      d.style.cssText = 'background:rgba(10,15,20,0.94);border-radius:8px;border:1px solid rgba(255,255,255,0.06);font-family:Plus Jakarta Sans,system-ui;padding:0;min-width:320px;max-width:380px;';
+      d.setAttribute('data-testid','route-panel');
+
+      let html = '<div style="padding:10px 14px 6px;border-bottom:1px solid rgba(255,255,255,0.06)">'
+        + '<div style="font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(239,238,233,0.38)">Comparar rutas desde Milan</div>'
+        + '<div style="font-size:10px;color:rgba(239,238,233,0.25);margin-top:2px">Costos fijos: €' + FIXED_EUR + ' (Roma+Milan+BCN) · vuelos int. $' + FIXED_USD + '</div>'
+        + '</div>';
+
+      routes.forEach((route, i) => {
+        const segmentCost = route.flightCost + route.busCost + (route.nights * route.dailyCost);
+        const totalEur = FIXED_EUR + segmentCost;
+        const totalUsd = FIXED_USD + Math.round(totalEur * 1.08);
+
+        html += '<div class="route-row" data-route-idx="' + i + '" style="padding:8px 14px;border-bottom:1px solid rgba(255,255,255,0.03);cursor:pointer;transition:background 150ms">'
+          + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">'
+            + '<span style="display:inline-block;width:10px;height:3px;border-radius:2px;background:' + route.color + ';opacity:0.7"></span>'
+            + '<span style="font-size:12px;font-weight:500;color:#EFEEE9">' + route.name + '</span>'
+          + '</div>'
+          + '<div style="font-size:10px;color:rgba(239,238,233,0.4);margin-left:18px;margin-bottom:4px">' + route.stops + '</div>'
+          + '<div style="display:flex;gap:12px;margin-left:18px;font-size:10px">'
+            + '<span style="color:rgba(239,238,233,0.5)">Vuelos <strong style="color:' + route.color + '">€' + route.flightCost + '</strong></span>'
+            + '<span style="color:rgba(239,238,233,0.5)">' + (route.busCost > 100 ? 'Auto+peajes' : 'Buses') + ' <strong style="color:rgba(239,238,233,0.6)">€' + route.busCost + '</strong></span>'
+            + '<span style="color:rgba(239,238,233,0.5)">Vida <strong style="color:rgba(239,238,233,0.6)">€' + (route.nights * route.dailyCost) + '</strong></span>'
+            + '<span style="color:rgba(239,238,233,0.5)">Segmento <strong style="color:#EFEEE9">€' + segmentCost + '</strong></span>'
+          + '</div>'
+          + '<div style="display:flex;justify-content:space-between;margin-left:18px;margin-top:4px;padding-top:4px;border-top:1px solid rgba(255,255,255,0.03)">'
+            + '<span style="font-size:11px;color:rgba(239,238,233,0.4)">Total viaje</span>'
+            + '<span style="font-size:12px;font-weight:600;color:' + route.color + '">€' + totalEur + ' <span style="font-weight:400;font-size:10px;color:rgba(239,238,233,0.35)">~$' + totalUsd + '</span></span>'
+          + '</div>'
+        + '</div>';
+      });
+
+      d.innerHTML = html;
+
+      // Hover interaction
+      L.DomEvent.disableClickPropagation(d);
+      d.querySelectorAll('.route-row').forEach(row => {
+        row.addEventListener('mouseenter', function() {
+          const idx = parseInt(this.dataset.routeIdx);
+          this.style.background = 'rgba(255,255,255,0.03)';
+          routeLines.forEach((line, j) => {
+            if (j === idx) {
+              line.setStyle({ color: routes[j].color, weight: 3.5, opacity: 0.8 });
+            } else {
+              line.setStyle({ color: GRAY, weight: 2, opacity: 0.5 });
+            }
+          });
+        });
+        row.addEventListener('mouseleave', function() {
+          this.style.background = 'transparent';
+          routeLines.forEach(line => {
+            line.setStyle({ color: GRAY, weight: 2.5, opacity: 1 });
+          });
+        });
+      });
+
+      return d;
+    };
+    panel.addTo(map);
+  }
 
   function highlightDestCodes(text) {
     // Reset all
