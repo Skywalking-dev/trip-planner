@@ -120,22 +120,42 @@
 
     /* inline private expansions */
     .tl-private {
-      margin-top:16px; padding-top:12px;
-      border-top:1px solid rgba(212,175,55,0.1);
+      margin-top:12px; padding-top:12px;
+      border-top:1px solid var(--border);
       max-height:0; opacity:0; overflow:hidden;
       transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease-out;
       pointer-events:none;
     }
-    body.full .tl-private { max-height:1200px; opacity:1; pointer-events:auto; }
-    .tl-prv { border-left:2px solid rgba(212,175,55,0.25); padding-left:14px; margin-bottom:14px; }
-    .tl-prv h5 { font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--accent); opacity:0.6; margin-bottom:8px; }
-    .tl-prv-item { font-size:12px; color:var(--text-dim); margin-bottom:6px; line-height:1.5; }
-    .tl-prv-item strong { color:var(--accent); font-weight:500; }
-    .tl-prv-item .pr { color:var(--accent); font-weight:600; font-size:11px; }
-    .tl-prv-item .sub { font-size:11px; color:var(--text-dim); margin-top:1px; }
-    .tl-prv-tip { font-size:11px; color:var(--accent); opacity:0.8; margin-top:8px; padding-top:6px; border-top:1px solid rgba(212,175,55,0.08); }
-    .tl-prv a { color:var(--accent); text-decoration:none; font-size:11px; }
-    .tl-prv a:hover { text-decoration:underline; }
+    body.full .tl-private { max-height:1400px; opacity:1; pointer-events:auto; }
+
+    /* hostel/accommodation cards — flow naturally from .tl-meta */
+    .tl-private-category { margin-bottom:14px; }
+    .tl-private-category h5 { font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-dim); opacity:0.6; margin-bottom:8px; grid-column:1/-1; }
+    .tl-hostel-cards { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:8px; }
+    .tl-hostel-card {
+      padding:10px 12px; background:var(--bg); border-radius:6px; border:1px solid var(--border);
+      font-size:12px; line-height:1.4; transition:all 0.2s;
+    }
+    body.full .tl-hostel-card:hover { border-color:var(--accent); background:var(--raised); }
+    .tl-hostel-card .name { color:var(--accent); font-weight:600; font-size:13px; margin-bottom:2px; }
+    .tl-hostel-card .price { color:var(--accent); font-weight:600; font-size:11px; }
+    .tl-hostel-card .desc { color:var(--text-dim); font-size:11px; margin-top:4px; line-height:1.5; }
+    .tl-hostel-card .rating { color:var(--text); font-size:11px; margin-top:2px; }
+    .tl-hostel-card a { color:var(--accent); text-decoration:none; font-size:10px; font-weight:500; margin-top:4px; display:inline-block; }
+    .tl-hostel-card a:hover { text-decoration:underline; }
+
+    /* bar/nightlife recommendations — compact list */
+    .tl-bar-list { display:flex; flex-direction:column; gap:6px; }
+    .tl-bar-item {
+      font-size:12px; color:var(--text-dim); padding:6px 0;
+      border-bottom:1px solid rgba(255,255,255,0.02);
+    }
+    .tl-bar-item:last-child { border-bottom:none; }
+    .tl-bar-item strong { color:var(--text-bright); font-weight:500; }
+    .tl-bar-item .note { color:var(--text-dim); font-size:11px; display:block; margin-top:2px; font-style:italic; }
+
+    /* private tip footer */
+    .tl-private-tip { font-size:11px; color:var(--accent); opacity:0.8; margin-top:8px; padding-top:6px; border-top:1px solid rgba(212,175,55,0.08); }
 
     .badge { display:inline-block; font-size:9px; font-weight:600; letter-spacing:1px; text-transform:uppercase; padding:3px 8px; border-radius:4px; }
     .badge-green { background:var(--green-dim); color:var(--green); border:1px solid rgba(74,222,128,0.15); }
@@ -301,21 +321,43 @@
           <div class="tl-meta-item"><span class="ml">Noches</span><span class="mv">2</span></div>
           <div class="tl-meta-item"><span class="ml">Comer</span><span class="mv">Testaccio, Trastevere &middot; &euro;20-30/d</span></div>
         </div>
-        <div class="tl-private">
-          <div class="tl-prv">
-            <h5>Alojamiento</h5>
-            <div class="tl-prv-item"><strong>YellowSquare</strong> &mdash; <span class="pr">~&euro;39/n</span><div class="sub">9.2&#9733; Termini. Bar con DJ cada noche, karaoke, cooking classes. El m&aacute;s social. <a href="https://www.hostelworld.com/hostels/p/743/yellowsquare-rome/" target="_blank">Reservar &rarr;</a></div></div>
-            <div class="tl-prv-item"><strong>Ostello Bello</strong> &mdash; <span class="pr">~&euro;25-35/n</span><div class="sub">9.0&#9733; Colosseo. Aperitivo diario, pub crawls. Mejor ubicaci&oacute;n.</div></div>
-            <div class="tl-prv-item"><strong>Generator</strong> &mdash; <span class="pr">~&euro;20-30/n</span><div class="sub">8.5&#9733; Termini. Rooftop bar, eventos nocturnos, dise&ntilde;o moderno.</div></div>
+        <div class="tl-private" data-testid="private-roma">
+          <div class="tl-private-category">
+            <h5 data-testid="category-alojamiento">Alojamiento</h5>
+            <div class="tl-hostel-cards" data-testid="hostel-cards-roma">
+              <div class="tl-hostel-card" data-testid="hostel-card-yellowsquare">
+                <div class="name">YellowSquare</div>
+                <div class="price">~€39/n</div>
+                <div class="rating">9.2★ Termini</div>
+                <div class="desc">Bar con DJ cada noche, karaoke, cooking classes. El más social.</div>
+                <a href="https://www.hostelworld.com/hostels/p/743/yellowsquare-rome/" target="_blank" data-testid="hostel-link-yellowsquare">Reservar →</a>
+              </div>
+              <div class="tl-hostel-card" data-testid="hostel-card-ostello">
+                <div class="name">Ostello Bello</div>
+                <div class="price">~€25-35/n</div>
+                <div class="rating">9.0★ Colosseo</div>
+                <div class="desc">Aperitivo diario, pub crawls. Mejor ubicación.</div>
+              </div>
+              <div class="tl-hostel-card" data-testid="hostel-card-generator">
+                <div class="name">Generator</div>
+                <div class="price">~€20-30/n</div>
+                <div class="rating">8.5★ Termini</div>
+                <div class="desc">Rooftop bar, eventos nocturnos, diseño moderno.</div>
+              </div>
+            </div>
           </div>
-          <div class="tl-prv">
-            <h5>Bares &amp; aperitivo</h5>
-            <div class="tl-prv-item"><strong>Freni e Frizioni</strong> (Trastevere) &mdash; buffet aperitivo, crowd joven universitario, siempre lleno.</div>
-            <div class="tl-prv-item"><strong>Bar San Calisto</strong> (Trastevere) &mdash; instituci&oacute;n, birra &lt;&euro;2, 100% locales.</div>
-            <div class="tl-prv-item"><strong>Ma Che Siete Venuti A F&agrave;</strong> &mdash; craft beer, gente en la calle, f&aacute;cil charlar.</div>
-            <div class="tl-prv-item"><strong>Testaccio</strong> &mdash; barrio m&aacute;s romano, clubs hasta tarde. <strong>San Lorenzo</strong> &mdash; universitario.</div>
-            <div class="tl-prv-tip">Freni e Frizioni viernes mayo = repleto. Llegar 18:30. Tinder passport activar 1 semana antes.</div>
+
+          <div class="tl-private-category">
+            <h5 data-testid="category-bares">Bares &amp; aperitivo</h5>
+            <div class="tl-bar-list" data-testid="bar-list-roma">
+              <div class="tl-bar-item" data-testid="bar-freni"><strong>Freni e Frizioni</strong> (Trastevere) — buffet aperitivo, crowd joven universitario, siempre lleno.</div>
+              <div class="tl-bar-item" data-testid="bar-calisto"><strong>Bar San Calisto</strong> (Trastevere) — institución, birra &lt;€2, 100% locales.</div>
+              <div class="tl-bar-item" data-testid="bar-maché"><strong>Ma Che Siete Venuti A Fà</strong> — craft beer, gente en la calle, fácil charlar.</div>
+              <div class="tl-bar-item" data-testid="bar-testaccio"><strong>Testaccio</strong> — barrio más romano, clubs hasta tarde. <strong>San Lorenzo</strong> — universitario.</div>
+            </div>
           </div>
+
+          <div class="tl-private-tip" data-testid="private-tip-roma">Pro tip: Freni e Frizioni viernes mayo = repleto. Llegar 18:30. Tinder passport activar 1 semana antes.</div>
         </div>
       </div>
       <div class="tl-cost"><div class="day-cost">&euro;50/d</div><div class="running"><em>&euro;120</em></div><div class="running">acumulado</div></div>
@@ -332,21 +374,39 @@
           <div class="tl-meta-item"><span class="ml">Noches</span><span class="mv">2</span></div>
           <div class="tl-meta-item"><span class="ml">Comer</span><span class="mv">Mercato Centrale, Oltrarno &middot; &euro;20-30/d</span></div>
         </div>
-        <div class="tl-private">
-          <div class="tl-prv">
-            <h5>Alojamiento</h5>
-            <div class="tl-prv-item"><strong>YellowSquare Firenze</strong> &mdash; <span class="pr">~&euro;25-40/n</span><div class="sub">Nightclub subterr&aacute;neo 110m&sup2;, conciertos, wine tastings, piscina. El m&aacute;s fiestero.</div></div>
-            <div class="tl-prv-item"><strong>Ostello Bello Firenze</strong> &mdash; <span class="pr">~&euro;25-35/n</span><div class="sub">Welcome drink, aperitivo italiano, rooftop BBQ, bar 24h. Centro.</div></div>
-            <div class="tl-prv-item"><strong>Ostello Tasso</strong> &mdash; <span class="pr">~&euro;20-30/n</span><div class="sub">Mini teatro, m&uacute;sica en vivo, poes&iacute;a, pub crawls. Art&iacute;stico.</div></div>
+        <div class="tl-private" data-testid="private-firenze">
+          <div class="tl-private-category">
+            <h5 data-testid="category-alojamiento">Alojamiento</h5>
+            <div class="tl-hostel-cards" data-testid="hostel-cards-firenze">
+              <div class="tl-hostel-card" data-testid="hostel-card-yellowsquare-firenze">
+                <div class="name">YellowSquare Firenze</div>
+                <div class="price">~€25-40/n</div>
+                <div class="desc">Nightclub subterráneo 110m², conciertos, wine tastings, piscina. El más fiestero.</div>
+              </div>
+              <div class="tl-hostel-card" data-testid="hostel-card-ostello-firenze">
+                <div class="name">Ostello Bello Firenze</div>
+                <div class="price">~€25-35/n</div>
+                <div class="desc">Welcome drink, aperitivo italiano, rooftop BBQ, bar 24h. Centro.</div>
+              </div>
+              <div class="tl-hostel-card" data-testid="hostel-card-tasso">
+                <div class="name">Ostello Tasso</div>
+                <div class="price">~€20-30/n</div>
+                <div class="desc">Mini teatro, música en vivo, poesía, pub crawls. Artístico.</div>
+              </div>
+            </div>
           </div>
-          <div class="tl-prv">
-            <h5>Bares &amp; aperitivo</h5>
-            <div class="tl-prv-item"><strong>Moyo</strong> (Via de' Benci) &mdash; aperitivo cl&aacute;sico florentino, siempre lleno.</div>
-            <div class="tl-prv-item"><strong>Red Garter</strong> (Santa Croce) &mdash; live music + karaoke, mezcla turistas y locales.</div>
-            <div class="tl-prv-item"><strong>Lo Sverso</strong> (San Lorenzo) &mdash; cocktails craft, barrio estudiantil, moscow mule casero.</div>
-            <div class="tl-prv-item"><strong>L'Gottino</strong> (Piazza Beccaria) &mdash; fuera del centro, 100% local, vinos + bruschetta.</div>
-            <div class="tl-prv-tip">Aperitivo 18-21h con buffet incluido. San Lorenzo = universitarias. Santa Croce viernes explota.</div>
+
+          <div class="tl-private-category">
+            <h5 data-testid="category-bares">Bares &amp; aperitivo</h5>
+            <div class="tl-bar-list" data-testid="bar-list-firenze">
+              <div class="tl-bar-item" data-testid="bar-moyo"><strong>Moyo</strong> (Via de' Benci) — aperitivo clásico florentino, siempre lleno.</div>
+              <div class="tl-bar-item" data-testid="bar-redgarter"><strong>Red Garter</strong> (Santa Croce) — live music + karaoke, mezcla turistas y locales.</div>
+              <div class="tl-bar-item" data-testid="bar-sverso"><strong>Lo Sverso</strong> (San Lorenzo) — cocktails craft, barrio estudiantil, moscow mule casero.</div>
+              <div class="tl-bar-item" data-testid="bar-gottino"><strong>L'Gottino</strong> (Piazza Beccaria) — fuera del centro, 100% local, vinos + bruschetta.</div>
+            </div>
           </div>
+
+          <div class="tl-private-tip" data-testid="private-tip-firenze">Pro tip: Aperitivo 18-21h con buffet incluido. San Lorenzo = universitarias. Santa Croce viernes explota.</div>
         </div>
       </div>
       <div class="tl-cost"><div class="day-cost">&euro;55/d</div><div class="running"><em>&euro;230</em></div><div class="running">acumulado</div></div>
@@ -379,18 +439,33 @@
           <div class="tl-meta-item"><span class="ml">Noches</span><span class="mv">2</span></div>
           <div class="tl-meta-item"><span class="ml">Comer</span><span class="mv">Trofie al pesto, anchoas, focaccia &middot; &euro;20-35/d</span></div>
         </div>
-        <div class="tl-private">
-          <div class="tl-prv">
-            <h5>Alojamiento</h5>
-            <div class="tl-prv-item" style="color:#fbbf24;margin-bottom:8px">Reservar con anticipaci&oacute;n &mdash; CT se agota r&aacute;pido en mayo.</div>
-            <div class="tl-prv-item"><strong>Mar-Mar</strong> (Riomaggiore) &mdash; <span class="pr">~&euro;22-30/n</span><div class="sub">El m&aacute;s social de CT. Cocina compartida, tours, vibrante. <a href="https://www.hostelworld.com/hostels/p/27194/mar-mar/" target="_blank">Reservar &rarr;</a></div></div>
-            <div class="tl-prv-item"><strong>Ostello Corniglia</strong> &mdash; <span class="pr">9.1&#9733;</span><div class="sub">Mejor rating. Jard&iacute;n, 500m playa. M&aacute;s tranquilo.</div></div>
-            <div class="tl-prv-item"><strong>5 Terre Backpackers</strong> (Corvara) &mdash; <span class="pr">~&euro;19-25/n</span><div class="sub">Justo afuera del parque. Mejor overall.</div></div>
+        <div class="tl-private" data-testid="private-ct">
+          <div class="tl-private-category">
+            <h5 data-testid="category-alojamiento">Alojamiento</h5>
+            <div style="font-size:11px;color:#fbbf24;margin-bottom:10px;font-weight:500" data-testid="ct-warning">Reservar con anticipación — CT se agota rápido en mayo.</div>
+            <div class="tl-hostel-cards" data-testid="hostel-cards-ct">
+              <div class="tl-hostel-card" data-testid="hostel-card-marmar">
+                <div class="name">Mar-Mar</div>
+                <div class="price">~€22-30/n</div>
+                <div class="rating">Riomaggiore</div>
+                <div class="desc">El más social de CT. Cocina compartida, tours, vibrante.</div>
+                <a href="https://www.hostelworld.com/hostels/p/27194/mar-mar/" target="_blank" data-testid="hostel-link-marmar">Reservar →</a>
+              </div>
+              <div class="tl-hostel-card" data-testid="hostel-card-corniglia">
+                <div class="name">Ostello Corniglia</div>
+                <div class="price">9.1★</div>
+                <div class="desc">Mejor rating. Jardín, 500m playa. Más tranquilo.</div>
+              </div>
+              <div class="tl-hostel-card" data-testid="hostel-card-5terre">
+                <div class="name">5 Terre Backpackers</div>
+                <div class="price">~€19-25/n</div>
+                <div class="rating">Corvara</div>
+                <div class="desc">Justo afuera del parque. Mejor overall.</div>
+              </div>
+            </div>
           </div>
-          <div class="tl-prv">
-            <h5>Tips</h5>
-            <div class="tl-prv-tip">CT es m&aacute;s trekking/relax que nightlife. Socializar en el hostel. Vino al atardecer en Manarola = m&aacute;gico.</div>
-          </div>
+
+          <div class="tl-private-tip" data-testid="private-tip-ct">Pro tip: CT es más trekking/relax que nightlife. Socializar en el hostel. Vino al atardecer en Manarola = mágico.</div>
         </div>
       </div>
       <div class="tl-cost"><div class="day-cost">&euro;70/d</div><div class="running"><em>&euro;520</em></div><div class="running">acumulado</div></div>
@@ -422,21 +497,40 @@
           <div class="tl-meta-item"><span class="ml">Noches</span><span class="mv">2</span></div>
           <div class="tl-meta-item"><span class="ml">Comer</span><span class="mv">Salade ni&ccedil;oise, socca, pan bagnat &middot; &euro;20-30/d</span></div>
         </div>
-        <div class="tl-private">
-          <div class="tl-prv">
-            <h5>Alojamiento</h5>
-            <div class="tl-prv-item"><strong>Villa Saint Exup&eacute;ry Beach</strong> &mdash; <span class="pr">~&euro;35-45/n</span><div class="sub">THE party hostel de la Riviera. Happy hour diario, live music, pub crawl legendario, scuba, sailing. <a href="https://www.hostelworld.com/hostels/europe/france/nice/" target="_blank">Hostelworld &rarr;</a></div></div>
-            <div class="tl-prv-item"><strong>Antares Hostel</strong> &mdash; <span class="pr">~&euro;25-35/n</span><div class="sub">Ganador Hoscar. Centro, 10 min playa.</div></div>
-            <div class="tl-prv-item"><strong>H&ocirc;tel Ozz</strong> &mdash; <span class="pr">~&euro;20-30/n</span><div class="sub">Tema musical/art&iacute;stico, decor quirky.</div></div>
+        <div class="tl-private" data-testid="private-nice">
+          <div class="tl-private-category">
+            <h5 data-testid="category-alojamiento">Alojamiento</h5>
+            <div class="tl-hostel-cards" data-testid="hostel-cards-nice">
+              <div class="tl-hostel-card" data-testid="hostel-card-villa">
+                <div class="name">Villa Saint Exupéry Beach</div>
+                <div class="price">~€35-45/n</div>
+                <div class="desc">THE party hostel de la Riviera. Happy hour diario, live music, pub crawl legendario, scuba, sailing.</div>
+                <a href="https://www.hostelworld.com/hostels/europe/france/nice/" target="_blank" data-testid="hostel-link-villa">Hostelworld →</a>
+              </div>
+              <div class="tl-hostel-card" data-testid="hostel-card-antares">
+                <div class="name">Antares Hostel</div>
+                <div class="price">~€25-35/n</div>
+                <div class="desc">Ganador Hoscar. Centro, 10 min playa.</div>
+              </div>
+              <div class="tl-hostel-card" data-testid="hostel-card-ozz">
+                <div class="name">Hôtel Ozz</div>
+                <div class="price">~€20-30/n</div>
+                <div class="desc">Tema musical/artístico, decor quirky.</div>
+              </div>
+            </div>
           </div>
-          <div class="tl-prv">
-            <h5>Bares &amp; nightlife</h5>
-            <div class="tl-prv-item"><strong>Wayne's Bar</strong> (Vieux Nice) &mdash; cl&aacute;sico desde 1991, mezcla francesas + expats + viajeros.</div>
-            <div class="tl-prv-item"><strong>Shapko</strong> &mdash; jazz/blues en vivo cada noche. Relajado, &iacute;ntimo, local.</div>
-            <div class="tl-prv-item"><strong>Waka Bar</strong> &mdash; terraza frente al mar, cocktails, favorito de locales.</div>
-            <div class="tl-prv-item"><strong>Riviera Bar Crawl</strong> &mdash; pub crawl organizado, mejor forma de conocer gente r&aacute;pido.</div>
-            <div class="tl-prv-tip">Vieux Nice viernes/s&aacute;bado explota. Wayne's para arrancar, Shapko para cerrar. Francesas m&aacute;s reservadas que italianas &mdash; jazz bar > club.</div>
+
+          <div class="tl-private-category">
+            <h5 data-testid="category-bares">Bares &amp; nightlife</h5>
+            <div class="tl-bar-list" data-testid="bar-list-nice">
+              <div class="tl-bar-item" data-testid="bar-waynes"><strong>Wayne's Bar</strong> (Vieux Nice) — clásico desde 1991, mezcla francesas + expats + viajeros.</div>
+              <div class="tl-bar-item" data-testid="bar-shapko"><strong>Shapko</strong> — jazz/blues en vivo cada noche. Relajado, íntimo, local.</div>
+              <div class="tl-bar-item" data-testid="bar-waka"><strong>Waka Bar</strong> — terraza frente al mar, cocktails, favorito de locales.</div>
+              <div class="tl-bar-item" data-testid="bar-crawl"><strong>Riviera Bar Crawl</strong> — pub crawl organizado, mejor forma de conocer gente rápido.</div>
+            </div>
           </div>
+
+          <div class="tl-private-tip" data-testid="private-tip-nice">Pro tip: Vieux Nice viernes/sábado explota. Wayne's para arrancar, Shapko para cerrar. Francesas más reservadas que italianas — jazz bar > club.</div>
         </div>
       </div>
       <div class="tl-cost"><div class="day-cost">&euro;70/d</div><div class="running"><em>&euro;725</em></div><div class="running">acumulado</div></div>
