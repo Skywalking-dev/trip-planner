@@ -1102,13 +1102,17 @@
     addTransportIcon(r4, 'train');
   })();
 
-  // Include destination markers in bounds so they're visible on load
-  const destPts = [
-    [42.6507,18.0944],[35.8989,14.5146],[41.3275,19.8187],
-    [47.4979,19.0402],[42.6977,23.3219],[37.9838,23.7275],[41.0082,28.9784]
-  ];
-  const allPts = main.map(s=>[s[0],s[1]]).concat(minor.map(s=>[s[0],s[1]])).concat(destPts);
-  map.fitBounds(L.latLngBounds(allPts).pad(0.08));
+  // Fit bounds — include destination markers only in private mode
+  const basePts = main.map(s=>[s[0],s[1]]).concat(minor.map(s=>[s[0],s[1]]));
+  if (document.body.classList.contains('full')) {
+    const destPts = [
+      [42.6507,18.0944],[35.8989,14.5146],[41.3275,19.8187],
+      [47.4979,19.0402],[42.6977,23.3219],[37.9838,23.7275],[41.0082,28.9784]
+    ];
+    map.fitBounds(L.latLngBounds(basePts.concat(destPts)).pad(0.08));
+  } else {
+    map.fitBounds(L.latLngBounds(basePts).pad(0.15));
+  }
 
   // Legend (public mode only — route panel replaces it in private)
   if (!document.body.classList.contains('full')) {
@@ -1124,7 +1128,8 @@
     lg.addTo(map);
   }
 
-  // === DESTINATION MARKERS ===
+  // === DESTINATION MARKERS (private only) ===
+  if (!document.body.classList.contains('full')) { /* skip all private map features */ } else {
   const destinations = [
     { code:"DBV", name:"Dubrovnik", lat:42.6507, lng:18.0944, priceFCO:15, priceMilan:20, priceToBCN:127, dailyCost:[45,65], country:"Croatia" },
     { code:"MLA", name:"Malta",     lat:35.8989, lng:14.5146, priceFCO:15, priceMilan:66, priceToBCN:50,  dailyCost:[40,58], country:"Malta" },
@@ -1280,8 +1285,10 @@
     // Append to hero container (not leaflet control)
     document.querySelector('.hero').appendChild(panelEl);
   }
+  } // end private-only map features
 
   function highlightDestCodes(text) {
+    if (typeof destMarkerMap === 'undefined') return;
     // Reset all
     Object.values(destMarkerMap).forEach(m => {
       const el = m.getElement();
