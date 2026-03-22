@@ -36,7 +36,8 @@
     .hero-grad h1 em { font-style:italic; font-weight:300; color:var(--accent); }
     .hero-grad .sub { font-size:13px; color:var(--text-dim); margin-top:6px; letter-spacing:0.3px; }
 
-    .stats { display:grid; grid-template-columns:repeat(6,1fr); border-bottom:1px solid var(--border); }
+    .stats { display:grid; grid-template-columns:repeat(5,1fr); border-bottom:1px solid var(--border); }
+    body.full .stats { grid-template-columns:repeat(6,1fr); }
     .st { padding:22px 0; text-align:center; border-right:1px solid var(--border); }
     .st:last-child { border-right:none; }
     .st .v { font-size:20px; font-weight:600; color:var(--text-bright); }
@@ -243,7 +244,7 @@
   <div class="st glow"><div class="v">31 May</div><div class="l">Cumple BCN</div></div>
   <div class="st green"><div class="v">Booked</div><div class="l">Ida</div></div>
   <div class="st green"><div class="v">Booked</div><div class="l">Vuelta</div></div>
-  <div class="st"><div class="v" id="stat-total">&mdash;</div><div class="l">Total Balanced</div></div>
+  <div class="st private-card"><div class="v" id="stat-total">&mdash;</div><div class="l">Total Balanced</div></div>
 </div>
 
 <div class="cx">
@@ -266,7 +267,7 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.4-.1.9.3 1.1L11 12l-2 3H6l-1 1 3 2 2 3 1-1v-3l3-2 3.8 7.3c.2.4.7.5 1.1.3l.5-.3c.4-.2.6-.6.5-1.1z"/></svg>
         <h4 style="margin:0;color:var(--green)">Vuelos reservados</h4>
       </div>
-      <div style="font-size:28px;font-weight:300;color:var(--green);letter-spacing:-1px;margin-bottom:4px">USD 1,351 <span style="font-size:14px;color:var(--text-dim);font-weight:400">ida &euro;798 + vuelta ARS 693k</span></div>
+      <div style="font-size:28px;font-weight:300;color:var(--green);letter-spacing:-1px;margin-bottom:4px">USD 1,424 <span style="font-size:14px;color:var(--text-dim);font-weight:400">ida $935 + vuelta ARS 693k</span></div>
       <div style="font-size:11px;color:var(--text-dim);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)">4 legs &middot; ida + vuelta confirmadas</div>
       <div style="margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)">
         <div style="font-size:12px;color:var(--text-dim);margin-bottom:4px">Leg 1 &middot; LEVEL LL 2602</div>
@@ -636,13 +637,13 @@
     <p>Retir&aacute;s en <strong>Milan</strong> (20 may). Baj&aacute;s a Cinque Terre &rarr; costa ligure &rarr; San Remo &rarr; Nice &rarr; Est&eacute;rel &rarr; St-Tropez &rarr; Marseille. Devolv&eacute;s en <strong>Marseille</strong> (26 may). 7 d&iacute;as, &euro;210-350 + &euro;60-90 nafta/peajes. Seguro: RentalCover.com ~&euro;5/d. Reservar en DiscoverCars o SIXT. Arco continuo sin backtrack.</p>
   </div>
 
-  <!-- ==================== PRESUPUESTO ==================== -->
+  <!-- ==================== PRESUPUESTO (private) ==================== -->
 
-  <div class="sl">Presupuesto</div>
-  <div id="budget-section"></div>
+  <div class="sl private-card">Presupuesto</div>
+  <div id="budget-section" class="private-card"></div>
   <script>
     (function() {
-      const flightIda = 862; // €798 ≈ USD 862 (booked)
+      const flightIda = 935; // €798 → USD 935.05 cobrado en tarjeta (Flylevel)
       const flightVuelta = 489; // ARS 693,516 ≈ USD 489 (booked)
       // 12 paid nights (Roma 2, Firenze 2, CT 2, San Remo 1, Nice 2, St-Tropez 1, Marseille 1, Montpellier 1)
       // 20 free nights (Milan 5, BCN 15)
@@ -669,15 +670,16 @@
       html += '</div>';
 
       html += '<div class="c" style="margin-top:14px"><table class="bt">';
-      html += '<tr><td class="concept">Vuelo ida EZE&rarr;BCN&rarr;FCO <span style="font-size:10px;color:var(--green)">BOOKED</span></td><td class="val" colspan="3" style="text-align:center;color:var(--green)">&euro;798 (~$862)</td></tr>';
+      html += '<tr><td class="concept">Vuelo ida EZE&rarr;BCN&rarr;FCO <span style="font-size:10px;color:var(--green)">BOOKED</span></td><td class="val" colspan="3" style="text-align:center;color:var(--green)">$935.05</td></tr>';
       html += '<tr><td class="concept">Vuelo vuelta BCN&rarr;BOG&rarr;EZE <span style="font-size:10px;color:var(--green)">BOOKED</span></td><td class="val" colspan="3" style="text-align:center;color:var(--green)">ARS 693k (~$489)</td></tr>';
+      html += '<tr><td class="concept" style="color:var(--text-dim);font-size:11px">Desvío estimado ida: +$73 (markup tarjeta EUR&rarr;USD ~8.5%)</td><td class="val" colspan="3"></td></tr>';
       html += '<tr><td class="concept">Transporte <span style="font-size:10px;color:var(--text-dim)">(trenes + auto 7d)</span></td><td class="val">&euro;170</td><td class="val">&euro;420</td><td class="val">&euro;580</td></tr>';
       html += '<tr><td class="concept">Alojamiento ~12n <span style="font-size:10px;color:var(--text-dim)">(BCN 15n + Milan 5n gratis)</span></td><td class="val">&euro;220</td><td class="val">&euro;400</td><td class="val">&euro;700</td></tr>';
       html += '<tr><td class="concept">Comida ~36d</td><td class="val">&euro;630</td><td class="val">&euro;950</td><td class="val">&euro;1,350</td></tr>';
       html += '<tr><td class="concept">Extras</td><td class="val">&euro;100</td><td class="val">&euro;200</td><td class="val">&euro;350</td></tr>';
       html += '<tr class="final"><td class="concept"><strong>Total (sin ida)</strong></td><td class="val">~$'+b.toLocaleString('es')+'</td><td class="val">~$'+bl.toLocaleString('es')+'</td><td class="val">~$'+c.toLocaleString('es')+'</td></tr>';
       html += '</table>';
-      html += '<div style="font-size:11px;color:var(--text-dim);margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">Ida &euro;798 (~$862) + vuelta ARS 693k (~$489) = $1,351 vuelos. Ambas booked. 36 d&iacute;as, 20 noches gratis (Mary Carmen 15 + Christian&amp;Gus 5). EUR &asymp; USD. Ruta optimizada: cero backtrack.</div>';
+      html += '<div style="font-size:11px;color:var(--text-dim);margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">Ida $935 (cobrado tarjeta) + vuelta ARS 693k (~$489) = $1,424 vuelos. Ambas booked. 36 d&iacute;as, 20 noches gratis (Mary Carmen 15 + Christian&amp;Gus 5). EUR &asymp; USD. Ruta optimizada: cero backtrack.</div>';
       html += '</div>';
 
       document.getElementById('budget-section').innerHTML = html;
@@ -722,28 +724,6 @@
     </div>
   </div>
 
-  <!-- ==================== PR&Oacute;XIMOS PASOS ==================== -->
-
-  <div class="sl">Pr&oacute;ximos pasos</div>
-  <div class="g2">
-    <div class="c glow">
-      <h4>Esta semana</h4>
-      <ul>
-        <li>Reservar vuelta BCN&rarr;EZE (~3-5 jun)</li>
-        <li>Auto Milan&rarr;Marseille 7d (DiscoverCars, SIXT)</li>
-        <li>Trenes Italo: Roma&rarr;Firenze, Firenze&rarr;Milan</li>
-      </ul>
-    </div>
-    <div class="c">
-      <h4>Pr&oacute;ximas semanas</h4>
-      <ul>
-        <li>Hostels Roma, Firenze, Cinque Terre, Nice</li>
-        <li>Tren Marseille&rarr;Montpellier, Montpellier&rarr;BCN</li>
-        <li>Reservas Colosseo, Uffizi, &Uacute;ltima Cena (anticipado)</li>
-        <li>TravelSpend configurado con presupuesto diario</li>
-      </ul>
-    </div>
-  </div>
 
   </div>
 
