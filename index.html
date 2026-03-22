@@ -266,7 +266,7 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.4-.1.9.3 1.1L11 12l-2 3H6l-1 1 3 2 2 3 1-1v-3l3-2 3.8 7.3c.2.4.7.5 1.1.3l.5-.3c.4-.2.6-.6.5-1.1z"/></svg>
         <h4 style="margin:0;color:var(--green)">Vuelos reservados</h4>
       </div>
-      <div style="font-size:28px;font-weight:300;color:var(--green);letter-spacing:-1px;margin-bottom:4px">&euro;798 <span style="font-size:14px;color:var(--text-dim);font-weight:400">ida ~USD 862</span></div>
+      <div style="font-size:28px;font-weight:300;color:var(--green);letter-spacing:-1px;margin-bottom:4px">USD 1,351 <span style="font-size:14px;color:var(--text-dim);font-weight:400">ida &euro;798 + vuelta ARS 693k</span></div>
       <div style="font-size:11px;color:var(--text-dim);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)">4 legs &middot; ida + vuelta confirmadas</div>
       <div style="margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)">
         <div style="font-size:12px;color:var(--text-dim);margin-bottom:4px">Leg 1 &middot; LEVEL LL 2602</div>
@@ -643,7 +643,7 @@
   <script>
     (function() {
       const flightIda = 862; // €798 ≈ USD 862 (booked)
-      const flightVuelta = 0; // booked — update when price known
+      const flightVuelta = 489; // ARS 693,516 ≈ USD 489 (booked)
       // 12 paid nights (Roma 2, Firenze 2, CT 2, San Remo 1, Nice 2, St-Tropez 1, Marseille 1, Montpellier 1)
       // 20 free nights (Milan 5, BCN 15)
       // 36 days total
@@ -670,14 +670,14 @@
 
       html += '<div class="c" style="margin-top:14px"><table class="bt">';
       html += '<tr><td class="concept">Vuelo ida EZE&rarr;BCN&rarr;FCO <span style="font-size:10px;color:var(--green)">BOOKED</span></td><td class="val" colspan="3" style="text-align:center;color:var(--green)">&euro;798 (~$862)</td></tr>';
-      html += '<tr><td class="concept">Vuelo vuelta BCN&rarr;BOG&rarr;EZE <span style="font-size:10px;color:var(--green)">BOOKED</span></td><td class="val" colspan="3" style="text-align:center;color:var(--green)">Avianca &middot; precio TBD</td></tr>';
+      html += '<tr><td class="concept">Vuelo vuelta BCN&rarr;BOG&rarr;EZE <span style="font-size:10px;color:var(--green)">BOOKED</span></td><td class="val" colspan="3" style="text-align:center;color:var(--green)">ARS 693k (~$489)</td></tr>';
       html += '<tr><td class="concept">Transporte <span style="font-size:10px;color:var(--text-dim)">(trenes + auto 7d)</span></td><td class="val">&euro;170</td><td class="val">&euro;420</td><td class="val">&euro;580</td></tr>';
       html += '<tr><td class="concept">Alojamiento ~12n <span style="font-size:10px;color:var(--text-dim)">(BCN 15n + Milan 5n gratis)</span></td><td class="val">&euro;220</td><td class="val">&euro;400</td><td class="val">&euro;700</td></tr>';
       html += '<tr><td class="concept">Comida ~36d</td><td class="val">&euro;630</td><td class="val">&euro;950</td><td class="val">&euro;1,350</td></tr>';
       html += '<tr><td class="concept">Extras</td><td class="val">&euro;100</td><td class="val">&euro;200</td><td class="val">&euro;350</td></tr>';
       html += '<tr class="final"><td class="concept"><strong>Total (sin ida)</strong></td><td class="val">~$'+b.toLocaleString('es')+'</td><td class="val">~$'+bl.toLocaleString('es')+'</td><td class="val">~$'+c.toLocaleString('es')+'</td></tr>';
       html += '</table>';
-      html += '<div style="font-size:11px;color:var(--text-dim);margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">Ida &euro;798 (~$862) + vuelta Avianca (precio TBD). Ambas booked. 36 d&iacute;as, 20 noches gratis (Mary Carmen 15 + Christian&amp;Gus 5). EUR &asymp; USD. Ruta optimizada: cero backtrack.</div>';
+      html += '<div style="font-size:11px;color:var(--text-dim);margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">Ida &euro;798 (~$862) + vuelta ARS 693k (~$489) = $1,351 vuelos. Ambas booked. 36 d&iacute;as, 20 noches gratis (Mary Carmen 15 + Christian&amp;Gus 5). EUR &asymp; USD. Ruta optimizada: cero backtrack.</div>';
       html += '</div>';
 
       document.getElementById('budget-section').innerHTML = html;
