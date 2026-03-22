@@ -1186,40 +1186,97 @@
   // === PROPOSED ROUTES (private only) ===
   if (document.body.classList.contains('full')) {
     const GRAY = 'rgba(239,238,233,0.2)';
+    const GRAY_DIM = 'rgba(239,238,233,0.08)';
+
+    // Transport type styles: [dashArray, weight]
+    const transportStyle = {
+      flight: { dash:'6 8', weight:2 },
+      train:  { dash:'8 6', weight:2 },
+      bus:    { dash:'3 5', weight:2 },
+      car:    { dash:null,  weight:3 },
+    };
+
+    // Flight arc helper
+    function flightArc(from, to, n) {
+      const pts = [];
+      for (let i = 0; i <= n; i++) {
+        const t = i / n;
+        const lat = from[0]*(1-t) + to[0]*t;
+        const lng = from[1]*(1-t) + to[1]*t;
+        const alt = Math.sin(Math.PI * t) * Math.abs(to[1]-from[1]) * 0.15;
+        pts.push([lat + alt, lng]);
+      }
+      return pts;
+    }
+
+    // Milan & BCN coords
+    const MIL = [45.4642,9.19], BCN = [41.3874,2.17];
+    const BUD = [47.4979,19.04], BEL = [44.7866,20.45], SOF = [42.6977,23.32];
+    const SKP = [41.9973,21.43], TIA = [41.3275,19.82], ATH = [37.9838,23.73];
+    const CT = [44.1461,9.64], SRM = [43.8172,7.78], NCE = [43.7102,7.26];
+    const MRS = [43.2965,5.37], MTP = [43.6108,3.88];
+
     const routes = [
-      { id:1, name:'Balcanes central', color:'#4ade80', stops:'Milan → Budapest → Belgrade → Sofia → BCN',
-        flightCost:67, busCost:27, nights:12, dailyCost:37, // avg
-        points:[[45.4642,9.19],[47.4979,19.04],[44.7866,20.4489],[42.6977,23.32],[41.3874,2.17]] },
-      { id:2, name:'Balcanes sur', color:'#60a5fa', stops:'Milan → Sofia → Skopje → Tirana → BCN',
+      { id:1, name:'Balcanes central', color:'#4ade80',
+        stops:'Milan ✈ Budapest → Belgrade → Sofia ✈ BCN',
+        flightCost:67, busCost:27, nights:12, dailyCost:37,
+        segments:[
+          { from:MIL, to:BUD, type:'flight' },
+          { from:BUD, to:BEL, type:'bus' },
+          { from:BEL, to:SOF, type:'bus' },
+          { from:SOF, to:BCN, type:'flight' },
+        ]},
+      { id:2, name:'Balcanes sur', color:'#60a5fa',
+        stops:'Milan ✈ Sofia → Skopje → Tirana ✈ BCN',
         flightCost:88, busCost:25, nights:12, dailyCost:32,
-        points:[[45.4642,9.19],[42.6977,23.32],[41.9973,21.43],[41.3275,19.82],[41.3874,2.17]] },
-      { id:3, name:'Grecia', color:'#f472b6', stops:'Milan → Atenas + islas → BCN',
+        segments:[
+          { from:MIL, to:SOF, type:'flight' },
+          { from:SOF, to:SKP, type:'bus' },
+          { from:SKP, to:TIA, type:'bus' },
+          { from:TIA, to:BCN, type:'flight' },
+        ]},
+      { id:3, name:'Grecia', color:'#f472b6',
+        stops:'Milan ✈ Atenas ✈ BCN',
         flightCost:142, busCost:0, nights:12, dailyCost:45,
-        points:[[45.4642,9.19],[37.9838,23.73],[41.3874,2.17]] },
-      { id:4, name:'Riviera (original)', color:'#D4AF37', stops:'Milan → CT → Riviera → Nice → Marseille → BCN',
-        flightCost:0, busCost:180, nights:12, dailyCost:55, // auto+peajes+gasolina
-        points:[[45.4642,9.19],[44.1461,9.64],[43.8172,7.78],[43.7102,7.26],[43.2965,5.37],[43.6108,3.88],[41.3874,2.17]] },
+        segments:[
+          { from:MIL, to:ATH, type:'flight' },
+          { from:ATH, to:BCN, type:'flight' },
+        ]},
+      { id:4, name:'Riviera (original)', color:'#D4AF37',
+        stops:'Milan → CT → Riviera → Nice → Marseille ⇢ BCN',
+        flightCost:0, busCost:180, nights:12, dailyCost:55,
+        segments:[
+          { from:MIL, to:CT,  type:'car' },
+          { from:CT,  to:SRM, type:'car' },
+          { from:SRM, to:NCE, type:'car' },
+          { from:NCE, to:MRS, type:'car' },
+          { from:MRS, to:MTP, type:'train' },
+          { from:MTP, to:BCN, type:'train' },
+        ]},
     ];
 
-    // Fixed costs (same for all routes)
+    // Fixed costs
     const FIXED = {
-      intlFlights: 1424, // USD, already paid
-      roma: 120,   // 2n × €50/d + food
-      milan: 125,  // 5n × €25/d food only
-      bcn: 450,    // 15n × €30/d food only
-      trainToMilan: 25,
+      intlFlights: 1424,
+      roma: 120, milan: 125, bcn: 450, trainToMilan: 25,
     };
-    const FIXED_EUR = FIXED.roma + FIXED.milan + FIXED.bcn + FIXED.trainToMilan; // €720
+    const FIXED_EUR = FIXED.roma + FIXED.milan + FIXED.bcn + FIXED.trainToMilan;
     const FIXED_USD = FIXED.intlFlights;
 
-    // Draw all routes gray
-    const routeLines = [];
-    routes.forEach((route, i) => {
-      const line = L.polyline(route.points, {
-        color: GRAY, weight: 2.5, opacity: 1,
-        dashArray: '8 6', smoothFactor: 1
-      }).addTo(map);
-      routeLines.push(line);
+    // Draw all route segments gray, styled by transport type
+    const routeSegmentLines = []; // array of arrays
+    routes.forEach((route) => {
+      const lines = [];
+      route.segments.forEach(seg => {
+        const st = transportStyle[seg.type];
+        const pts = seg.type === 'flight' ? flightArc(seg.from, seg.to, 20) : [seg.from, seg.to];
+        const line = L.polyline(pts, {
+          color: GRAY, weight: st.weight, opacity: 1,
+          dashArray: st.dash, smoothFactor: 1
+        }).addTo(map);
+        lines.push({ line, type: seg.type });
+      });
+      routeSegmentLines.push(lines);
     });
 
     // Route comparison panel — right side of map, full height
@@ -1261,23 +1318,29 @@
 
     panelEl.innerHTML = html;
 
-    // Hover interaction
+    // Hover interaction — highlight segments by transport type
     panelEl.querySelectorAll('.route-row').forEach(row => {
       row.addEventListener('mouseenter', function() {
         const idx = parseInt(this.dataset.routeIdx);
         this.style.background = 'rgba(255,255,255,0.04)';
-        routeLines.forEach((line, j) => {
-          if (j === idx) {
-            line.setStyle({ color: routes[j].color, weight: 3.5, opacity: 0.85 });
-          } else {
-            line.setStyle({ color: 'rgba(239,238,233,0.08)', weight: 1.5, opacity: 1 });
-          }
+        routeSegmentLines.forEach((segs, j) => {
+          segs.forEach(s => {
+            const st = transportStyle[s.type];
+            if (j === idx) {
+              s.line.setStyle({ color: routes[j].color, weight: st.weight + 1.5, opacity: 0.85, dashArray: st.dash });
+            } else {
+              s.line.setStyle({ color: GRAY_DIM, weight: 1, opacity: 1, dashArray: st.dash });
+            }
+          });
         });
       });
       row.addEventListener('mouseleave', function() {
         this.style.background = 'transparent';
-        routeLines.forEach(line => {
-          line.setStyle({ color: GRAY, weight: 2.5, opacity: 1 });
+        routeSegmentLines.forEach(segs => {
+          segs.forEach(s => {
+            const st = transportStyle[s.type];
+            s.line.setStyle({ color: GRAY, weight: st.weight, opacity: 1, dashArray: st.dash });
+          });
         });
       });
     });
