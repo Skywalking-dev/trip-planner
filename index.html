@@ -210,6 +210,11 @@
     }
 
     /* === DESTINATION MARKERS === */
+    /* dest markers + chat: private only */
+    .dest-marker-wrap { display:none; }
+    body.full .dest-marker-wrap { display:block; }
+    body.full .chat-toggle { display:flex; }
+
     .dest-marker {
       display:flex; align-items:center; justify-content:center;
       background:rgba(10,15,20,0.92); border:1px solid rgba(212,175,55,0.35);
@@ -255,12 +260,12 @@
     .dest-popup-val.na { color:rgba(239,238,233,0.2); font-weight:400; font-size:11px; }
     .dest-popup-divider { margin:8px 0; border:none; border-top:1px solid rgba(255,255,255,0.05); }
 
-    /* === CHAT DRAWER === */
+    /* === CHAT DRAWER (private only) === */
     .chat-toggle {
       position:fixed; bottom:24px; right:24px; z-index:8000;
       width:48px; height:48px; border-radius:50%;
       background:var(--raised); border:1.5px solid rgba(212,175,55,0.35);
-      cursor:pointer; display:flex; align-items:center; justify-content:center;
+      cursor:pointer; display:none; align-items:center; justify-content:center;
       transition:border-color 150ms ease-out, box-shadow 150ms ease-out, transform 150ms ease-out;
       box-shadow:0 4px 16px rgba(0,0,0,0.4);
     }
@@ -274,10 +279,11 @@
     .chat-drawer {
       position:fixed; top:0; right:-400px; width:380px; height:100vh;
       background:var(--bg); border-left:1px solid var(--border);
-      z-index:9000; display:flex; flex-direction:column;
+      z-index:9000; display:none; flex-direction:column;
       transition:right 300ms cubic-bezier(0.0,0,0.2,1);
       box-shadow:-8px 0 32px rgba(0,0,0,0.5);
     }
+    body.full .chat-drawer { display:flex; }
     .chat-drawer.open { right:0; }
 
     .chat-header {
@@ -1069,8 +1075,13 @@
     addTransportIcon(r4, 'train');
   })();
 
-  const allPts = main.map(s=>[s[0],s[1]]).concat(minor.map(s=>[s[0],s[1]]));
-  map.fitBounds(L.latLngBounds(allPts).pad(0.15));
+  // Include destination markers in bounds so they're visible on load
+  const destPts = [
+    [42.6507,18.0944],[35.8989,14.5146],[41.3275,19.8187],
+    [47.4979,19.0402],[42.6977,23.3219],[37.9838,23.7275],[41.0082,28.9784]
+  ];
+  const allPts = main.map(s=>[s[0],s[1]]).concat(minor.map(s=>[s[0],s[1]])).concat(destPts);
+  map.fitBounds(L.latLngBounds(allPts).pad(0.08));
 
   // Legend
   const lg=L.control({position:'bottomleft'});
@@ -1099,7 +1110,7 @@
 
   destinations.forEach(dest => {
     const minPrice = Math.min(...[dest.priceFCO, dest.priceMilan].filter(p => p !== null));
-    const html = `<div class="dest-marker" data-testid="dest-marker-${dest.code}" data-code="${dest.code}">€${minPrice}</div>`;
+    const html = `<div class="dest-marker-wrap"><div class="dest-marker" data-testid="dest-marker-${dest.code}" data-code="${dest.code}">€${minPrice}</div></div>`;
     const icon = L.divIcon({ className:'', html, iconSize:[44,22], iconAnchor:[22,11] });
     const marker = L.marker([dest.lat, dest.lng], { icon, zIndexOffset:800 });
 
