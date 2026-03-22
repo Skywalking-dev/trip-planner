@@ -208,6 +208,156 @@
       .stats { grid-template-columns:repeat(3,1fr); }
       .tl-item { grid-template-columns:70px 1fr; }
     }
+
+    /* === DESTINATION MARKERS === */
+    .dest-marker {
+      display:flex; align-items:center; justify-content:center;
+      background:rgba(10,15,20,0.92); border:1px solid rgba(212,175,55,0.35);
+      border-radius:4px; padding:2px 6px; cursor:pointer;
+      transition:transform 150ms ease-out, box-shadow 150ms ease-out;
+      font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+      font-size:10px; font-weight:600; color:#D4AF37;
+      white-space:nowrap; letter-spacing:0.3px;
+    }
+    .dest-marker:hover {
+      transform:scale(1.12);
+      box-shadow:0 0 10px rgba(212,175,55,0.35);
+    }
+    .dest-marker.highlighted {
+      animation:dest-pulse 1.8s ease-in-out infinite;
+      border-color:var(--accent);
+      box-shadow:0 0 14px rgba(212,175,55,0.5);
+    }
+    @keyframes dest-pulse {
+      0%,100% { box-shadow:0 0 8px rgba(212,175,55,0.4); }
+      50% { box-shadow:0 0 20px rgba(212,175,55,0.75), 0 0 6px rgba(212,175,55,0.3); }
+    }
+
+    /* Leaflet custom popup — dark theme */
+    .leaflet-popup-content-wrapper.dest-popup-wrap {
+      background:rgba(17,23,30,0.97) !important;
+      border:1px solid rgba(212,175,55,0.18) !important;
+      border-radius:8px !important;
+      box-shadow:0 8px 32px rgba(0,0,0,0.6) !important;
+      padding:0 !important;
+      min-width:220px;
+    }
+    .leaflet-popup-tip-container { display:none !important; }
+    .leaflet-popup-close-button { color:rgba(239,238,233,0.4) !important; top:8px !important; right:10px !important; font-size:16px !important; }
+    .leaflet-popup-close-button:hover { color:var(--accent) !important; }
+    .dest-popup-inner { padding:16px; }
+    .dest-popup-header { display:flex; align-items:baseline; gap:8px; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.06); }
+    .dest-popup-city { font-size:15px; font-weight:600; color:#EFEEE9; }
+    .dest-popup-country { font-size:10px; color:rgba(239,238,233,0.38); text-transform:uppercase; letter-spacing:1px; }
+    .dest-popup-row { display:flex; justify-content:space-between; align-items:center; padding:3px 0; }
+    .dest-popup-label { font-size:11px; color:rgba(239,238,233,0.45); }
+    .dest-popup-val { font-size:12px; font-weight:600; color:#D4AF37; }
+    .dest-popup-val.na { color:rgba(239,238,233,0.2); font-weight:400; font-size:11px; }
+    .dest-popup-divider { margin:8px 0; border:none; border-top:1px solid rgba(255,255,255,0.05); }
+
+    /* === CHAT DRAWER === */
+    .chat-toggle {
+      position:fixed; bottom:24px; right:24px; z-index:8000;
+      width:48px; height:48px; border-radius:50%;
+      background:var(--raised); border:1.5px solid rgba(212,175,55,0.35);
+      cursor:pointer; display:flex; align-items:center; justify-content:center;
+      transition:border-color 150ms ease-out, box-shadow 150ms ease-out, transform 150ms ease-out;
+      box-shadow:0 4px 16px rgba(0,0,0,0.4);
+    }
+    .chat-toggle:hover {
+      border-color:rgba(212,175,55,0.65);
+      box-shadow:0 4px 20px rgba(212,175,55,0.2);
+      transform:scale(1.05);
+    }
+    .chat-toggle svg { width:20px; height:20px; stroke:#D4AF37; }
+
+    .chat-drawer {
+      position:fixed; top:0; right:-400px; width:380px; height:100vh;
+      background:var(--bg); border-left:1px solid var(--border);
+      z-index:9000; display:flex; flex-direction:column;
+      transition:right 300ms cubic-bezier(0.0,0,0.2,1);
+      box-shadow:-8px 0 32px rgba(0,0,0,0.5);
+    }
+    .chat-drawer.open { right:0; }
+
+    .chat-header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:16px 16px 16px 20px;
+      border-bottom:1px solid var(--border);
+      flex-shrink:0;
+    }
+    .chat-header-title { font-size:13px; font-weight:600; color:var(--text-bright); letter-spacing:0.3px; }
+    .chat-header-sub { font-size:11px; color:var(--text-dim); margin-top:2px; }
+    .chat-close {
+      width:28px; height:28px; border-radius:6px;
+      background:transparent; border:1px solid var(--border);
+      cursor:pointer; display:flex; align-items:center; justify-content:center;
+      transition:border-color 150ms ease-out, background 150ms ease-out;
+      flex-shrink:0;
+    }
+    .chat-close:hover { border-color:rgba(212,175,55,0.3); background:var(--raised); }
+    .chat-close svg { width:12px; height:12px; stroke:var(--text-dim); }
+
+    .chat-messages {
+      flex:1; overflow-y:auto; padding:16px;
+      display:flex; flex-direction:column; gap:10px;
+      scroll-behavior:smooth;
+    }
+    .chat-messages::-webkit-scrollbar { width:4px; }
+    .chat-messages::-webkit-scrollbar-track { background:transparent; }
+    .chat-messages::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.08); border-radius:2px; }
+
+    .chat-msg {
+      max-width:88%; padding:9px 13px; border-radius:8px;
+      font-size:13px; line-height:1.55; word-break:break-word;
+    }
+    .chat-msg.user {
+      align-self:flex-end;
+      background:var(--raised); color:var(--text-bright);
+      border:1px solid rgba(255,255,255,0.06);
+    }
+    .chat-msg.assistant {
+      align-self:flex-start;
+      background:var(--surface); color:var(--text);
+      border:1px solid var(--border);
+    }
+    .chat-msg.assistant.streaming::after {
+      content:'▋'; animation:blink 0.8s step-start infinite; color:var(--accent);
+    }
+    @keyframes blink { 50% { opacity:0; } }
+
+    .chat-footer {
+      padding:12px 16px; border-top:1px solid var(--border);
+      display:flex; gap:8px; flex-shrink:0;
+    }
+    .chat-input-field {
+      flex:1; background:var(--surface); border:1px solid var(--border);
+      border-radius:6px; padding:9px 12px;
+      font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+      font-size:13px; color:var(--text-bright); outline:none;
+      transition:border-color 150ms ease-out;
+      resize:none; min-height:38px; max-height:100px;
+    }
+    .chat-input-field::placeholder { color:var(--text-dim); }
+    .chat-input-field:focus { border-color:rgba(212,175,55,0.35); }
+    .chat-send {
+      width:38px; height:38px; border-radius:6px; flex-shrink:0;
+      background:var(--accent); border:none; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      transition:opacity 150ms ease-out, transform 150ms ease-out;
+    }
+    .chat-send:hover { opacity:0.85; }
+    .chat-send:active { transform:scale(0.95); }
+    .chat-send:disabled { opacity:0.35; cursor:not-allowed; }
+    .chat-send svg { width:14px; height:14px; stroke:#0a0f14; stroke-width:2.5; }
+
+    .chat-empty {
+      flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:8px; color:var(--text-dim); font-size:12px; text-align:center; padding:24px;
+      pointer-events:none;
+    }
+    .chat-empty svg { width:28px; height:28px; stroke:rgba(212,175,55,0.3); margin-bottom:4px; }
+    .chat-empty strong { color:var(--text); font-size:13px; font-weight:500; }
   </style>
 </head>
 <body>
@@ -933,6 +1083,234 @@
     return d;
   };
   lg.addTo(map);
+
+  // === DESTINATION MARKERS ===
+  const destinations = [
+    { code:"DBV", name:"Dubrovnik", lat:42.6507, lng:18.0944, priceFCO:15, priceMilan:20, priceToBCN:127, dailyCost:[45,65], country:"Croatia" },
+    { code:"MLA", name:"Malta",     lat:35.8989, lng:14.5146, priceFCO:15, priceMilan:66, priceToBCN:50,  dailyCost:[40,58], country:"Malta" },
+    { code:"TIA", name:"Tirana",    lat:41.3275, lng:19.8187, priceFCO:28, priceMilan:15, priceToBCN:73,  dailyCost:[30,40], country:"Albania" },
+    { code:"BUD", name:"Budapest",  lat:47.4979, lng:19.0402, priceFCO:34, priceMilan:25, priceToBCN:42,  dailyCost:[35,50], country:"Hungary" },
+    { code:"SOF", name:"Sofia",     lat:42.6977, lng:23.3219, priceFCO:60, priceMilan:15, priceToBCN:30,  dailyCost:[28,38], country:"Bulgaria" },
+    { code:"ATH", name:"Atenas",    lat:37.9838, lng:23.7275, priceFCO:79, priceMilan:68, priceToBCN:74,  dailyCost:[40,55], country:"Greece" },
+    { code:"IST", name:"Istanbul",  lat:41.0082, lng:28.9784, priceFCO:102,priceMilan:null,priceToBCN:75, dailyCost:[35,50], country:"Turkey" },
+  ];
+
+  const destMarkerMap = {}; // code → L.marker
+
+  destinations.forEach(dest => {
+    const minPrice = Math.min(...[dest.priceFCO, dest.priceMilan].filter(p => p !== null));
+    const html = `<div class="dest-marker" data-testid="dest-marker-${dest.code}" data-code="${dest.code}">€${minPrice}</div>`;
+    const icon = L.divIcon({ className:'', html, iconSize:[44,22], iconAnchor:[22,11] });
+    const marker = L.marker([dest.lat, dest.lng], { icon, zIndexOffset:800 });
+
+    const popupHtml = `
+      <div class="dest-popup-inner" data-testid="dest-popup-${dest.code}">
+        <div class="dest-popup-header">
+          <span class="dest-popup-city">${dest.name}</span>
+          <span class="dest-popup-country">${dest.country}</span>
+        </div>
+        <div class="dest-popup-row">
+          <span class="dest-popup-label">Desde Roma (FCO)</span>
+          <span class="dest-popup-val">€${dest.priceFCO}</span>
+        </div>
+        <div class="dest-popup-row">
+          <span class="dest-popup-label">Desde Milan</span>
+          <span class="dest-popup-val ${dest.priceMilan === null ? 'na' : ''}">${dest.priceMilan !== null ? '€'+dest.priceMilan : '—'}</span>
+        </div>
+        <div class="dest-popup-row">
+          <span class="dest-popup-label">Hacia BCN</span>
+          <span class="dest-popup-val">€${dest.priceToBCN}</span>
+        </div>
+        <hr class="dest-popup-divider">
+        <div class="dest-popup-row">
+          <span class="dest-popup-label">Costo diario est.</span>
+          <span class="dest-popup-val">€${dest.dailyCost[0]}–€${dest.dailyCost[1]}</span>
+        </div>
+      </div>`;
+
+    marker.bindPopup(popupHtml, {
+      className:'dest-popup-wrap',
+      maxWidth:260,
+      closeButton:true,
+    });
+
+    marker.addTo(map);
+    destMarkerMap[dest.code] = marker;
+  });
+
+  function highlightDestCodes(text) {
+    // Reset all
+    Object.values(destMarkerMap).forEach(m => {
+      const el = m.getElement();
+      if (el) el.querySelector('.dest-marker')?.classList.remove('highlighted');
+    });
+    // Highlight matching
+    destinations.forEach(dest => {
+      const re = new RegExp('\\b' + dest.code + '\\b');
+      if (re.test(text)) {
+        const el = destMarkerMap[dest.code]?.getElement();
+        if (el) el.querySelector('.dest-marker')?.classList.add('highlighted');
+      }
+    });
+  }
+</script>
+
+<!-- === CHAT DRAWER === -->
+<button class="chat-toggle" id="chatToggle" data-testid="chat-toggle" aria-label="Abrir asistente de viaje">
+  <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+  </svg>
+</button>
+
+<div class="chat-drawer" id="chatDrawer" data-testid="chat-drawer" role="complementary" aria-label="Asistente de viaje">
+  <div class="chat-header">
+    <div>
+      <div class="chat-header-title">Asistente de viaje</div>
+      <div class="chat-header-sub">Pregunta sobre destinos, costos, rutas</div>
+    </div>
+    <button class="chat-close" id="chatClose" aria-label="Cerrar">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="chat-messages" id="chatMessages" data-testid="chat-messages">
+    <div class="chat-empty" id="chatEmpty">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      <strong>¿Qué querés explorar?</strong>
+      <span>Pregunta sobre Dubrovnik, Budapest,<br>costos, visas, rutas o lo que sea.</span>
+    </div>
+  </div>
+
+  <div class="chat-footer">
+    <textarea
+      class="chat-input-field"
+      id="chatInput"
+      data-testid="chat-input"
+      placeholder="Pregunta sobre destinos..."
+      rows="1"
+      aria-label="Mensaje"
+    ></textarea>
+    <button class="chat-send" id="chatSend" data-testid="chat-send" aria-label="Enviar">
+      <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="22" y1="2" x2="11" y2="13"/>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const toggle   = document.getElementById('chatToggle');
+  const drawer   = document.getElementById('chatDrawer');
+  const closeBtn = document.getElementById('chatClose');
+  const input    = document.getElementById('chatInput');
+  const sendBtn  = document.getElementById('chatSend');
+  const msgs     = document.getElementById('chatMessages');
+  const empty    = document.getElementById('chatEmpty');
+
+  let history = []; // { role, content }
+  let streaming = false;
+
+  toggle.addEventListener('click', () => {
+    drawer.classList.toggle('open');
+    if (drawer.classList.contains('open')) input.focus();
+  });
+  closeBtn.addEventListener('click', () => drawer.classList.remove('open'));
+
+  // Auto-resize textarea
+  input.addEventListener('input', () => {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 100) + 'px';
+  });
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+  sendBtn.addEventListener('click', sendMessage);
+
+  function addMsg(role, text, isStreaming) {
+    if (empty) empty.style.display = 'none';
+    const el = document.createElement('div');
+    el.className = 'chat-msg ' + role + (isStreaming ? ' streaming' : '');
+    el.textContent = text;
+    msgs.appendChild(el);
+    msgs.scrollTop = msgs.scrollHeight;
+    return el;
+  }
+
+  async function sendMessage() {
+    const text = input.value.trim();
+    if (!text || streaming) return;
+
+    addMsg('user', text);
+    history.push({ role:'user', content:text });
+    input.value = '';
+    input.style.height = 'auto';
+    sendBtn.disabled = true;
+    streaming = true;
+
+    let assistantEl = addMsg('assistant', '', true);
+    let buffer = '';
+
+    try {
+      const res = await fetch('/api/chat', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ messages: history })
+      });
+
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream:true });
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6).trim();
+            if (data === '[DONE]') continue;
+            try {
+              const json = JSON.parse(data);
+              const delta = json.choices?.[0]?.delta?.content
+                         || json.delta?.text
+                         || json.text
+                         || '';
+              if (delta) {
+                buffer += delta;
+                assistantEl.textContent = buffer;
+                msgs.scrollTop = msgs.scrollHeight;
+              }
+            } catch (_) {}
+          }
+        }
+      }
+    } catch (err) {
+      buffer = buffer || 'Error conectando al asistente. Verifica que /api/chat esté disponible.';
+      assistantEl.textContent = buffer;
+    }
+
+    assistantEl.classList.remove('streaming');
+    history.push({ role:'assistant', content:buffer });
+    sendBtn.disabled = false;
+    streaming = false;
+
+    // Highlight destination codes mentioned in response
+    if (typeof highlightDestCodes === 'function') {
+      highlightDestCodes(buffer);
+    }
+  }
+})();
 </script>
 </body>
 </html>
