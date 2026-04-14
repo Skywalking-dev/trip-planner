@@ -24,27 +24,153 @@
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:'Plus Jakarta Sans',system-ui,sans-serif; background:var(--bg); color:var(--text); font-size:14px; line-height:1.55; -webkit-font-smoothing:antialiased; }
 
-    .hero { position:relative; width:100%; height:88vh; min-height:550px; }
+    /* === MAP HERO — 100vh === */
+    .hero { position:relative; width:100%; height:100vh; }
     #map { width:100%; height:100%; }
-    .hero-grad {
-      position:absolute; bottom:0; left:0; right:0; z-index:1000;
-      background:linear-gradient(transparent 0%, var(--bg) 85%);
-      padding:120px 56px 40px;
-    }
-    .hero-grad .pre { font-size:11px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:var(--accent); opacity:0.7; }
-    .hero-grad h1 { font-size:48px; font-weight:300; color:var(--text-bright); letter-spacing:-1px; margin-top:4px; }
-    .hero-grad h1 em { font-style:italic; font-weight:300; color:var(--accent); }
-    .hero-grad .sub { font-size:13px; color:var(--text-dim); margin-top:6px; letter-spacing:0.3px; }
 
-    .stats { display:grid; grid-template-columns:repeat(5,1fr); border-bottom:1px solid var(--border); }
+    /* === STATS BAR — overlay at bottom of map === */
+    .stats {
+      position:absolute; bottom:0; left:0; right:0; z-index:1000;
+      display:grid; grid-template-columns:repeat(5,1fr);
+      background:rgba(10,15,20,0.85);
+      backdrop-filter:blur(12px);
+      border-top:1px solid rgba(255,255,255,0.07);
+    }
     body.full .stats { grid-template-columns:repeat(6,1fr); }
-    .st { padding:22px 0; text-align:center; border-right:1px solid var(--border); }
+    .st { padding:16px 0; text-align:center; border-right:1px solid var(--border); }
     .st:last-child { border-right:none; }
-    .st .v { font-size:20px; font-weight:600; color:var(--text-bright); }
+    .st .v { font-size:18px; font-weight:600; color:var(--text-bright); }
     .st .l { font-size:9px; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-dim); margin-top:3px; }
     .st.glow .v { color:var(--accent); }
     .st.green .v { color:var(--green); }
 
+    /* === HERO TITLE OVERLAY (top-left) === */
+    .hero-title {
+      position:absolute; top:0; left:0; z-index:1000;
+      padding:24px 32px;
+      background:linear-gradient(135deg, rgba(10,15,20,0.75) 0%, transparent 80%);
+      pointer-events:none;
+    }
+    .hero-title .pre { font-size:10px; font-weight:500; letter-spacing:3px; text-transform:uppercase; color:var(--accent); opacity:0.7; }
+    .hero-title h1 { font-size:36px; font-weight:300; color:var(--text-bright); letter-spacing:-1px; margin-top:2px; }
+    .hero-title h1 em { font-style:italic; font-weight:300; color:var(--accent); }
+    .hero-title .sub { font-size:11px; color:var(--text-dim); margin-top:4px; letter-spacing:0.3px; }
+
+    /* === BACK TO ROUTE BUTTON === */
+    .back-btn {
+      position:absolute; top:80px; left:16px; z-index:1001;
+      background:rgba(10,15,20,0.92); border:1px solid rgba(212,175,55,0.3);
+      border-radius:6px; padding:7px 14px;
+      font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+      font-size:11px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase;
+      color:var(--accent); cursor:pointer;
+      display:none; align-items:center; gap:6px;
+      transition:border-color 150ms ease-out, background 150ms ease-out;
+    }
+    .back-btn.visible { display:flex; }
+    .back-btn:hover { border-color:rgba(212,175,55,0.6); background:rgba(17,23,30,0.95); }
+    .back-btn svg { width:12px; height:12px; stroke:var(--accent); stroke-width:2.5; fill:none; }
+
+    /* === CITY SIDE PANEL === */
+    .city-panel {
+      position:absolute; top:0; left:-34%; width:33.33%; height:100%;
+      background:var(--surface);
+      border-right:1px solid rgba(212,175,55,0.15);
+      z-index:1002;
+      overflow-y:auto;
+      transition:left 300ms cubic-bezier(0.0,0,0.2,1);
+      box-shadow:8px 0 32px rgba(0,0,0,0.5);
+    }
+    .city-panel.open { left:0; }
+    .city-panel::-webkit-scrollbar { width:3px; }
+    .city-panel::-webkit-scrollbar-track { background:transparent; }
+    .city-panel::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.08); border-radius:2px; }
+
+    .panel-header {
+      padding:20px 20px 16px;
+      border-bottom:1px solid var(--border);
+      position:sticky; top:0; z-index:1;
+      background:var(--surface);
+    }
+    .panel-city { font-size:22px; font-weight:600; color:var(--text-bright); letter-spacing:-0.5px; }
+    .panel-meta { display:flex; gap:16px; margin-top:6px; }
+    .panel-meta-item { display:flex; flex-direction:column; gap:1px; }
+    .panel-meta-label { font-size:9px; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim); }
+    .panel-meta-val { font-size:13px; font-weight:600; color:var(--accent); }
+
+    .panel-section { padding:16px 20px; border-bottom:1px solid var(--border); }
+    .panel-section-title {
+      font-size:9px; font-weight:600; letter-spacing:2px; text-transform:uppercase;
+      color:var(--text-dim); margin-bottom:12px;
+    }
+
+    /* Transport cards */
+    .transport-card {
+      background:var(--raised); border:1px solid var(--border); border-radius:6px;
+      padding:10px 12px; margin-bottom:8px;
+    }
+    .transport-card:last-child { margin-bottom:0; }
+    .transport-card-top { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:3px; }
+    .transport-name { font-size:13px; font-weight:500; color:var(--text-bright); }
+    .transport-cost { font-size:13px; font-weight:600; color:var(--accent); }
+    .transport-desc { font-size:11px; color:var(--text-dim); line-height:1.4; }
+    .transport-link {
+      display:inline-block; margin-top:5px;
+      font-size:10px; font-weight:500; color:var(--accent);
+      text-decoration:none; letter-spacing:0.3px;
+    }
+    .transport-link:hover { text-decoration:underline; }
+
+    /* Collapsible sections */
+    .panel-collapse-toggle {
+      display:flex; align-items:center; justify-content:space-between;
+      cursor:pointer; user-select:none;
+    }
+    .panel-collapse-toggle .chevron {
+      font-size:10px; color:var(--text-dim); transition:transform 200ms;
+    }
+    .panel-collapse-toggle.collapsed .chevron { transform:rotate(-90deg); }
+    .panel-collapse-body { overflow:hidden; transition:max-height 250ms ease-out; }
+    .panel-collapse-body.collapsed { max-height:0 !important; }
+
+    /* POI list in panel */
+    .poi-group { margin-bottom:12px; }
+    .poi-group-label {
+      font-size:9px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase;
+      color:var(--text-dim); opacity:0.6; margin-bottom:6px;
+      display:flex; align-items:center; gap:6px;
+    }
+    .poi-dot {
+      width:8px; height:8px; border-radius:50%; flex-shrink:0;
+      display:inline-block;
+    }
+    .poi-item {
+      display:flex; align-items:flex-start; gap:8px;
+      padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.02);
+      cursor:pointer;
+    }
+    .poi-item:last-child { border-bottom:none; }
+    .poi-item-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; margin-top:4px; }
+    .poi-item-body { flex:1; }
+    .poi-item-name { font-size:12px; font-weight:500; color:var(--text-bright); transition:color 150ms; }
+    .poi-item:hover .poi-item-name { color:var(--accent); }
+    .poi-item-desc { font-size:11px; color:var(--text-dim); line-height:1.4; margin-top:1px; }
+
+    /* Tips */
+    .tip-item {
+      font-size:12px; color:var(--text); padding:4px 0;
+      border-bottom:1px solid rgba(255,255,255,0.02);
+      display:flex; gap:8px; align-items:flex-start;
+    }
+    .tip-item:last-child { border-bottom:none; }
+    .tip-item::before {
+      content:''; display:inline-block; width:3px; height:3px; border-radius:50%;
+      background:var(--accent); margin-top:5px; flex-shrink:0; opacity:0.6;
+    }
+
+    /* Panel close is the back button */
+
+    /* === CONTENT BELOW MAP === */
     .cx { padding:40px 56px 72px; }
     .sl { font-size:10px; font-weight:600; letter-spacing:2.5px; text-transform:uppercase; color:var(--text-dim); margin:48px 0 20px; }
 
@@ -61,6 +187,7 @@
     .g2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:14px 0; }
     .g3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin:14px 0; }
     .g4 { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:14px 0; }
+    .g5 { display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin:14px 0; }
 
     .phases { width:100%; border-collapse:collapse; }
     .phases td { padding:14px 0; border-bottom:1px solid var(--border); font-size:13px; vertical-align:middle; }
@@ -76,93 +203,12 @@
     .phases tr.booked td { border-bottom-color:var(--green-dim); }
     .phases tr.booked .phase-name { color:var(--green); }
     .phases tr.booked .phase-tag { color:var(--green); opacity:0.6; }
-
-    .tl { position:relative; margin:14px 0; }
-    .tl-item {
-      display:grid; grid-template-columns:100px 1fr 110px; gap:0 24px;
-      padding:22px 0; border-bottom:1px solid var(--border);
-      position:relative;
-    }
-    .tl-item:last-child { border-bottom:none; }
-    .tl-item::before {
-      content:''; position:absolute; left:95px; top:0; bottom:0; width:1px;
-      background:var(--border);
-    }
-    .tl-item:first-child::before { top:24px; }
-    .tl-item:last-child::before { bottom:calc(100% - 24px); }
-    .tl-item::after {
-      content:''; position:absolute; left:92px; top:20px;
-      width:7px; height:7px; border-radius:50%;
-      background:var(--raised); border:1.5px solid var(--text-dim);
-    }
-    .tl-date { font-size:13px; color:var(--text-dim); padding-top:5px; text-align:right; font-weight:500; }
-    .tl-body { padding-left:20px; }
-    .tl-place { font-size:18px; font-weight:500; color:var(--text-bright); letter-spacing:-0.3px; }
-    .tl-desc { font-size:14px; color:var(--text); margin-top:5px; line-height:1.6; }
-    .tl-meta { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px; margin-top:12px; padding-top:12px; border-top:1px solid var(--border); grid-column:1/-1; margin-left:110px; padding-left:20px; }
-    .tl-meta-item { font-size:13px; color:var(--text-dim); display:flex; flex-direction:column; gap:2px; padding:8px 12px; background:var(--bg); border-radius:6px; }
-    .tl-meta-item .ml { font-size:10px; text-transform:uppercase; letter-spacing:1px; opacity:0.5; margin-bottom:2px; }
-    .tl-meta-item .mv { color:var(--text); font-weight:500; font-size:13px; line-height:1.4; }
-    .tl-cost { text-align:right; padding-top:4px; }
-    .tl-cost .day-cost { font-size:16px; font-weight:500; color:var(--text-bright); }
-    .tl-cost .running { font-size:12px; color:var(--text-dim); margin-top:3px; }
-    .tl-cost .running em { font-style:normal; color:var(--accent); font-weight:500; font-size:13px; }
-
-    .tl-item.epic::after { border-color:var(--accent); background:var(--accent-dim); }
-    .tl-item.epic .tl-place { color:var(--accent); }
-    .tl-item.bday::after { border-color:var(--accent); background:var(--accent); box-shadow:0 0 8px rgba(212,175,55,0.3); width:9px; height:9px; left:91px; }
-    .tl-item.bday .tl-place { color:var(--accent); font-weight:600; }
-    .tl-item.fly .tl-place { color:var(--text-dim); font-weight:400; font-style:italic; }
-    .tl-item.fly::after { border-color:var(--text-dim); background:transparent; width:5px; height:5px; left:93px; }
-    .tl-item.free::after { border-color:var(--text-bright); background:var(--raised); width:9px; height:9px; left:91px; }
-    .tl-item.free .tl-place { font-weight:600; }
-    .tl-item.booked::after { border-color:var(--green); background:var(--green-dim); }
-    .tl-item.booked .tl-place { color:var(--green); }
-
-    /* inline private expansions */
-    .tl-private {
-      margin-top:12px; padding-top:12px;
-      border-top:1px solid var(--border);
-      max-height:0; opacity:0; overflow:hidden;
-      transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease-out;
-      pointer-events:none;
-    }
-    body.full .tl-private { max-height:1400px; opacity:1; pointer-events:auto; }
-
-    /* hostel/accommodation cards — flow naturally from .tl-meta */
-    .tl-private-category { margin-bottom:14px; }
-    .tl-private-category h5 { font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-dim); opacity:0.6; margin-bottom:8px; grid-column:1/-1; }
-    .tl-hostel-cards { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:8px; }
-    .tl-hostel-card {
-      padding:10px 12px; background:var(--bg); border-radius:6px; border:1px solid var(--border);
-      font-size:12px; line-height:1.4; transition:all 0.2s;
-    }
-    body.full .tl-hostel-card:hover { border-color:var(--accent); background:var(--raised); }
-    .tl-hostel-card .name { color:var(--accent); font-weight:600; font-size:13px; margin-bottom:2px; }
-    .tl-hostel-card .price { color:var(--accent); font-weight:600; font-size:11px; }
-    .tl-hostel-card .desc { color:var(--text-dim); font-size:11px; margin-top:4px; line-height:1.5; }
-    .tl-hostel-card .rating { color:var(--text); font-size:11px; margin-top:2px; }
-    .tl-hostel-card a { color:var(--accent); text-decoration:none; font-size:10px; font-weight:500; margin-top:4px; display:inline-block; }
-    .tl-hostel-card a:hover { text-decoration:underline; }
-
-    /* bar/nightlife recommendations — compact list */
-    .tl-bar-list { display:flex; flex-direction:column; gap:6px; }
-    .tl-bar-item {
-      font-size:12px; color:var(--text-dim); padding:6px 0;
-      border-bottom:1px solid rgba(255,255,255,0.02);
-    }
-    .tl-bar-item:last-child { border-bottom:none; }
-    .tl-bar-item strong { color:var(--text-bright); font-weight:500; }
-    .tl-bar-item .note { color:var(--text-dim); font-size:11px; display:block; margin-top:2px; font-style:italic; }
-
-    /* private standalone cards (hidden by default) */
-    .private-card { display:none !important; }
-    body.full .private-card { display:block !important; }
-    .structure-grid { grid-template-columns:1fr !important; }
-    body.full .structure-grid { grid-template-columns:2fr 1fr !important; }
-
-    /* private tip footer */
-    .tl-private-tip { font-size:11px; color:var(--accent); opacity:0.8; margin-top:8px; padding-top:6px; border-top:1px solid rgba(212,175,55,0.08); }
+    .phases tr.potential td { opacity:0.42; border-bottom-color:rgba(255,255,255,0.04); }
+    .phases tr.potential .phase-name { color:var(--text-dim); font-style:italic; }
+    .phases tr.potential .phase-tag { color:var(--text-dim); opacity:0.5; }
+    .phases tr.section-break td { padding:10px 0 4px; border-bottom:none; }
+    .phases tr.section-break .section-label { font-size:9px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--accent); opacity:0.7; display:flex; align-items:center; gap:10px; }
+    .phases tr.section-break .section-label::after { content:''; flex:1; height:1px; background:rgba(212,175,55,0.2); }
 
     .badge { display:inline-block; font-size:9px; font-weight:600; letter-spacing:1px; text-transform:uppercase; padding:3px 8px; border-radius:4px; }
     .badge-green { background:var(--green-dim); color:var(--green); border:1px solid rgba(74,222,128,0.15); }
@@ -188,7 +234,13 @@
     .footer { padding:40px 56px; text-align:center; font-size:11px; color:var(--text-dim); letter-spacing:0.5px; }
     .footer .tag { color:var(--accent); opacity:0.5; margin-top:4px; }
 
-    /* secret toggle */
+    /* === PRIVATE === */
+    .private-card { display:none !important; }
+    body.full .private-card { display:block !important; }
+    .structure-grid { grid-template-columns:1fr !important; }
+    body.full .structure-grid { grid-template-columns:2fr 1fr !important; }
+
+    /* === SECRET TOGGLE === */
     .secret-toggle {
       position:fixed; top:16px; right:16px; z-index:9999;
       width:36px; height:36px; border-radius:8px;
@@ -200,20 +252,9 @@
     .secret-toggle:active { transform:scale(0.95); }
     body.full .secret-toggle { border-color:rgba(212,175,55,0.12); box-shadow:inset 0 1px 0 rgba(212,175,55,0.06), 0 1px 4px rgba(0,0,0,0.1); }
 
-    @media(max-width:900px) {
-      .g2,.g3,.g4 { grid-template-columns:1fr; }
-      .cx { padding:24px 20px 48px; }
-      .hero-grad { padding:80px 20px 28px; }
-      .hero-grad h1 { font-size:32px; }
-      .stats { grid-template-columns:repeat(3,1fr); }
-      .tl-item { grid-template-columns:70px 1fr; }
-    }
-
     /* === DESTINATION MARKERS === */
-    /* dest markers + chat: private only */
     .dest-marker-wrap { display:none; }
     body.full .dest-marker-wrap { display:block; }
-    body.full .chat-toggle { display:flex; }
 
     .dest-marker {
       display:flex; align-items:center; justify-content:center;
@@ -224,10 +265,7 @@
       font-size:10px; font-weight:600; color:#D4AF37;
       white-space:nowrap; letter-spacing:0.3px;
     }
-    .dest-marker:hover {
-      transform:scale(1.12);
-      box-shadow:0 0 10px rgba(212,175,55,0.35);
-    }
+    .dest-marker:hover { transform:scale(1.12); box-shadow:0 0 10px rgba(212,175,55,0.35); }
     .dest-marker.highlighted {
       animation:dest-pulse 1.8s ease-in-out infinite;
       border-color:var(--accent);
@@ -261,6 +299,23 @@
     .dest-popup-val.na { color:rgba(239,238,233,0.2); font-weight:400; font-size:11px; }
     .dest-popup-divider { margin:8px 0; border:none; border-top:1px solid rgba(255,255,255,0.05); }
 
+    /* POI tooltip */
+    .leaflet-tooltip.poi-tooltip {
+      background:rgba(10,15,20,0.93) !important;
+      border:1px solid rgba(255,255,255,0.1) !important;
+      color:#EFEEE9 !important;
+      font-family:'Plus Jakarta Sans',system-ui !important;
+      font-size:11px !important;
+      padding:4px 10px !important;
+      border-radius:4px !important;
+      box-shadow:0 4px 12px rgba(0,0,0,0.4) !important;
+    }
+    .leaflet-tooltip.poi-tooltip::before { border-top-color:rgba(10,15,20,0.93) !important; }
+
+    /* Minor city tooltip */
+    .minor-tip { background:rgba(10,15,20,0.9) !important; border:1px solid rgba(255,255,255,0.1) !important; color:#EFEEE9 !important; font-family:Plus Jakarta Sans,system-ui !important; font-size:11px !important; padding:4px 10px !important; border-radius:4px !important; box-shadow:0 4px 12px rgba(0,0,0,0.4) !important; }
+    .minor-tip::before { border-top-color:rgba(10,15,20,0.9) !important; }
+
     /* === CHAT DRAWER (private only) === */
     .chat-toggle {
       position:fixed; bottom:24px; right:24px; z-index:8000;
@@ -270,11 +325,8 @@
       transition:border-color 150ms ease-out, box-shadow 150ms ease-out, transform 150ms ease-out;
       box-shadow:0 4px 16px rgba(0,0,0,0.4);
     }
-    .chat-toggle:hover {
-      border-color:rgba(212,175,55,0.65);
-      box-shadow:0 4px 20px rgba(212,175,55,0.2);
-      transform:scale(1.05);
-    }
+    body.full .chat-toggle { display:flex; }
+    .chat-toggle:hover { border-color:rgba(212,175,55,0.65); box-shadow:0 4px 20px rgba(212,175,55,0.2); transform:scale(1.05); }
     .chat-toggle svg { width:20px; height:20px; stroke:#D4AF37; }
 
     .chat-drawer {
@@ -287,91 +339,123 @@
     body.full .chat-drawer { display:flex; }
     .chat-drawer.open { right:0; }
 
-    .chat-header {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:16px 16px 16px 20px;
-      border-bottom:1px solid var(--border);
-      flex-shrink:0;
-    }
+    .chat-header { display:flex; align-items:center; justify-content:space-between; padding:16px 16px 16px 20px; border-bottom:1px solid var(--border); flex-shrink:0; }
     .chat-header-title { font-size:13px; font-weight:600; color:var(--text-bright); letter-spacing:0.3px; }
     .chat-header-sub { font-size:11px; color:var(--text-dim); margin-top:2px; }
-    .chat-close {
-      width:28px; height:28px; border-radius:6px;
-      background:transparent; border:1px solid var(--border);
-      cursor:pointer; display:flex; align-items:center; justify-content:center;
-      transition:border-color 150ms ease-out, background 150ms ease-out;
-      flex-shrink:0;
-    }
+    .chat-close { width:28px; height:28px; border-radius:6px; background:transparent; border:1px solid var(--border); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:border-color 150ms ease-out, background 150ms ease-out; flex-shrink:0; }
     .chat-close:hover { border-color:rgba(212,175,55,0.3); background:var(--raised); }
     .chat-close svg { width:12px; height:12px; stroke:var(--text-dim); }
 
-    .chat-messages {
-      flex:1; overflow-y:auto; padding:16px;
-      display:flex; flex-direction:column; gap:10px;
-      scroll-behavior:smooth;
-    }
+    .chat-messages { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:10px; scroll-behavior:smooth; }
     .chat-messages::-webkit-scrollbar { width:4px; }
     .chat-messages::-webkit-scrollbar-track { background:transparent; }
     .chat-messages::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.08); border-radius:2px; }
 
-    .chat-msg {
-      max-width:88%; padding:9px 13px; border-radius:8px;
-      font-size:13px; line-height:1.55; word-break:break-word;
-    }
-    .chat-msg.user {
-      align-self:flex-end;
-      background:var(--raised); color:var(--text-bright);
-      border:1px solid rgba(255,255,255,0.06);
-    }
-    .chat-msg.assistant {
-      align-self:flex-start;
-      background:var(--surface); color:var(--text);
-      border:1px solid var(--border);
-    }
-    .chat-msg.assistant.streaming::after {
-      content:'▋'; animation:blink 0.8s step-start infinite; color:var(--accent);
-    }
+    .chat-msg { max-width:88%; padding:9px 13px; border-radius:8px; font-size:13px; line-height:1.55; word-break:break-word; }
+    .chat-msg.user { align-self:flex-end; background:var(--raised); color:var(--text-bright); border:1px solid rgba(255,255,255,0.06); }
+    .chat-msg.assistant { align-self:flex-start; background:var(--surface); color:var(--text); border:1px solid var(--border); }
+    .chat-msg.assistant.streaming::after { content:'▋'; animation:blink 0.8s step-start infinite; color:var(--accent); }
     @keyframes blink { 50% { opacity:0; } }
 
-    .chat-footer {
-      padding:12px 16px; border-top:1px solid var(--border);
-      display:flex; gap:8px; flex-shrink:0;
-    }
-    .chat-input-field {
-      flex:1; background:var(--surface); border:1px solid var(--border);
-      border-radius:6px; padding:9px 12px;
-      font-family:'Plus Jakarta Sans',system-ui,sans-serif;
-      font-size:13px; color:var(--text-bright); outline:none;
-      transition:border-color 150ms ease-out;
-      resize:none; min-height:38px; max-height:100px;
-    }
+    .chat-footer { padding:12px 16px; border-top:1px solid var(--border); display:flex; gap:8px; flex-shrink:0; }
+    .chat-input-field { flex:1; background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:9px 12px; font-family:'Plus Jakarta Sans',system-ui,sans-serif; font-size:13px; color:var(--text-bright); outline:none; transition:border-color 150ms ease-out; resize:none; min-height:38px; max-height:100px; }
     .chat-input-field::placeholder { color:var(--text-dim); }
     .chat-input-field:focus { border-color:rgba(212,175,55,0.35); }
-    .chat-send {
-      width:38px; height:38px; border-radius:6px; flex-shrink:0;
-      background:var(--accent); border:none; cursor:pointer;
-      display:flex; align-items:center; justify-content:center;
-      transition:opacity 150ms ease-out, transform 150ms ease-out;
-    }
+    .chat-send { width:38px; height:38px; border-radius:6px; flex-shrink:0; background:var(--accent); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:opacity 150ms ease-out, transform 150ms ease-out; }
     .chat-send:hover { opacity:0.85; }
     .chat-send:active { transform:scale(0.95); }
     .chat-send:disabled { opacity:0.35; cursor:not-allowed; }
     .chat-send svg { width:14px; height:14px; stroke:#0a0f14; stroke-width:2.5; }
 
-    .chat-empty {
-      flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
-      gap:8px; color:var(--text-dim); font-size:12px; text-align:center; padding:24px;
-      pointer-events:none;
-    }
+    .chat-empty { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:var(--text-dim); font-size:12px; text-align:center; padding:24px; pointer-events:none; }
     .chat-empty svg { width:28px; height:28px; stroke:rgba(212,175,55,0.3); margin-bottom:4px; }
     .chat-empty strong { color:var(--text); font-size:13px; font-weight:500; }
+
+    /* === TOOLS === */
+    .tool-link { display:block; font-size:13px; color:var(--text); text-decoration:none; padding:6px 0; border-bottom:1px solid var(--border); transition:color 0.15s; }
+    .tool-link:last-child { border-bottom:none; }
+    .tool-link:hover { color:var(--accent); }
+    .tool-link span { font-size:11px; color:var(--text-dim); margin-left:6px; }
+
+    /* === LOGISTICS TABLES === */
+    .log-table { width:100%; border-collapse:collapse; }
+    .log-table th { font-size:9px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-dim); text-align:left; padding:8px 0; border-bottom:1px solid var(--border); }
+    .log-table td { padding:8px 0; border-bottom:1px solid var(--border); font-size:12px; color:var(--text); vertical-align:middle; }
+    .log-table tr:last-child td { border-bottom:none; }
+    .log-table .leg-route { color:var(--text-bright); font-weight:500; white-space:nowrap; }
+    .log-table .leg-icon { width:24px; text-align:center; }
+    .log-table .leg-icon svg { width:14px; height:14px; vertical-align:middle; }
+    .log-table .leg-note { font-size:11px; color:var(--text-dim); }
+    .log-table .leg-price { font-weight:600; color:var(--accent); white-space:nowrap; }
+    .log-row-booked { border-left:2px solid var(--green); }
+    .log-row-pending { border-left:2px solid var(--accent); }
+    .log-row-booked td:first-child, .log-row-pending td:first-child { padding-left:8px; }
+    .log-summary { font-size:11px; color:var(--text-dim); padding-top:10px; border-top:1px solid var(--border); margin-top:4px; }
+    .log-wrap { overflow-x:auto; }
+
+    /* === 36-DAY CALENDAR === */
+    .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+    .cal-header { font-size:9px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim); text-align:center; padding:8px 0; }
+    .cal-day {
+      padding:8px 6px; border-radius:4px; font-size:12px;
+      background:var(--surface); border:1px solid var(--border);
+      min-height:52px; position:relative;
+    }
+    .cal-day-num { font-weight:600; color:var(--text-bright); font-size:14px; }
+    .cal-day-city { font-size:9px; color:var(--text-dim); margin-top:2px; letter-spacing:0.5px; text-transform:uppercase; }
+    .cal-day.bday { border-color:rgba(212,175,55,0.4) !important; }
+    .cal-day.bday .cal-day-num { color:var(--accent); }
+    .cal-day.transport::after { content:'\2192'; position:absolute; top:4px; right:6px; font-size:10px; color:var(--accent); font-weight:700; }
+    .cal-day.empty { opacity:0.15; min-height:52px; }
+    .cal-legend { display:flex; flex-wrap:wrap; gap:12px; margin-top:12px; padding:12px 16px; background:var(--surface); border:1px solid var(--border); border-radius:var(--r); }
+    .cal-legend-item { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-dim); }
+    .cal-legend-dot { width:8px; height:8px; border-radius:2px; flex-shrink:0; }
+    .cal-month-label { grid-column:1/-1; font-size:9px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim); padding:12px 0 4px; }
+
+    /* === EXPENSE TRACKER === */
+    .expense-table { width:100%; border-collapse:collapse; margin-top:14px; }
+    .expense-table th { font-size:9px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-dim); text-align:left; padding:8px 0; border-bottom:1px solid var(--border); }
+    .expense-table th:nth-child(n+2) { text-align:right; }
+    .expense-table td { padding:8px 0; border-bottom:1px solid var(--border); font-size:12px; color:var(--text); }
+    .expense-table tr:last-child td { border-bottom:none; }
+    .expense-table .exp-cat { color:var(--text-bright); font-weight:500; }
+    .expense-table .exp-val { text-align:right; }
+    .expense-table .exp-locked { color:var(--text-dim); }
+    .expense-input {
+      background:var(--raised); border:1px solid var(--border); border-radius:4px;
+      color:var(--text-bright); font-family:'Plus Jakarta Sans',system-ui; font-size:12px;
+      padding:4px 8px; width:80px; text-align:right; outline:none;
+      transition:border-color 150ms;
+      -moz-appearance:textfield;
+    }
+    .expense-input:focus { border-color:rgba(212,175,55,0.4); }
+    .expense-input::-webkit-inner-spin-button,
+    .expense-input::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
+    .variance-under { color:var(--green); font-weight:500; }
+    .variance-over { color:#f87171; font-weight:500; }
+    .variance-zero { color:var(--text-dim); }
+    .budget-progress { height:4px; background:var(--border); border-radius:2px; margin-top:16px; overflow:hidden; }
+    .budget-progress-fill { height:100%; border-radius:2px; transition:width 300ms; }
+    .expense-total td { padding-top:12px !important; border-bottom:none !important; }
+    .expense-total .exp-cat { font-size:14px; }
+    .expense-total .exp-val { font-weight:600; font-size:14px; }
+    .lock-icon { display:inline-block; width:12px; height:12px; vertical-align:middle; margin-right:4px; opacity:0.4; }
+
+    @media(max-width:900px) {
+      .g2,.g3,.g4,.g5 { grid-template-columns:1fr; }
+      .cx { padding:24px 20px 48px; }
+      .stats { grid-template-columns:repeat(3,1fr); }
+      .city-panel { width:100%; left:-100%; }
+      .cal-day { min-height:40px; padding:4px; }
+      .cal-day-num { font-size:12px; }
+      .cal-day-city { font-size:8px; }
+    }
   </style>
 </head>
 <body>
 
-<button class="secret-toggle" id="secretBtn" title=" "></button>
+<button class="secret-toggle" id="secretBtn" data-testid="secret-toggle" title=" "></button>
 <script>
-  // Toggle private mode
   (function(){
     const params = new URLSearchParams(window.location.search);
     if (params.get('mode') === 'full') document.body.classList.add('full');
@@ -386,436 +470,444 @@
   })();
 </script>
 
-<div class="hero">
-  <div id="map"></div>
-  <div class="hero-grad">
+<!-- ==================== MAPA HERO ==================== -->
+<div class="hero" data-testid="map-hero">
+  <div id="map" data-testid="map-container"></div>
+
+  <div class="hero-title">
     <div class="pre">Skywalking &middot; Mentat</div>
     <h1>Viaje <em>40</em></h1>
-    <div class="sub">Buenos Aires &rarr; Roma &rarr; Firenze &rarr; Milan &rarr; Riviera &rarr; Barcelona &nbsp;&middot;&nbsp; Mayo&ndash;Junio 2026</div>
+    <div class="sub">Buenos Aires &rarr; Roma &rarr; N&aacute;poles &rarr; Atenas &rarr; Split &rarr; Milan &rarr; Riviera &rarr; Barcelona &nbsp;&middot;&nbsp; Mayo&ndash;Junio 2026</div>
+  </div>
+
+  <!-- Back to route button -->
+  <button class="back-btn" id="backBtn" data-testid="map-back-btn" aria-label="Volver a la ruta completa">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Ruta completa
+  </button>
+
+  <!-- City side panel -->
+  <div class="city-panel" id="cityPanel" data-testid="city-panel" role="complementary" aria-label="Informacion de ciudad">
+    <div class="panel-header" id="panelHeader">
+      <div class="panel-city" id="panelCityName" data-testid="panel-city-name"></div>
+      <div class="panel-meta" id="panelMeta"></div>
+    </div>
+    <div id="panelContent" data-testid="panel-content"></div>
+  </div>
+
+  <!-- Stats bar overlay -->
+  <div class="stats" data-testid="stats-bar">
+    <div class="st"><div class="v">36</div><div class="l">D&iacute;as</div></div>
+    <div class="st"><div class="v">1,800+</div><div class="l">Km ruta</div></div>
+    <div class="st glow"><div class="v">31 May</div><div class="l">Cumple BCN</div></div>
+    <div class="st green"><div class="v">Booked</div><div class="l">Hasta Grecia</div></div>
+    <div class="st green"><div class="v">Booked</div><div class="l">Vuelta</div></div>
+    <div class="st private-card"><div class="v" id="stat-total">&mdash;</div><div class="l">Total Balanced</div></div>
   </div>
 </div>
 
-<div class="stats">
-  <div class="st"><div class="v">36</div><div class="l">D&iacute;as</div></div>
-  <div class="st"><div class="v">1,800+</div><div class="l">Km ruta</div></div>
-  <div class="st glow"><div class="v">31 May</div><div class="l">Cumple BCN</div></div>
-  <div class="st green"><div class="v">Booked</div><div class="l">Ida</div></div>
-  <div class="st green"><div class="v">Booked</div><div class="l">Vuelta</div></div>
-  <div class="st private-card"><div class="v" id="stat-total">&mdash;</div><div class="l">Total Balanced</div></div>
-</div>
-
-<div class="cx">
+<!-- ==================== CONTENT BELOW MAP ==================== -->
+<div class="cx" data-testid="content-below-map">
 
   <div class="sl">Estructura</div>
-  <div class="g2 structure-grid">
+  <div class="g2 structure-grid" data-testid="structure-section">
     <div class="c">
       <table class="phases">
         <tr class="booked"><td><span class="phase-tag">vuelo</span><span class="phase-name">EZE &rarr; BCN &rarr; FCO <span class="badge badge-green">booked</span></span></td><td class="phase-date">8&ndash;9 mayo</td><td class="phase-days">&mdash;</td></tr>
-        <tr><td><span class="phase-tag">italia</span><span class="phase-name">Roma &rarr; Firenze</span></td><td class="phase-date">9 &ndash; 14 may</td><td class="phase-days">5</td></tr>
-        <tr><td><span class="phase-tag">milan</span><span class="phase-name">Christian &amp; Gus</span></td><td class="phase-date">14 &ndash; 19 may</td><td class="phase-days">5</td></tr>
-        <tr><td><span class="phase-tag">road trip</span><span class="phase-name">Milan &rarr; CT &rarr; Riviera &rarr; Marseille</span></td><td class="phase-date">20 &ndash; 26 may</td><td class="phase-days">7</td></tr>
-        <tr><td><span class="phase-tag">tren</span><span class="phase-name">Montpellier &rarr; Barcelona</span></td><td class="phase-date">27 &ndash; 28 may</td><td class="phase-days">2</td></tr>
-        <tr class="highlight"><td><span class="phase-tag">cumple</span><span class="phase-name">40 a&ntilde;os en Barcelona</span></td><td class="phase-date">28 may &ndash; 12 jun</td><td class="phase-days">15</td></tr>
+        <tr><td><span class="phase-tag">italia</span><span class="phase-name">Roma</span></td><td class="phase-date">9 &ndash; 12 may</td><td class="phase-days">3</td></tr>
+        <tr><td><span class="phase-tag">italia</span><span class="phase-name">N&aacute;poles</span></td><td class="phase-date">12 &ndash; 14 may</td><td class="phase-days">2</td></tr>
+        <tr class="booked"><td><span class="phase-tag">vuelo</span><span class="phase-name">NAP &rarr; ATH <span class="badge badge-green">booked</span></span></td><td class="phase-date">14 may 18:20</td><td class="phase-days">&mdash;</td></tr>
+        <tr class="booked"><td><span class="phase-tag">grecia</span><span class="phase-name">Atenas &middot; Stef</span></td><td class="phase-date">desde 14 may</td><td class="phase-days">TBD</td></tr>
+        <tr class="section-break"><td colspan="3"><div class="section-label">Post-Atenas &middot; potencial &middot; TBD con Stef</div></td></tr>
+        <tr class="potential"><td><span class="phase-tag">croacia</span><span class="phase-name">Split (trabajo remoto)</span></td><td class="phase-date">~17 &ndash; 21 may</td><td class="phase-days">4</td></tr>
+        <tr class="potential"><td><span class="phase-tag">milan</span><span class="phase-name">Christian &amp; Gus</span></td><td class="phase-date">~21 &ndash; 24 may</td><td class="phase-days">3</td></tr>
+        <tr class="potential"><td><span class="phase-tag">road trip</span><span class="phase-name">Milan &rarr; CT &rarr; Riviera &rarr; Marseille</span></td><td class="phase-date">~24 &ndash; 31 may</td><td class="phase-days">7</td></tr>
+        <tr class="highlight"><td><span class="phase-tag">cumple</span><span class="phase-name">40 a&ntilde;os en Barcelona</span></td><td class="phase-date">31 may &ndash; 12 jun</td><td class="phase-days">12</td></tr>
         <tr class="booked"><td><span class="phase-tag">vuelo</span><span class="phase-name">BCN &rarr; BOG &rarr; EZE <span class="badge badge-green">booked</span></span></td><td class="phase-date">12&ndash;13 junio</td><td class="phase-days">&mdash;</td></tr>
       </table>
     </div>
-    <div class="c booked private-card">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.4-.1.9.3 1.1L11 12l-2 3H6l-1 1 3 2 2 3 1-1v-3l3-2 3.8 7.3c.2.4.7.5 1.1.3l.5-.3c.4-.2.6-.6.5-1.1z"/></svg>
-        <h4 style="margin:0;color:var(--green)">Vuelos reservados</h4>
+    <div class="c booked private-card" style="padding:0;overflow:hidden" data-testid="flights-panel">
+      <!-- Header -->
+      <div style="padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.4-.1.9.3 1.1L11 12l-2 3H6l-1 1 3 2 2 3 1-1v-3l3-2 3.8 7.3c.2.4.7.5 1.1.3l.5-.3c.4-.2.6-.6.5-1.1z"/></svg>
+            <span style="font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--green)">Vuelos confirmados</span>
+          </div>
+          <div style="font-size:11px;color:var(--text-dim)">5 legs &middot; ida + intra-EU + vuelta &middot; 3 aerol&iacute;neas</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:24px;font-weight:300;color:var(--green);letter-spacing:-1px">$1,549</div>
+          <div style="font-size:10px;color:var(--text-dim)">ida $935 + NAP&rarr;ATH &euro;115 + vuelta ARS 693k</div>
+        </div>
       </div>
-      <div style="font-size:28px;font-weight:300;color:var(--green);letter-spacing:-1px;margin-bottom:4px">USD 1,424 <span style="font-size:14px;color:var(--text-dim);font-weight:400">ida $935 + vuelta ARS 693k</span></div>
-      <div style="font-size:11px;color:var(--text-dim);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)">4 legs &middot; ida + vuelta confirmadas</div>
-      <div style="margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)">
-        <div style="font-size:12px;color:var(--text-dim);margin-bottom:4px">Leg 1 &middot; LEVEL LL 2602</div>
-        <div style="font-size:16px;font-weight:500;color:var(--text-bright)">EZE &rarr; BCN</div>
-        <div style="font-size:13px;color:var(--text)">8 may 11:00 &rarr; 9 may 04:35</div>
-        <div style="font-size:11px;color:var(--text-dim)">Directo &middot; 12h 35m</div>
+
+      <!-- IDA -->
+      <div style="padding:16px 24px 12px">
+        <div style="font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px">Ida &middot; 8&ndash;9 mayo</div>
+
+        <!-- Leg 1 -->
+        <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:center;margin-bottom:16px">
+          <div>
+            <div style="font-size:22px;font-weight:600;color:var(--text-bright);letter-spacing:-0.5px">EZE</div>
+            <div style="font-size:11px;color:var(--text-dim)">Buenos Aires</div>
+            <div style="font-size:13px;color:var(--text);margin-top:4px">11:00 <span style="font-size:11px;color:var(--text-dim)">8 may</span></div>
+          </div>
+          <div style="text-align:center;padding:0 16px">
+            <div style="font-size:10px;color:var(--text-dim);margin-bottom:4px">12h 35m</div>
+            <div style="display:flex;align-items:center;gap:0">
+              <div style="width:6px;height:6px;border-radius:50%;border:1.5px solid var(--green)"></div>
+              <div style="flex:1;height:1px;background:linear-gradient(90deg,var(--green),var(--green));min-width:60px"></div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--green)" style="margin:0 -2px"><path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0 0 11.5 2 1.5 1.5 0 0 0 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>
+              <div style="flex:1;height:1px;background:linear-gradient(90deg,var(--green),var(--green));min-width:60px"></div>
+              <div style="width:6px;height:6px;border-radius:50%;background:var(--green)"></div>
+            </div>
+            <div style="font-size:10px;color:var(--green);margin-top:4px">Directo</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:22px;font-weight:600;color:var(--text-bright);letter-spacing:-0.5px">BCN</div>
+            <div style="font-size:11px;color:var(--text-dim)">Barcelona</div>
+            <div style="font-size:13px;color:var(--text);margin-top:4px">04:35 <span style="font-size:11px;color:var(--text-dim)">9 may</span></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center;font-size:11px;color:var(--text-dim);margin-bottom:16px;padding-bottom:16px;border-bottom:1px dashed rgba(255,255,255,0.06)">
+          <span style="font-family:'SF Mono',SFMono-Regular,Consolas,monospace;font-size:12px;font-weight:600;color:var(--text-bright);background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.15);padding:3px 8px;border-radius:4px;letter-spacing:0.5px">LL 2602</span>
+          <span style="color:var(--text-dim)">LEVEL</span>
+          <span>&middot;</span>
+          <span>Economy</span>
+          <span>&middot;</span>
+          <span style="color:var(--green)">$935.05</span>
+        </div>
+
+        <!-- Leg 2 -->
+        <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:center;margin-bottom:12px">
+          <div>
+            <div style="font-size:22px;font-weight:600;color:var(--text-bright);letter-spacing:-0.5px">BCN</div>
+            <div style="font-size:11px;color:var(--text-dim)">Barcelona</div>
+            <div style="font-size:13px;color:var(--text);margin-top:4px">19:25 <span style="font-size:11px;color:var(--text-dim)">9 may</span></div>
+          </div>
+          <div style="text-align:center;padding:0 16px">
+            <div style="font-size:10px;color:var(--text-dim);margin-bottom:4px">1h 50m</div>
+            <div style="display:flex;align-items:center;gap:0">
+              <div style="width:6px;height:6px;border-radius:50%;border:1.5px solid var(--green)"></div>
+              <div style="flex:1;height:1px;background:var(--green);min-width:60px"></div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--green)" style="margin:0 -2px"><path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0 0 11.5 2 1.5 1.5 0 0 0 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>
+              <div style="flex:1;height:1px;background:var(--green);min-width:60px"></div>
+              <div style="width:6px;height:6px;border-radius:50%;background:var(--green)"></div>
+            </div>
+            <div style="font-size:10px;color:var(--green);margin-top:4px">Directo</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:22px;font-weight:600;color:var(--text-bright);letter-spacing:-0.5px">FCO</div>
+            <div style="font-size:11px;color:var(--text-dim)">Roma Fiumicino</div>
+            <div style="font-size:13px;color:var(--text);margin-top:4px">21:15 <span style="font-size:11px;color:var(--text-dim)">9 may</span></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center;font-size:11px;color:var(--text-dim);padding-bottom:12px">
+          <span style="font-family:'SF Mono',SFMono-Regular,Consolas,monospace;font-size:12px;font-weight:600;color:var(--text-bright);background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.15);padding:3px 8px;border-radius:4px;letter-spacing:0.5px">LL 2602</span>
+          <span style="color:var(--text-dim)">Conexi&oacute;n</span>
+          <span>&middot;</span>
+          <span>Layover 14h 50m BCN</span>
+          <span>&middot;</span>
+          <span>D&iacute;a con Mary Carmen</span>
+        </div>
       </div>
-      <div style="margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)">
-        <div style="font-size:12px;color:var(--text-dim);margin-bottom:4px">Leg 2</div>
-        <div style="font-size:16px;font-weight:500;color:var(--text-bright)">BCN &rarr; Roma FCO</div>
-        <div style="font-size:13px;color:var(--text)">9 may 19:25 &rarr; 21:15</div>
-        <div style="font-size:11px;color:var(--text-dim)">Directo &middot; 1h 50m</div>
+
+      <!-- Divider -->
+      <div style="position:relative;margin:0 24px">
+        <div style="border-top:1px solid var(--border)"></div>
+        <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--surface);padding:0 12px;font-size:9px;font-weight:600;letter-spacing:2px;color:var(--text-dim)">36 D&Iacute;AS EN EUROPA</div>
       </div>
-      <div style="margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)">
-        <div style="font-size:12px;color:var(--text-dim);margin-bottom:4px">Leg 3 &middot; Avianca AV181</div>
-        <div style="font-size:16px;font-weight:500;color:var(--text-bright)">BCN &rarr; Bogot&aacute;</div>
-        <div style="font-size:13px;color:var(--text)">12 jun 15:40 &rarr; 19:35</div>
-        <div style="font-size:11px;color:var(--text-dim)">Directo &middot; 10h 55m &middot; T1</div>
+
+      <!-- VUELTA -->
+      <div style="padding:20px 24px 12px">
+        <div style="font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px">Vuelta &middot; 12&ndash;13 junio</div>
+
+        <!-- Leg 3 -->
+        <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:center;margin-bottom:16px">
+          <div>
+            <div style="font-size:22px;font-weight:600;color:var(--text-bright);letter-spacing:-0.5px">BCN</div>
+            <div style="font-size:11px;color:var(--text-dim)">Barcelona T1</div>
+            <div style="font-size:13px;color:var(--text);margin-top:4px">15:40 <span style="font-size:11px;color:var(--text-dim)">12 jun</span></div>
+          </div>
+          <div style="text-align:center;padding:0 16px">
+            <div style="font-size:10px;color:var(--text-dim);margin-bottom:4px">10h 55m</div>
+            <div style="display:flex;align-items:center;gap:0">
+              <div style="width:6px;height:6px;border-radius:50%;border:1.5px solid var(--green)"></div>
+              <div style="flex:1;height:1px;background:var(--green);min-width:60px"></div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--green)" style="margin:0 -2px"><path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0 0 11.5 2 1.5 1.5 0 0 0 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>
+              <div style="flex:1;height:1px;background:var(--green);min-width:60px"></div>
+              <div style="width:6px;height:6px;border-radius:50%;background:var(--green)"></div>
+            </div>
+            <div style="font-size:10px;color:var(--green);margin-top:4px">Directo</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:22px;font-weight:600;color:var(--text-bright);letter-spacing:-0.5px">BOG</div>
+            <div style="font-size:11px;color:var(--text-dim)">Bogot&aacute;</div>
+            <div style="font-size:13px;color:var(--text);margin-top:4px">19:35 <span style="font-size:11px;color:var(--text-dim)">12 jun</span></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center;font-size:11px;color:var(--text-dim);margin-bottom:16px;padding-bottom:16px;border-bottom:1px dashed rgba(255,255,255,0.06)">
+          <span style="font-family:'SF Mono',SFMono-Regular,Consolas,monospace;font-size:12px;font-weight:600;color:var(--text-bright);background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.15);padding:3px 8px;border-radius:4px;letter-spacing:0.5px">AV 181</span>
+          <span style="color:var(--text-dim)">Avianca</span>
+          <span>&middot;</span>
+          <span>Economy</span>
+          <span>&middot;</span>
+          <span style="color:var(--green)">ARS 693k (~$489)</span>
+        </div>
+
+        <!-- Leg 4 -->
+        <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:center;margin-bottom:12px">
+          <div>
+            <div style="font-size:22px;font-weight:600;color:var(--text-bright);letter-spacing:-0.5px">BOG</div>
+            <div style="font-size:11px;color:var(--text-dim)">Bogot&aacute;</div>
+            <div style="font-size:13px;color:var(--text);margin-top:4px">07:15 <span style="font-size:11px;color:var(--text-dim)">13 jun</span></div>
+          </div>
+          <div style="text-align:center;padding:0 16px">
+            <div style="font-size:10px;color:var(--text-dim);margin-bottom:4px">6h 25m</div>
+            <div style="display:flex;align-items:center;gap:0">
+              <div style="width:6px;height:6px;border-radius:50%;border:1.5px solid var(--green)"></div>
+              <div style="flex:1;height:1px;background:var(--green);min-width:60px"></div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--green)" style="margin:0 -2px"><path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0 0 11.5 2 1.5 1.5 0 0 0 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>
+              <div style="flex:1;height:1px;background:var(--green);min-width:60px"></div>
+              <div style="width:6px;height:6px;border-radius:50%;background:var(--green)"></div>
+            </div>
+            <div style="font-size:10px;color:var(--green);margin-top:4px">Directo</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:22px;font-weight:600;color:var(--text-bright);letter-spacing:-0.5px">EZE</div>
+            <div style="font-size:11px;color:var(--text-dim)">Buenos Aires</div>
+            <div style="font-size:13px;color:var(--text);margin-top:4px">15:40 <span style="font-size:11px;color:var(--text-dim)">13 jun</span></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center;font-size:11px;color:var(--text-dim)">
+          <span style="font-family:'SF Mono',SFMono-Regular,Consolas,monospace;font-size:12px;font-weight:600;color:var(--text-bright);background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.15);padding:3px 8px;border-radius:4px;letter-spacing:0.5px">AV 8395</span>
+          <span style="color:var(--text-dim)">Avianca</span>
+          <span>&middot;</span>
+          <span>Layover 11h 40m en BOG</span>
+        </div>
       </div>
-      <div>
-        <div style="font-size:12px;color:var(--text-dim);margin-bottom:4px">Leg 4 &middot; Avianca AV8395</div>
-        <div style="font-size:16px;font-weight:500;color:var(--text-bright)">Bogot&aacute; &rarr; EZE</div>
-        <div style="font-size:13px;color:var(--text)">13 jun 07:15 &rarr; 15:40</div>
-        <div style="font-size:11px;color:var(--text-dim)">Directo &middot; 6h 25m &middot; Layover ~12h BOG</div>
+
+      <!-- Intra-EU flights -->
+      <div style="margin:12px 24px 0;padding:16px;border-radius:8px;background:rgba(74,222,128,0.04);border:1px solid rgba(74,222,128,0.12)">
+        <div style="font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--green);margin-bottom:10px">Vuelos intra-EU &middot; booked</div>
+        <div style="padding:10px;border-radius:6px;background:rgba(74,222,128,0.04);border:1px solid rgba(74,222,128,0.2)">
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <span style="font-size:15px;font-weight:600;color:var(--text-bright)">NAP &rarr; ATH <span class="badge badge-green" style="margin-left:6px">booked</span></span>
+            <span style="font-size:14px;font-weight:600;color:var(--green)">&euro;114.97</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;font-size:11px;color:var(--text-dim);margin-top:6px;flex-wrap:wrap">
+            <span style="font-family:'SF Mono',SFMono-Regular,Consolas,monospace;font-size:11px;font-weight:600;color:var(--text-bright);background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.15);padding:2px 6px;border-radius:3px;letter-spacing:0.5px">EJU 4175</span>
+            <span>easyJet</span><span>&middot;</span><span>jue 14 may 18:20&rarr;21:05</span><span>&middot;</span><span>1h 45m directo</span><span>&middot;</span><span>seat 9A</span><span>&middot;</span><span style="color:var(--green)">ref KCGTC7S</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Post-Atenas: abierto -->
+      <div style="margin:12px 24px 0;padding:16px;border-radius:8px;background:rgba(212,175,55,0.04);border:1px solid rgba(212,175,55,0.12)">
+        <div style="font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:10px">Post-Atenas &middot; TBD con Stef</div>
+        <div style="font-size:11px;color:var(--text-dim);line-height:1.6">
+          Viaje <strong style="color:var(--text-bright)">confirmado hasta Atenas</strong>. Lo que sigue (Split, Milan, road trip Riviera) queda abierto para coordinar con Stef en Grecia. Ruta tentativa preservada como referencia. Estimado intra-EU pendiente: <strong style="color:var(--accent)">&euro;45-90</strong> (2 vuelos: ATH&rarr;SPU/BGY + SPU&rarr;BGY).
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div style="padding:16px 24px;margin-top:12px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:11px;color:var(--text-dim)">
+        <span>Total vuelos: <strong style="color:var(--text-bright)">$1,549</strong> booked + <strong style="color:var(--accent)">&euro;45-90</strong> tentativo (post-Atenas)</span>
+        <span>Markup tarjeta EUR&rarr;USD: ~8.5%</span>
       </div>
     </div>
   </div>
 
-  <!-- ==================== ITINERARIO ==================== -->
-
-  <div class="sl">Itinerario</div>
-  <div class="tl">
-
-    <!-- VUELOS IDA -->
-    <div class="tl-item booked">
-      <div class="tl-date">8 may</div>
-      <div class="tl-body">
-        <div class="tl-place">Buenos Aires &rarr; Barcelona</div>
-        <div class="tl-desc">LEVEL LL 2602 directo. Salida 11:00, llegada 9 may 04:35.</div>
+  <!-- ==================== LOGÍSTICA (private) ==================== -->
+  <div class="sl private-card">Logística</div>
+  <div class="g2 private-card" data-testid="logistics-section">
+    <div class="c">
+      <h4>Transporte inter-ciudad</h4>
+      <div class="log-wrap">
+        <table class="log-table" id="transport-table"></table>
       </div>
-      <div class="tl-cost"><div class="running"><em>&euro;798</em></div><div class="running">~$862</div></div>
     </div>
-
-    <div class="tl-item booked">
-      <div class="tl-date">9 may</div>
-      <div class="tl-body">
-        <div class="tl-place">Barcelona &rarr; Roma</div>
-        <div class="tl-desc">D&iacute;a en BCN con Mary Carmen. Descanso, Barceloneta. Vuelo 19:25&rarr;21:15 a Fiumicino.</div>
-        <div class="tl-meta">
-          <div class="tl-meta-item"><span class="ml">Dormir</span><span class="mv">Roma &mdash; hostel &euro;15-25</span></div>
-        </div>
+    <div class="c">
+      <h4>Alojamiento por ciudad</h4>
+      <div class="log-wrap">
+        <table class="log-table" id="accom-table"></table>
       </div>
-      <div class="tl-cost"><div class="day-cost">&euro;20</div><div class="running"><em>&euro;20</em></div></div>
     </div>
-
-    <!-- FASE 1: ITALIA (trenes r&aacute;pidos, sin backtrack) -->
-    <div class="tl-item epic">
-      <div class="tl-date">10&ndash;11 may</div>
-      <div class="tl-body">
-        <div class="tl-place">Roma</div>
-        <div class="tl-desc">Colosseo, Trastevere, Vaticano, Pantheon. Suppli, cacio e pepe, pasta al taglio.</div>
-        <div class="tl-meta">
-          <div class="tl-meta-item"><span class="ml">Dormir</span><span class="mv">Hostel &euro;15-25 / Airbnb &euro;40-60</span></div>
-          <div class="tl-meta-item"><span class="ml">Noches</span><span class="mv">2</span></div>
-          <div class="tl-meta-item"><span class="ml">Comer</span><span class="mv">Testaccio, Trastevere &middot; &euro;20-30/d</span></div>
-        </div>
-        <div class="tl-private" data-testid="private-roma">
-          <div class="tl-private-category">
-            <h5 data-testid="category-alojamiento">Alojamiento</h5>
-            <div class="tl-hostel-cards" data-testid="hostel-cards-roma">
-              <div class="tl-hostel-card" data-testid="hostel-card-yellowsquare">
-                <div class="name">YellowSquare</div>
-                <div class="price">~€39/n</div>
-                <div class="rating">9.2★ Termini</div>
-                <div class="desc">Bar con DJ cada noche, karaoke, cooking classes. El más social.</div>
-                <a href="https://www.hostelworld.com/hostels/p/743/yellowsquare-rome/" target="_blank" data-testid="hostel-link-yellowsquare">Reservar →</a>
-              </div>
-              <div class="tl-hostel-card" data-testid="hostel-card-ostello">
-                <div class="name">Ostello Bello</div>
-                <div class="price">~€25-35/n</div>
-                <div class="rating">9.0★ Colosseo</div>
-                <div class="desc">Aperitivo diario, pub crawls. Mejor ubicación.</div>
-              </div>
-              <div class="tl-hostel-card" data-testid="hostel-card-generator">
-                <div class="name">Generator</div>
-                <div class="price">~€20-30/n</div>
-                <div class="rating">8.5★ Termini</div>
-                <div class="desc">Rooftop bar, eventos nocturnos, diseño moderno.</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="tl-private-category">
-            <h5 data-testid="category-bares">Bares &amp; aperitivo</h5>
-            <div class="tl-bar-list" data-testid="bar-list-roma">
-              <div class="tl-bar-item" data-testid="bar-freni"><strong>Freni e Frizioni</strong> (Trastevere) — buffet aperitivo, crowd joven universitario, siempre lleno.</div>
-              <div class="tl-bar-item" data-testid="bar-calisto"><strong>Bar San Calisto</strong> (Trastevere) — institución, birra &lt;€2, 100% locales.</div>
-              <div class="tl-bar-item" data-testid="bar-maché"><strong>Ma Che Siete Venuti A Fà</strong> — craft beer, gente en la calle, fácil charlar.</div>
-              <div class="tl-bar-item" data-testid="bar-testaccio"><strong>Testaccio</strong> — barrio más romano, clubs hasta tarde. <strong>San Lorenzo</strong> — universitario.</div>
-            </div>
-          </div>
-
-          <div class="tl-private-tip" data-testid="private-tip-roma">Pro tip: Freni e Frizioni viernes mayo = repleto. Llegar 18:30. Tinder passport activar 1 semana antes.</div>
-        </div>
-      </div>
-      <div class="tl-cost"><div class="day-cost">&euro;50/d</div><div class="running"><em>&euro;120</em></div><div class="running">acumulado</div></div>
-    </div>
-
-    <div class="tl-item">
-      <div class="tl-date">12&ndash;13 may</div>
-      <div class="tl-body">
-        <div class="tl-place">Roma &rarr; Firenze</div>
-        <div class="tl-desc">Italo alta velocidad 1.5h. Duomo, Ponte Vecchio, Uffizi, San Lorenzo. Bistecca, lampredotto.</div>
-        <div class="tl-meta">
-          <div class="tl-meta-item"><span class="ml">Transporte</span><span class="mv">Italo/Trenitalia 1.5h &euro;15-25</span></div>
-          <div class="tl-meta-item"><span class="ml">Dormir</span><span class="mv">Hostel &euro;20-30</span></div>
-          <div class="tl-meta-item"><span class="ml">Noches</span><span class="mv">2</span></div>
-          <div class="tl-meta-item"><span class="ml">Comer</span><span class="mv">Mercato Centrale, Oltrarno &middot; &euro;20-30/d</span></div>
-        </div>
-        <div class="tl-private" data-testid="private-firenze">
-          <div class="tl-private-category">
-            <h5 data-testid="category-alojamiento">Alojamiento</h5>
-            <div class="tl-hostel-cards" data-testid="hostel-cards-firenze">
-              <div class="tl-hostel-card" data-testid="hostel-card-yellowsquare-firenze">
-                <div class="name">YellowSquare Firenze</div>
-                <div class="price">~€25-40/n</div>
-                <div class="desc">Nightclub subterráneo 110m², conciertos, wine tastings, piscina. El más fiestero.</div>
-              </div>
-              <div class="tl-hostel-card" data-testid="hostel-card-ostello-firenze">
-                <div class="name">Ostello Bello Firenze</div>
-                <div class="price">~€25-35/n</div>
-                <div class="desc">Welcome drink, aperitivo italiano, rooftop BBQ, bar 24h. Centro.</div>
-              </div>
-              <div class="tl-hostel-card" data-testid="hostel-card-tasso">
-                <div class="name">Ostello Tasso</div>
-                <div class="price">~€20-30/n</div>
-                <div class="desc">Mini teatro, música en vivo, poesía, pub crawls. Artístico.</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="tl-private-category">
-            <h5 data-testid="category-bares">Bares &amp; aperitivo</h5>
-            <div class="tl-bar-list" data-testid="bar-list-firenze">
-              <div class="tl-bar-item" data-testid="bar-moyo"><strong>Moyo</strong> (Via de' Benci) — aperitivo clásico florentino, siempre lleno.</div>
-              <div class="tl-bar-item" data-testid="bar-redgarter"><strong>Red Garter</strong> (Santa Croce) — live music + karaoke, mezcla turistas y locales.</div>
-              <div class="tl-bar-item" data-testid="bar-sverso"><strong>Lo Sverso</strong> (San Lorenzo) — cocktails craft, barrio estudiantil, moscow mule casero.</div>
-              <div class="tl-bar-item" data-testid="bar-gottino"><strong>L'Gottino</strong> (Piazza Beccaria) — fuera del centro, 100% local, vinos + bruschetta.</div>
-            </div>
-          </div>
-
-          <div class="tl-private-tip" data-testid="private-tip-firenze">Pro tip: Aperitivo 18-21h con buffet incluido. San Lorenzo = universitarias. Santa Croce viernes explota.</div>
-        </div>
-      </div>
-      <div class="tl-cost"><div class="day-cost">&euro;55/d</div><div class="running"><em>&euro;230</em></div><div class="running">acumulado</div></div>
-    </div>
-
-    <div class="tl-item free">
-      <div class="tl-date">14&ndash;19 may</div>
-      <div class="tl-body">
-        <div class="tl-place">Milan &mdash; 5 d&iacute;as con Christian &amp; Gus</div>
-        <div class="tl-desc">Italo directo Firenze&rarr;Milan 1h45. Duomo, Navigli, La &Uacute;ltima Cena. Day trips: Como 1h &euro;5, Tur&iacute;n 1h &euro;10.</div>
-        <div class="tl-meta">
-          <div class="tl-meta-item"><span class="ml">Transporte</span><span class="mv">Italo Firenze&rarr;Milan 1h45 &euro;15-30</span></div>
-          <div class="tl-meta-item"><span class="ml">Dormir</span><span class="mv">Christian &amp; Gus (gratis)</span></div>
-          <div class="tl-meta-item"><span class="ml">Noches</span><span class="mv">5</span></div>
-          <div class="tl-meta-item"><span class="ml">Comer</span><span class="mv">Navigli aperitivo, risotto, pizza al taglio &middot; &euro;20-30/d</span></div>
-        </div>
-      </div>
-      <div class="tl-cost"><div class="day-cost">&euro;25/d</div><div class="running"><em>&euro;380</em></div><div class="running">acumulado</div></div>
-    </div>
-
-    <!-- FASE 2: ROAD TRIP (arco continuo sur, sin backtrack) -->
-    <div class="tl-item epic">
-      <div class="tl-date">20&ndash;21 may</div>
-      <div class="tl-body">
-        <div class="tl-place">Milan &rarr; Cinque Terre</div>
-        <div class="tl-desc">Retirar auto. Bajar por A7 a La Spezia. 5 aldeas, trekking costero, vino Sciacchetr&agrave;. Mayo = sin hordas.</div>
-        <div class="tl-meta">
-          <div class="tl-meta-item"><span class="ml">Transporte</span><span class="mv">Auto &euro;30-50/d &middot; 3h desde Milan</span></div>
-          <div class="tl-meta-item"><span class="ml">Dormir</span><span class="mv">Hostel &euro;19-25 / Airbnb &euro;70-85</span></div>
-          <div class="tl-meta-item"><span class="ml">Noches</span><span class="mv">2</span></div>
-          <div class="tl-meta-item"><span class="ml">Comer</span><span class="mv">Trofie al pesto, anchoas, focaccia &middot; &euro;20-35/d</span></div>
-        </div>
-        <div class="tl-private" data-testid="private-ct">
-          <div class="tl-private-category">
-            <h5 data-testid="category-alojamiento">Alojamiento</h5>
-            <div style="font-size:11px;color:#fbbf24;margin-bottom:10px;font-weight:500" data-testid="ct-warning">Reservar con anticipación — CT se agota rápido en mayo.</div>
-            <div class="tl-hostel-cards" data-testid="hostel-cards-ct">
-              <div class="tl-hostel-card" data-testid="hostel-card-marmar">
-                <div class="name">Mar-Mar</div>
-                <div class="price">~€22-30/n</div>
-                <div class="rating">Riomaggiore</div>
-                <div class="desc">El más social de CT. Cocina compartida, tours, vibrante.</div>
-                <a href="https://www.hostelworld.com/hostels/p/27194/mar-mar/" target="_blank" data-testid="hostel-link-marmar">Reservar →</a>
-              </div>
-              <div class="tl-hostel-card" data-testid="hostel-card-corniglia">
-                <div class="name">Ostello Corniglia</div>
-                <div class="price">9.1★</div>
-                <div class="desc">Mejor rating. Jardín, 500m playa. Más tranquilo.</div>
-              </div>
-              <div class="tl-hostel-card" data-testid="hostel-card-5terre">
-                <div class="name">5 Terre Backpackers</div>
-                <div class="price">~€19-25/n</div>
-                <div class="rating">Corvara</div>
-                <div class="desc">Justo afuera del parque. Mejor overall.</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="tl-private-tip" data-testid="private-tip-ct">Pro tip: CT es más trekking/relax que nightlife. Socializar en el hostel. Vino al atardecer en Manarola = mágico.</div>
-        </div>
-      </div>
-      <div class="tl-cost"><div class="day-cost">&euro;70/d</div><div class="running"><em>&euro;520</em></div><div class="running">acumulado</div></div>
-    </div>
-
-    <div class="tl-item">
-      <div class="tl-date">22 may</div>
-      <div class="tl-body">
-        <div class="tl-place">CT &rarr; Portofino &rarr; Genova &rarr; San Remo</div>
-        <div class="tl-desc">Camogli de paso. Pesto genovese, focaccia di Recco. Riviera dei Fiori.</div>
-        <div class="tl-meta">
-          <div class="tl-meta-item"><span class="ml">Transporte</span><span class="mv">Auto costero &middot; 260 km</span></div>
-          <div class="tl-meta-item"><span class="ml">Dormir</span><span class="mv">San Remo &mdash; hostel/Airbnb &euro;20-35</span></div>
-          <div class="tl-meta-item"><span class="ml">Noches</span><span class="mv">1</span></div>
-        </div>
-      </div>
-      <div class="tl-cost"><div class="day-cost">&euro;65</div><div class="running"><em>&euro;585</em></div><div class="running">acumulado</div></div>
-    </div>
-
-    <div class="tl-item epic">
-      <div class="tl-date">23&ndash;24 may</div>
-      <div class="tl-body">
-        <div class="tl-place">Menton &rarr; Monaco &rarr; Nice</div>
-        <div class="tl-desc">Cruzar la frontera. Monaco de paso. Promenade des Anglais, Vieux Nice, Cours Saleya.</div>
-        <div class="tl-meta">
-          <div class="tl-meta-item"><span class="ml">Transporte</span><span class="mv">Auto costero &middot; imperdible</span></div>
-          <div class="tl-meta-item"><span class="ml">Day trips</span><span class="mv">Monaco &euro;4 &middot; &Egrave;ze &euro;1.50 &middot; Villefranche &euro;2</span></div>
-          <div class="tl-meta-item"><span class="ml">Dormir</span><span class="mv">Nice &mdash; Hostel &euro;15-25 / Airbnb &euro;40-60</span></div>
-          <div class="tl-meta-item"><span class="ml">Noches</span><span class="mv">2</span></div>
-          <div class="tl-meta-item"><span class="ml">Comer</span><span class="mv">Salade ni&ccedil;oise, socca, pan bagnat &middot; &euro;20-30/d</span></div>
-        </div>
-        <div class="tl-private" data-testid="private-nice">
-          <div class="tl-private-category">
-            <h5 data-testid="category-alojamiento">Alojamiento</h5>
-            <div class="tl-hostel-cards" data-testid="hostel-cards-nice">
-              <div class="tl-hostel-card" data-testid="hostel-card-villa">
-                <div class="name">Villa Saint Exupéry Beach</div>
-                <div class="price">~€35-45/n</div>
-                <div class="desc">THE party hostel de la Riviera. Happy hour diario, live music, pub crawl legendario, scuba, sailing.</div>
-                <a href="https://www.hostelworld.com/hostels/europe/france/nice/" target="_blank" data-testid="hostel-link-villa">Hostelworld →</a>
-              </div>
-              <div class="tl-hostel-card" data-testid="hostel-card-antares">
-                <div class="name">Antares Hostel</div>
-                <div class="price">~€25-35/n</div>
-                <div class="desc">Ganador Hoscar. Centro, 10 min playa.</div>
-              </div>
-              <div class="tl-hostel-card" data-testid="hostel-card-ozz">
-                <div class="name">Hôtel Ozz</div>
-                <div class="price">~€20-30/n</div>
-                <div class="desc">Tema musical/artístico, decor quirky.</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="tl-private-category">
-            <h5 data-testid="category-bares">Bares &amp; nightlife</h5>
-            <div class="tl-bar-list" data-testid="bar-list-nice">
-              <div class="tl-bar-item" data-testid="bar-waynes"><strong>Wayne's Bar</strong> (Vieux Nice) — clásico desde 1991, mezcla francesas + expats + viajeros.</div>
-              <div class="tl-bar-item" data-testid="bar-shapko"><strong>Shapko</strong> — jazz/blues en vivo cada noche. Relajado, íntimo, local.</div>
-              <div class="tl-bar-item" data-testid="bar-waka"><strong>Waka Bar</strong> — terraza frente al mar, cocktails, favorito de locales.</div>
-              <div class="tl-bar-item" data-testid="bar-crawl"><strong>Riviera Bar Crawl</strong> — pub crawl organizado, mejor forma de conocer gente rápido.</div>
-            </div>
-          </div>
-
-          <div class="tl-private-tip" data-testid="private-tip-nice">Pro tip: Vieux Nice viernes/sábado explota. Wayne's para arrancar, Shapko para cerrar. Francesas más reservadas que italianas — jazz bar > club.</div>
-        </div>
-      </div>
-      <div class="tl-cost"><div class="day-cost">&euro;70/d</div><div class="running"><em>&euro;725</em></div><div class="running">acumulado</div></div>
-    </div>
-
-    <div class="tl-item epic">
-      <div class="tl-date">25 may</div>
-      <div class="tl-body">
-        <div class="tl-place">Corniche de l'Est&eacute;rel &rarr; St-Tropez</div>
-        <div class="tl-desc">Rocas rojas volc&aacute;nicas contra Mediterr&aacute;neo azul. Cannes de paso. La ruta costera m&aacute;s espectacular.</div>
-        <div class="tl-meta">
-          <div class="tl-meta-item"><span class="ml">Transporte</span><span class="mv">Auto &middot; 115 km esc&eacute;nicos</span></div>
-          <div class="tl-meta-item"><span class="ml">Dormir</span><span class="mv">Hostel/Airbnb &euro;20-35</span></div>
-          <div class="tl-meta-item"><span class="ml">Noches</span><span class="mv">1</span></div>
-        </div>
-      </div>
-      <div class="tl-cost"><div class="day-cost">&euro;85</div><div class="running"><em>&euro;810</em></div><div class="running">acumulado</div></div>
-    </div>
-
-    <div class="tl-item">
-      <div class="tl-date">26 may</div>
-      <div class="tl-body">
-        <div class="tl-place">St-Tropez &rarr; Cassis &rarr; Marseille</div>
-        <div class="tl-desc">Calanques en kayak. Acantilados blancos. Vieux Port, Le Panier. Devolver auto.</div>
-        <div class="tl-meta">
-          <div class="tl-meta-item"><span class="ml">Transporte</span><span class="mv">Auto &middot; devolver en Marseille</span></div>
-          <div class="tl-meta-item"><span class="ml">Dormir</span><span class="mv">Hostel &euro;10-15 / Airbnb &euro;30-45</span></div>
-          <div class="tl-meta-item"><span class="ml">Noches</span><span class="mv">1</span></div>
-          <div class="tl-meta-item"><span class="ml">Comer</span><span class="mv">Bouillabaisse, mercado Noailles &middot; &euro;20-30/d</span></div>
-        </div>
-      </div>
-      <div class="tl-cost"><div class="day-cost">&euro;55</div><div class="running"><em>&euro;865</em></div><div class="running">acumulado</div></div>
-    </div>
-
-    <!-- FASE 3: TRENES A BCN -->
-    <div class="tl-item">
-      <div class="tl-date">27 may</div>
-      <div class="tl-body">
-        <div class="tl-place">Marseille &rarr; Montpellier</div>
-        <div class="tl-desc">TGV 1.5h. Carcassonne opcional. Place de la Com&eacute;die, &Eacute;cusson.</div>
-        <div class="tl-meta">
-          <div class="tl-meta-item"><span class="ml">Transporte</span><span class="mv">TGV 1.5h &euro;15-30</span></div>
-          <div class="tl-meta-item"><span class="ml">Dormir</span><span class="mv">Hostel &euro;15-20</span></div>
-          <div class="tl-meta-item"><span class="ml">Noches</span><span class="mv">1</span></div>
-        </div>
-      </div>
-      <div class="tl-cost"><div class="day-cost">&euro;50</div><div class="running"><em>&euro;915</em></div><div class="running">acumulado</div></div>
-    </div>
-
-    <div class="tl-item">
-      <div class="tl-date">28 may</div>
-      <div class="tl-body">
-        <div class="tl-place">Montpellier &rarr; Barcelona</div>
-        <div class="tl-desc">TGV/AVE 3h. Llegada a casa de Mary Carmen.</div>
-        <div class="tl-meta">
-          <div class="tl-meta-item"><span class="ml">Transporte</span><span class="mv">TGV 3h &euro;25-60</span></div>
-        </div>
-      </div>
-      <div class="tl-cost"><div class="day-cost">&euro;40</div><div class="running"><em>&euro;955</em></div><div class="running">acumulado</div></div>
-    </div>
-
-    <!-- FASE 4: CUMPLE -->
-    <div class="tl-item bday">
-      <div class="tl-date">29 may<br>&ndash;11 jun</div>
-      <div class="tl-body">
-        <div class="tl-place">Cumplea&ntilde;os 40 &mdash; Barcelona</div>
-        <div class="tl-desc">Con familia. Tu ciudad, tu gente, tus 40. G&oacute;tico, Barceloneta, El Born, La Boqueria. 2 semanas para disfrutar.</div>
-        <div class="tl-meta">
-          <div class="tl-meta-item"><span class="ml">Dormir</span><span class="mv">Mary Carmen (gratis)</span></div>
-          <div class="tl-meta-item"><span class="ml">Noches</span><span class="mv">15 (28 may&ndash;12 jun)</span></div>
-          <div class="tl-meta-item"><span class="ml">Comer</span><span class="mv">Cena cumple, paella, cava &middot; &euro;30-45/d</span></div>
-        </div>
-      </div>
-      <div class="tl-cost"><div class="day-cost">&euro;35/d</div><div class="running"><em>&euro;1,480</em></div><div class="running">acumulado</div></div>
-    </div>
-
-    <!-- VUELTA -->
-    <div class="tl-item booked">
-      <div class="tl-date">12&ndash;13 jun</div>
-      <div class="tl-body">
-        <div class="tl-place">Barcelona &rarr; Bogot&aacute; &rarr; Buenos Aires</div>
-        <div class="tl-desc">Avianca AV181 BCN&rarr;BOG 15:40&rarr;19:35 (10h55). Layover 12h. AV8395 BOG&rarr;EZE 07:15&rarr;15:40 (6h25). Lleg&aacute;s 13 jun.</div>
-      </div>
-      <div class="tl-cost"><div class="running"><em>booked</em></div></div>
-    </div>
-
   </div>
-
-  <div class="c glow" style="margin:24px 0">
-    <h4>Nota sobre el auto</h4>
-    <p>Retir&aacute;s en <strong>Milan</strong> (20 may). Baj&aacute;s a Cinque Terre &rarr; costa ligure &rarr; San Remo &rarr; Nice &rarr; Est&eacute;rel &rarr; St-Tropez &rarr; Marseille. Devolv&eacute;s en <strong>Marseille</strong> (26 may). 7 d&iacute;as, &euro;210-350 + &euro;60-90 nafta/peajes. Seguro: RentalCover.com ~&euro;5/d. Reservar en DiscoverCars o SIXT. Arco continuo sin backtrack.</p>
-  </div>
-
-  <!-- ==================== PRESUPUESTO (private) ==================== -->
-
-  <div class="sl private-card">Presupuesto</div>
-  <div id="budget-section" class="private-card"></div>
   <script>
-    (function() {
-      const flightIda = 935; // €798 → USD 935.05 cobrado en tarjeta (Flylevel)
-      const flightVuelta = 489; // ARS 693,516 ≈ USD 489 (booked)
-      // 12 paid nights (Roma 2, Firenze 2, CT 2, San Remo 1, Nice 2, St-Tropez 1, Marseille 1, Montpellier 1)
-      // 20 free nights (Milan 5, BCN 15)
-      // 36 days total
-      const tiers = {
-        budget:   { transport: 170, aloj: 220, comida: 630, extras: 100 },
-        balanced: { transport: 420, aloj: 400, comida: 950, extras: 200 },
-        comfort:  { transport: 580, aloj: 700, comida: 1350, extras: 350 },
-      };
+  (function(){
+    const tripLegs = [
+      { from: 'EZE', to: 'BCN', type: 'flight', date: '8 may', price: '$935', status: 'booked', ref: 'LL 2602', note: 'LEVEL directo 12h35m' },
+      { from: 'BCN', to: 'FCO', type: 'flight', date: '9 may', price: 'incl', status: 'booked', ref: 'LL 2602', note: 'Conexi\u00f3n 14h50m BCN' },
+      { from: 'Roma', to: 'N\u00e1poles', type: 'train', date: '12 may', price: '\u20ac11-25', status: 'pending', ref: '', note: 'Italo/Trenitalia 1h10m' },
+      { from: 'N\u00e1poles', to: 'Atenas', type: 'flight', date: '14 may', price: '\u20ac114.97', status: 'booked', ref: 'EJU 4175', note: 'easyJet 18:20\u219221:05, seat 9A, ref KCGTC7S' },
+      { from: 'Atenas', to: 'Split', type: 'flight', date: '17 may', price: '\u20ac25-50', status: 'pending', ref: '', note: 'Verificar directo ATH\u2192SPU' },
+      { from: 'Split', to: 'Milan BGY', type: 'flight', date: '21 may', price: '\u20ac20-40', status: 'pending', ref: '', note: 'Ryanair SPU\u2192BGY ~1h30m' },
+      { from: 'Milan', to: 'Cinque Terre', type: 'car', date: '24 may', price: '~\u20ac40', status: 'pending', ref: '', note: 'Rental start, 3h' },
+      { from: 'Cinque Terre', to: 'Nice', type: 'car', date: '26 may', price: 'incl', status: 'pending', ref: '', note: 'Via San Remo, coastal' },
+      { from: 'Nice', to: 'Marseille', type: 'car', date: '28 may', price: 'incl', status: 'pending', ref: '', note: 'Via St-Tropez, return car' },
+      { from: 'Marseille', to: 'Barcelona', type: 'train', date: '30 may', price: '\u20ac30-50', status: 'pending', ref: '', note: 'TGV via Montpellier ~4h' },
+      { from: 'BCN', to: 'BOG', type: 'flight', date: '12 jun', price: '~$489', status: 'booked', ref: 'AV 181', note: 'Avianca 10h55m' },
+      { from: 'BOG', to: 'EZE', type: 'flight', date: '13 jun', price: 'incl', status: 'booked', ref: 'AV 8395', note: 'Layover 11h40m' },
+    ];
+    const icons = {
+      flight: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.4-.1.9.3 1.1L11 12l-2 3H6l-1 1 3 2 2 3 1-1v-3l3-2 3.8 7.3c.2.4.7.5 1.1.3l.5-.3c.4-.2.6-.6.5-1.1z"/></svg>',
+      train: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="3" width="16" height="14" rx="2"/><path d="M4 11h16"/><path d="M12 3v14"/><path d="M8 21h8"/><path d="M9 17l-2 4"/><path d="M15 17l2 4"/></svg>',
+      car: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 17h14v-5l-2-6H7L5 12v5z"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/></svg>',
+    };
+    let h = '<tr><th>Tramo</th><th></th><th>Fecha</th><th>Precio</th><th>Estado</th><th>Nota</th></tr>';
+    tripLegs.forEach(l => {
+      const rc = l.status === 'booked' ? 'log-row-booked' : 'log-row-pending';
+      const badge = l.status === 'booked' ? '<span class="badge badge-green">booked</span>' : '<span class="badge badge-pending">pending</span>';
+      h += '<tr class="'+rc+'">';
+      h += '<td class="leg-route">'+l.from+' \u2192 '+l.to+'</td>';
+      h += '<td class="leg-icon" style="color:'+(l.status==='booked'?'var(--green)':'var(--accent)')+'">'+icons[l.type]+'</td>';
+      h += '<td>'+l.date+'</td>';
+      h += '<td class="leg-price">'+l.price+'</td>';
+      h += '<td>'+badge+(l.ref?' <span style="font-family:SF Mono,Consolas,monospace;font-size:10px;color:var(--text-dim);margin-left:4px">'+l.ref+'</span>':'')+'</td>';
+      h += '<td class="leg-note">'+l.note+'</td>';
+      h += '</tr>';
+    });
+    const booked = tripLegs.filter(l=>l.status==='booked').length;
+    const pending = tripLegs.filter(l=>l.status==='pending').length;
+    h += '<tr><td colspan="6" class="log-summary">'+booked+' booked, '+pending+' pendientes</td></tr>';
+    document.getElementById('transport-table').innerHTML = h;
 
-      function total(tier) {
-        const eur = tier.transport + tier.aloj + tier.comida + tier.extras;
-        return Math.round(flightIda + flightVuelta + eur);
+    const accomStatus = [
+      { city: 'Roma', nights: 3, dates: '9-12 may', budget: '\u20ac40-55/n', status: 'pending', booked: '' },
+      { city: 'N\u00e1poles', nights: 2, dates: '12-14 may', budget: '\u20ac15-25/n', status: 'pending', booked: '' },
+      { city: 'Atenas', nights: 3, dates: '14-17 may', budget: '\u20ac0', status: 'confirmed', booked: 'Stef (duraci\u00f3n TBD)' },
+      { city: 'Split', nights: 4, dates: '17-21 may', budget: '\u20ac18-28/n', status: 'pending', booked: '' },
+      { city: 'Milan', nights: 3, dates: '21-24 may', budget: '\u20ac0', status: 'confirmed', booked: 'Christian & Gus' },
+      { city: 'Cinque Terre', nights: 2, dates: '24-26 may', budget: '\u20ac20-30/n', status: 'pending', booked: '' },
+      { city: 'Nice', nights: 2, dates: '27-28 may', budget: '\u20ac15-25/n', status: 'pending', booked: '' },
+      { city: 'Marseille', nights: 1, dates: '30 may', budget: '\u20ac20-28/n', status: 'pending', booked: '' },
+      { city: 'Barcelona', nights: 12, dates: '31 may-12 jun', budget: '\u20ac0', status: 'confirmed', booked: 'Mary Carmen' },
+    ];
+    let ah = '<tr><th>Ciudad</th><th>Noches</th><th>Budget/n</th><th>Reserva</th><th>Estado</th></tr>';
+    let paidN = 0, freeN = 0;
+    accomStatus.forEach(a => {
+      const rc = a.status === 'confirmed' ? 'log-row-booked' : 'log-row-pending';
+      const badge = a.status === 'confirmed' ? '<span class="badge badge-green">confirmado</span>' : '<span class="badge badge-pending">pendiente</span>';
+      if (a.status === 'confirmed' && a.budget === '\u20ac0') freeN += a.nights; else paidN += a.nights;
+      ah += '<tr class="'+rc+'">';
+      ah += '<td class="leg-route">'+a.city+'</td>';
+      ah += '<td style="text-align:center">'+a.nights+'</td>';
+      ah += '<td>'+a.budget+'</td>';
+      ah += '<td style="font-size:11px;color:'+(a.booked?'var(--text-bright)':'var(--text-dim)')+';">'+(a.booked||'\u2014')+'</td>';
+      ah += '<td>'+badge+'</td>';
+      ah += '</tr>';
+    });
+    ah += '<tr><td colspan="5" class="log-summary">'+paidN+'n pagas, '+freeN+'n gratis</td></tr>';
+    document.getElementById('accom-table').innerHTML = ah;
+  })();
+  </script>
+
+  <!-- ==================== CALENDARIO 36 DÍAS (private) ==================== -->
+  <div class="sl private-card">Calendario</div>
+  <div class="private-card" data-testid="calendar-section">
+    <div class="c" id="calendar-container"></div>
+  </div>
+  <script>
+  (function(){
+    const itinerary = [
+      { city: 'Roma', abbr: 'R', start: '2026-05-09', end: '2026-05-12', color: '#fb923c' },
+      { city: 'N\u00e1poles', abbr: 'N', start: '2026-05-12', end: '2026-05-14', color: '#f472b6' },
+      { city: 'Atenas', abbr: 'A', start: '2026-05-14', end: '2026-05-17', color: '#60a5fa' },
+      { city: 'Split', abbr: 'S', start: '2026-05-17', end: '2026-05-21', color: '#818cf8' },
+      { city: 'Milan', abbr: 'M', start: '2026-05-21', end: '2026-05-24', color: '#c084fc' },
+      { city: 'Cinque Terre', abbr: 'CT', start: '2026-05-24', end: '2026-05-26', color: '#34d399' },
+      { city: 'Riviera', abbr: 'Rv', start: '2026-05-26', end: '2026-05-30', color: '#22d3ee' },
+      { city: 'Marseille', abbr: 'Ms', start: '2026-05-30', end: '2026-05-31', color: '#a78bfa' },
+      { city: 'Barcelona', abbr: 'B', start: '2026-05-31', end: '2026-06-12', color: '#D4AF37' },
+    ];
+    const tripStart = new Date('2026-05-09');
+    const tripEnd = new Date('2026-06-12');
+    const bday = '2026-05-31';
+
+    function getCityForDate(d) {
+      const ds = d.toISOString().split('T')[0];
+      for (let i = itinerary.length - 1; i >= 0; i--) {
+        if (ds >= itinerary[i].start && ds < itinerary[i].end) return itinerary[i];
+      }
+      return null;
+    }
+    function isTransportDay(d) {
+      const ds = d.toISOString().split('T')[0];
+      return itinerary.some(it => it.start === ds) && ds !== itinerary[0].start;
+    }
+
+    const days = ['Lun','Mar','Mi\u00e9','Jue','Vie','S\u00e1b','Dom'];
+    let h = '<div class="cal-grid">';
+    days.forEach(d => { h += '<div class="cal-header">'+d+'</div>'; });
+
+    // Calendar covers May 4 (Mon) to June 14 (Sun) to get full weeks
+    const calStart = new Date('2026-05-04');
+    const calEnd = new Date('2026-06-15');
+    let cur = new Date(calStart);
+    let lastMonth = -1;
+
+    while (cur < calEnd) {
+      const m = cur.getMonth();
+      const day = cur.getDate();
+      const ds = cur.toISOString().split('T')[0];
+      const inTrip = cur >= tripStart && cur <= tripEnd;
+      const city = inTrip ? getCityForDate(cur) : null;
+      const isBday = ds === bday;
+      const isTransport = inTrip && isTransportDay(cur);
+
+      let cls = 'cal-day';
+      if (!inTrip) cls += ' empty';
+      if (isBday) cls += ' bday';
+      if (isTransport) cls += ' transport';
+
+      let style = '';
+      if (city) {
+        style = 'background:' + city.color + '14;border-left:2px solid ' + city.color + ';';
+        if (isBday) style += 'border-color:rgba(212,175,55,0.5);background:rgba(212,175,55,0.08);';
       }
 
+      h += '<div class="'+cls+'" style="'+style+'">';
+      h += '<div class="cal-day-num">'+(isBday?'\u2605 ':'')+day+'</div>';
+      if (city) h += '<div class="cal-day-city">'+city.abbr+'</div>';
+      h += '</div>';
+
+      cur.setDate(cur.getDate() + 1);
+    }
+    h += '</div>';
+
+    // Legend
+    h += '<div class="cal-legend">';
+    itinerary.forEach(it => {
+      h += '<div class="cal-legend-item"><div class="cal-legend-dot" style="background:'+it.color+'"></div>'+it.city+'</div>';
+    });
+    h += '<div class="cal-legend-item"><span style="color:var(--accent);font-weight:700;font-size:13px">\u2192</span> Transporte</div>';
+    h += '<div class="cal-legend-item"><span style="color:var(--accent);font-weight:700;font-size:13px">\u2605</span> Cumplea\u00f1os</div>';
+    h += '</div>';
+
+    document.getElementById('calendar-container').innerHTML = h;
+  })();
+  </script>
+
+  <!-- ==================== PRESUPUESTO (private) ==================== -->
+  <div class="sl private-card">Presupuesto</div>
+  <div id="budget-section" class="private-card" data-testid="budget-section"></div>
+  <script>
+    (function() {
+      const flightIda = 935;
+      const flightVuelta = 489;
+      // 18 paid nights (Roma 3, N\u00e1poles 2, Atenas 3, Split 4, CT 2, Nice 2, Marseille 1, Montpellier 1)
+      // 15 free nights (Milan 3 Christian&Gus, BCN 12 Mary Carmen)
+      const tiers = {
+        budget:   { transport: 330, aloj: 360, comida: 630, movilidad: 50, extras: 100 },
+        balanced: { transport: 580, aloj: 540, comida: 950, movilidad: 70, extras: 200 },
+        comfort:  { transport: 740, aloj: 900, comida: 1350, movilidad: 100, extras: 350 },
+      };
+      function total(tier) {
+        const eur = tier.transport + tier.aloj + tier.comida + tier.movilidad + tier.extras;
+        return Math.round(flightIda + flightVuelta + eur);
+      }
       const b = total(tiers.budget);
       const bl = total(tiers.balanced);
       const c = total(tiers.comfort);
@@ -825,18 +917,18 @@
       html += '<div class="budget-card pick"><div class="lbl">Balanced</div><div class="amt">$'+bl.toLocaleString('es')+'</div><div class="pd">vuelos $'+(flightIda+flightVuelta)+' + &euro;'+Object.values(tiers.balanced).reduce((a,b)=>a+b,0)+'</div></div>';
       html += '<div class="budget-card"><div class="lbl">Comfort</div><div class="amt">$'+c.toLocaleString('es')+'</div><div class="pd">vuelos $'+(flightIda+700)+' + &euro;'+Object.values(tiers.comfort).reduce((a,b)=>a+b,0)+'</div></div>';
       html += '</div>';
-
       html += '<div class="c" style="margin-top:14px"><table class="bt">';
       html += '<tr><td class="concept">Vuelo ida EZE&rarr;BCN&rarr;FCO <span style="font-size:10px;color:var(--green)">BOOKED</span></td><td class="val" colspan="3" style="text-align:center;color:var(--green)">$935.05</td></tr>';
       html += '<tr><td class="concept">Vuelo vuelta BCN&rarr;BOG&rarr;EZE <span style="font-size:10px;color:var(--green)">BOOKED</span></td><td class="val" colspan="3" style="text-align:center;color:var(--green)">ARS 693k (~$489)</td></tr>';
-      html += '<tr><td class="concept" style="color:var(--text-dim);font-size:11px">Desvío estimado ida: +$73 (markup tarjeta EUR&rarr;USD ~8.5%)</td><td class="val" colspan="3"></td></tr>';
-      html += '<tr><td class="concept">Transporte <span style="font-size:10px;color:var(--text-dim)">(trenes + auto 7d)</span></td><td class="val">&euro;170</td><td class="val">&euro;420</td><td class="val">&euro;580</td></tr>';
-      html += '<tr><td class="concept">Alojamiento ~12n <span style="font-size:10px;color:var(--text-dim)">(BCN 15n + Milan 5n gratis)</span></td><td class="val">&euro;220</td><td class="val">&euro;400</td><td class="val">&euro;700</td></tr>';
+      html += '<tr><td class="concept" style="color:var(--text-dim);font-size:11px">Desv&iacute;o estimado ida: +$73 (markup tarjeta EUR&rarr;USD ~8.5%)</td><td class="val" colspan="3"></td></tr>';
+      html += '<tr><td class="concept">Transporte <span style="font-size:10px;color:var(--text-dim)">(trenes + vuelos intra-EU + auto 7d)</span></td><td class="val">&euro;280</td><td class="val">&euro;530</td><td class="val">&euro;690</td></tr>';
+      html += '<tr><td class="concept">Alojamiento ~18n <span style="font-size:10px;color:var(--text-dim)">(Milan 3n + BCN 12n gratis)</span></td><td class="val">&euro;360</td><td class="val">&euro;540</td><td class="val">&euro;900</td></tr>';
       html += '<tr><td class="concept">Comida ~36d</td><td class="val">&euro;630</td><td class="val">&euro;950</td><td class="val">&euro;1,350</td></tr>';
+      html += '<tr><td class="concept">Movilidad urbana <span style="font-size:10px;color:var(--text-dim)">(Roma 72h + Atenas + Split + metro)</span></td><td class="val">&euro;50</td><td class="val">&euro;70</td><td class="val">&euro;100</td></tr>';
       html += '<tr><td class="concept">Extras</td><td class="val">&euro;100</td><td class="val">&euro;200</td><td class="val">&euro;350</td></tr>';
       html += '<tr class="final"><td class="concept"><strong>Total (sin ida)</strong></td><td class="val">~$'+b.toLocaleString('es')+'</td><td class="val">~$'+bl.toLocaleString('es')+'</td><td class="val">~$'+c.toLocaleString('es')+'</td></tr>';
       html += '</table>';
-      html += '<div style="font-size:11px;color:var(--text-dim);margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">Ida $935 (cobrado tarjeta) + vuelta ARS 693k (~$489) = $1,424 vuelos. Ambas booked. 36 d&iacute;as, 20 noches gratis (Mary Carmen 15 + Christian&amp;Gus 5). EUR &asymp; USD. Ruta optimizada: cero backtrack.</div>';
+      html += '<div style="font-size:11px;color:var(--text-dim);margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">Ida $935 (cobrado tarjeta) + vuelta ARS 693k (~$489) = $1,424 vuelos intl. 36 d&iacute;as, 14 noches pagas (Roma 3 + N&aacute;poles 3 + road trip 8). 21 noches gratis (Atenas 4 Stef + Milan 5 Christian&amp;Gus + BCN 12 Mary Carmen). Vuelos intra-EU: NAP&rarr;ATH ~&euro;42-53 + ATH&rarr;SPU ~&euro;25-50 + SPU&rarr;BGY ~&euro;20-40 = &euro;87-143 (pendientes). 18 noches pagas (Roma 3 + N&aacute;poles 2 + Atenas 3 + Split 4 + road trip 6). 15 noches gratis (Milan 3 + BCN 12). EUR &asymp; USD.</div>';
       html += '</div>';
 
       document.getElementById('budget-section').innerHTML = html;
@@ -845,16 +937,118 @@
     })();
   </script>
 
-  <!-- ==================== HERRAMIENTAS ==================== -->
+  <!-- Gastos reales tracker -->
+  <div class="private-card" style="margin-top:14px" data-testid="expenses-tracker">
+    <div class="c" id="expenses-container"></div>
+  </div>
+  <script>
+  (function(){
+    const LS_KEY = 'viaje40-expenses';
+    const defaultExpenses = [
+      { id: 'vuelo-ida', label: 'Vuelo ida (EZE\u2192FCO)', estimated: 935, actual: 935, currency: 'USD', locked: true },
+      { id: 'vuelo-vuelta', label: 'Vuelo vuelta (BCN\u2192EZE)', estimated: 489, actual: 489, currency: 'USD', locked: true },
+      { id: 'vuelos-intra', label: 'Vuelos intra-EU', estimated: 106, actual: 0, currency: 'EUR', locked: false },
+      { id: 'transport', label: 'Transporte (trenes, auto)', estimated: 424, actual: 0, currency: 'EUR', locked: false },
+      { id: 'alojamiento', label: 'Alojamiento (~14n)', estimated: 420, actual: 0, currency: 'EUR', locked: false },
+      { id: 'comida', label: 'Comida (~36d)', estimated: 950, actual: 0, currency: 'EUR', locked: false },
+      { id: 'movilidad', label: 'Movilidad urbana', estimated: 55, actual: 0, currency: 'EUR', locked: false },
+      { id: 'extras', label: 'Extras', estimated: 200, actual: 0, currency: 'EUR', locked: false },
+    ];
 
+    function loadExpenses() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(LS_KEY));
+        if (saved) {
+          return defaultExpenses.map(d => {
+            const s = saved.find(x => x.id === d.id);
+            return s ? { ...d, actual: s.actual } : d;
+          });
+        }
+      } catch(e) {}
+      return defaultExpenses.map(d => ({...d}));
+    }
+
+    function saveExpenses(expenses) {
+      localStorage.setItem(LS_KEY, JSON.stringify(expenses.map(e => ({ id: e.id, actual: e.actual }))));
+    }
+
+    function render() {
+      const expenses = loadExpenses();
+      const lockSvg = '<svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+
+      let totalEst = 0, totalAct = 0;
+      let h = '<h4 style="margin-bottom:0">Gastos reales</h4>';
+      h += '<table class="expense-table"><tr><th>Categor\u00eda</th><th>Estimado</th><th>Real</th><th>\u0394</th></tr>';
+
+      expenses.forEach((e, i) => {
+        const sym = e.currency === 'USD' ? '$' : '\u20ac';
+        const est = e.estimated;
+        const act = e.actual;
+        const delta = act - est;
+        totalEst += est;
+        totalAct += act;
+
+        let varClass = 'variance-zero';
+        let varText = '\u2014';
+        if (act > 0 || e.locked) {
+          if (delta < 0) { varClass = 'variance-under'; varText = '-' + sym + Math.abs(delta); }
+          else if (delta > 0) { varClass = 'variance-over'; varText = '+' + sym + delta; }
+          else { varClass = 'variance-zero'; varText = sym + '0'; }
+        }
+
+        h += '<tr>';
+        h += '<td class="exp-cat">' + (e.locked ? lockSvg : '') + e.label + '</td>';
+        h += '<td class="exp-val">' + sym + est.toLocaleString('es') + '</td>';
+        if (e.locked) {
+          h += '<td class="exp-val exp-locked">' + sym + act.toLocaleString('es') + '</td>';
+        } else {
+          h += '<td class="exp-val"><input type="number" class="expense-input" data-idx="' + i + '" value="' + act + '" min="0" step="1" data-testid="expense-input-' + e.id + '"></td>';
+        }
+        h += '<td class="exp-val ' + varClass + '">' + varText + '</td>';
+        h += '</tr>';
+      });
+
+      const totalDelta = totalAct - totalEst;
+      let totalVarClass = 'variance-zero';
+      let totalVarText = '$0';
+      if (totalDelta < 0) { totalVarClass = 'variance-under'; totalVarText = '-$' + Math.abs(totalDelta).toLocaleString('es'); }
+      else if (totalDelta > 0) { totalVarClass = 'variance-over'; totalVarText = '+$' + totalDelta.toLocaleString('es'); }
+
+      h += '<tr class="expense-total">';
+      h += '<td class="exp-cat"><strong>Total</strong></td>';
+      h += '<td class="exp-val" style="color:var(--text-bright)">$' + totalEst.toLocaleString('es') + '</td>';
+      h += '<td class="exp-val" style="color:var(--accent)">$' + totalAct.toLocaleString('es') + '</td>';
+      h += '<td class="exp-val ' + totalVarClass + '">' + totalVarText + '</td>';
+      h += '</tr>';
+      h += '</table>';
+
+      const pct = totalEst > 0 ? Math.min(100, Math.round((totalAct / totalEst) * 100)) : 0;
+      const barColor = pct > 100 ? '#f87171' : (pct > 75 ? 'var(--accent)' : 'var(--green)');
+      h += '<div class="budget-progress"><div class="budget-progress-fill" style="width:' + pct + '%;background:' + barColor + '"></div></div>';
+      h += '<div style="display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--text-dim)"><span>' + pct + '% del presupuesto</span><span>$' + totalAct.toLocaleString('es') + ' / $' + totalEst.toLocaleString('es') + '</span></div>';
+
+      document.getElementById('expenses-container').innerHTML = h;
+
+      // Bind input events
+      document.querySelectorAll('.expense-input').forEach(input => {
+        input.addEventListener('change', function() {
+          const idx = parseInt(this.dataset.idx);
+          const val = parseFloat(this.value) || 0;
+          const exps = loadExpenses();
+          exps[idx].actual = val;
+          saveExpenses(exps);
+          render();
+        });
+      });
+    }
+
+    render();
+  })();
+  </script>
+
+  <!-- ==================== HERRAMIENTAS ==================== -->
   <div class="sl">Herramientas</div>
-  <style>
-    .tool-link { display:block; font-size:13px; color:var(--text); text-decoration:none; padding:6px 0; border-bottom:1px solid var(--border); transition:color 0.15s; }
-    .tool-link:last-child { border-bottom:none; }
-    .tool-link:hover { color:var(--accent); }
-    .tool-link span { font-size:11px; color:var(--text-dim); margin-left:6px; }
-  </style>
-  <div class="g4">
+  <div class="g5" data-testid="tools-section">
     <div class="c"><h4>Vuelos</h4>
       <a class="tool-link" href="https://www.google.com/travel/flights" target="_blank" rel="noopener">Google Flights <span>tracking, calendario</span></a>
       <a class="tool-link" href="https://www.kiwi.com/en/nomad" target="_blank" rel="noopener">Kiwi.com <span>multi-city</span></a>
@@ -864,7 +1058,7 @@
     <div class="c"><h4>Trenes</h4>
       <a class="tool-link" href="https://www.seat61.com" target="_blank" rel="noopener">Seat61.com <span>biblia del tren</span></a>
       <a class="tool-link" href="https://www.thetrainline.com" target="_blank" rel="noopener">Trainline <span>split tickets</span></a>
-      <a class="tool-link" href="https://www.italotreno.it/en" target="_blank" rel="noopener">Italo <span>Roma-Firenze-Milan</span></a>
+      <a class="tool-link" href="https://www.italotreno.it/en" target="_blank" rel="noopener">Italo <span>Roma-N&aacute;poles</span></a>
       <a class="tool-link" href="https://www.sncf-connect.com/en-en/" target="_blank" rel="noopener">SNCF <span>TGV Francia</span></a>
     </div>
     <div class="c"><h4>Alojamiento</h4>
@@ -879,125 +1073,807 @@
       <a class="tool-link" href="https://www.yr.no" target="_blank" rel="noopener">yr.no <span>clima preciso</span></a>
       <a class="tool-link" href="https://www.blablacar.com" target="_blank" rel="noopener">BlaBlaCar <span>rideshare</span></a>
     </div>
+    <div class="c"><h4>Movilidad urbana</h4>
+      <a class="tool-link" href="https://www.atac.roma.it/en/tickets-and-passes" target="_blank" rel="noopener">ATAC Roma <span>pase 72h &euro;22</span></a>
+      <a class="tool-link" href="https://ridedott.com" target="_blank" rel="noopener">Dott <span>e-scooter + e-bike, &euro;0.19/min</span></a>
+      <a class="tool-link" href="https://www.li.me" target="_blank" rel="noopener">Lime <span>e-scooter, &euro;0.25/min</span></a>
+      <a class="tool-link" href="https://www.bird.co" target="_blank" rel="noopener">Bird <span>e-scooter, &euro;0.25/min</span></a>
+      <a class="tool-link" href="https://moovitapp.com" target="_blank" rel="noopener">Moovit <span>rutas metro + bus</span></a>
+    </div>
   </div>
 
-
-  </div>
+</div>
 
 <div class="footer">
   Skywalking &middot; Mentat &middot; 2026-03-22
   <div class="tag">36 d&iacute;as &middot; 1,800+ km &middot; 40 a&ntilde;os &middot; 0 backtrack</div>
 </div>
 
-<!-- ==================== MAPA ==================== -->
+<!-- ==================== CHAT DRAWER (private) ==================== -->
+<button class="chat-toggle" id="chatToggle" data-testid="chat-toggle" aria-label="Abrir asistente">
+  <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+  </svg>
+</button>
 
+<div class="chat-drawer" id="chatDrawer" data-testid="chat-drawer">
+  <div class="chat-header">
+    <div>
+      <div class="chat-header-title">Mentat</div>
+      <div class="chat-header-sub">Asistente de viaje</div>
+    </div>
+    <button class="chat-close" id="chatClose" data-testid="chat-close" aria-label="Cerrar">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="chat-messages" id="chatMessages" data-testid="chat-messages">
+    <div class="chat-empty" id="chatEmpty">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      <strong>Pregunta sobre el viaje</strong>
+      <span>Costos, rutas, tips, hostels...</span>
+    </div>
+  </div>
+  <div class="chat-footer">
+    <textarea class="chat-input-field" id="chatInput" data-testid="chat-input" placeholder="Pregunta algo..." rows="1"></textarea>
+    <button class="chat-send" id="chatSend" data-testid="chat-send" aria-label="Enviar">
+      <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ==================== MAPA JS ==================== -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-  const map = L.map('map',{scrollWheelZoom:false,zoomControl:false}).setView([43.5,7],6);
-  L.control.zoom({position:'topright'}).addTo(map);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',{maxZoom:18}).addTo(map);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png',{maxZoom:18,opacity:0.4}).addTo(map);
+  // ===== MAP SETUP =====
+  const map = L.map('map', { scrollWheelZoom: false, zoomControl: false }).setView([43.5, 7], 6);
+  L.control.zoom({ position: 'topright' }).addTo(map);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', { maxZoom: 18 }).addTo(map);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', { maxZoom: 18, opacity: 0.4 }).addTo(map);
 
-  const A='#D4AF37',W='#EFEEE9',G='#4ade80';
+  const A = '#D4AF37', W = '#EFEEE9', G = '#4ade80';
 
+  // ===== CITY DATA =====
+  const cityData = {
+    'Roma': {
+      dates: '9-12 may', nights: 3, dailyCost: '€50',
+      accommodation: {
+        title: 'Hospedaje',
+        items: [
+          { name: 'The RomeHello', cost: '€9-20/n', desc: '9.6★ Via Torino, welcome drink, live music, yoga', link: 'https://www.hostelworld.com/hostels/rome/the-romehello' },
+          { name: 'Freedom Traveller', cost: '€9-18/n', desc: '8.0★ Via Gaeta, jardín, free breakfast, happy hour', link: 'https://www.hostelworld.com/hostels/rome/freedom-traveller' },
+          { name: 'Ostello Bello Colosseo', cost: '€12-25/n', desc: '8.5★ Monti, rooftop, live music, coworking', link: 'https://www.ostellobello.com/ostello-bello-roma-colosseo/' },
+        ]
+      },
+      food: {
+        title: 'Comer',
+        items: [
+          { name: 'Da Enzo al 29', cost: '€12-18', desc: 'Cacio e pepe perfecto, Trastevere' },
+          { name: 'Roscioli', cost: '€15-25', desc: 'Mejor carbonara de Roma, deli-restaurante' },
+          { name: 'Supplì Roma', cost: '€1.50', desc: 'Supplì fritos, Trastevere' },
+          { name: 'Forno Campo de\' Fiori', cost: '€2-4', desc: 'Pizza bianca legendaria, mañanas' },
+        ]
+      },
+      transport: {
+        title: 'Movilidad',
+        items: [
+          { name: 'Pase 72h ATAC', cost: '€22', link: 'https://www.atac.roma.it/en/tickets-and-passes', desc: 'Metro + bus ilimitado' },
+          { name: 'Dott', cost: '€0.19/min', link: 'https://ridedott.com', desc: 'E-scooter, el más barato' },
+          { name: 'Lime', cost: '€0.25/min', link: 'https://www.li.me', desc: 'E-scooter' },
+        ]
+      },
+      pois: [
+        { lat: 41.8902, lng: 12.4922, name: 'Colosseo', type: 'sight', desc: 'Imprescindible, ir temprano, €18', link: 'https://ticketing.colosseo.it/en/' },
+        { lat: 41.8986, lng: 12.4769, name: 'Pantheon', type: 'sight', desc: 'Gratis, ir al atardecer', link: 'https://www.pantheonroma.com/en/' },
+        { lat: 41.8925, lng: 12.4857, name: 'Foro Romano', type: 'sight', desc: 'Incluido en ticket Colosseo', link: 'https://ticketing.colosseo.it/en/' },
+        { lat: 41.9065, lng: 12.4535, name: 'Musei Vaticani & Sistina', type: 'museum', desc: 'Reservar 60 días antes, €17-30', link: 'https://tickets.museivaticani.va/' },
+        { lat: 41.9084, lng: 12.4885, name: 'Galleria Borghese', type: 'museum', desc: 'Bernini, Caravaggio, reserva obligatoria €6', link: 'https://galleriaborghese.beniculturali.it/en/visita/info-biglietti/' },
+        { lat: 41.8794, lng: 12.4931, name: 'Terme di Caracalla', type: 'museum', desc: 'Ruinas termas romanas s.III', link: 'https://www.coopculture.it/en/colosseo-e-parco-archeologico-del-colosseo.cfm' },
+        { lat: 41.9282, lng: 12.4658, name: 'MAXXI', type: 'museum', desc: 'Arte contemporáneo, Zaha Hadid', link: 'https://www.maxxi.art/en/' },
+        { lat: 41.8990, lng: 12.4750, name: 'Galleria Doria Pamphilj', type: 'museum', desc: 'Palazzo privado, Velázquez, Caravaggio', link: 'https://www.doriapamphilj.it/roma/en/' },
+        { lat: 41.8880, lng: 12.4510, name: 'Villa Doria Pamphilj', type: 'nature', desc: 'Parque más grande de Roma, gratis', link: 'https://maps.google.com/?q=Villa+Doria+Pamphilj+Rome' },
+        { lat: 41.8568, lng: 12.5130, name: 'Via Appia Antica', type: 'nature', desc: 'Camino antiguo, tumbas, catacumbas', link: 'https://www.parcoarcheologicoappiaantica.it/en/' },
+        { lat: 41.8872, lng: 12.4670, name: 'Gianicolo Terrazza', type: 'viewpoint', desc: 'Mejor panorámica 180° de Roma' },
+        { lat: 41.9136, lng: 12.4826, name: 'Terrazza del Pincio', type: 'viewpoint', desc: 'Sunset sobre Piazza del Popolo' },
+        { lat: 41.9029, lng: 12.4534, name: 'Trastevere', type: 'zone', desc: 'Barrio para cenar + aperitivo' },
+        { lat: 41.8819, lng: 12.4716, name: 'Testaccio', type: 'zone', desc: 'Barrio más romano, clubs' },
+        { lat: 41.8892, lng: 12.4657, name: 'Freni e Frizioni', type: 'bar', desc: 'Buffet aperitivo, viernes explota' },
+        { lat: 41.8862, lng: 12.4694, name: 'Bar San Calisto', type: 'bar', desc: 'Birra <€2, 100% locales' },
+        { lat: 41.8936, lng: 12.4714, name: 'Da Enzo al 29', type: 'restaurant', desc: 'Cacio e pepe perfecto, Trastevere' },
+        { lat: 41.8943, lng: 12.4785, name: 'Roscioli', type: 'restaurant', desc: 'Mejor carbonara de Roma' },
+        { lat: 41.8939, lng: 12.4720, name: 'Supplì Roma', type: 'restaurant', desc: 'Supplì a €1.50, Trastevere' },
+        { lat: 41.8870, lng: 12.4768, name: 'Forno Campo de\' Fiori', type: 'restaurant', desc: 'Pizza bianca legendaria' },
+        { lat: 41.8892, lng: 12.4680, name: 'Porta Portese', type: 'market', desc: 'Flea market domingo, ir temprano' },
+        { lat: 41.8965, lng: 12.4940, name: 'YellowSquare', type: 'hostel', desc: '~€39/n, 9.2, DJ, social' },
+        { lat: 41.8907, lng: 12.4945, name: 'Ostello Bello', type: 'hostel', desc: '~€25-35/n, 9.0, Colosseo' },
+        { lat: 41.9009, lng: 12.5016, name: 'Generator', type: 'hostel', desc: '~€20-30/n, rooftop bar' },
+        { lat: 41.9138, lng: 12.4818, name: 'Villa Borghese Loop', type: 'trail', desc: '5km, 35min, fácil — parque sombreado', link: 'https://greatruns.com/rome-villa-borghese/' },
+        { lat: 41.8597, lng: 12.5100, name: 'Via Appia Antica Run', type: 'trail', desc: '8-12km, 1.5h, moderado — piedras 2300 años', link: 'https://greatruns.com/rome-via-appia-parco-della-caffarella/' },
+        { lat: 41.8880, lng: 12.4510, name: 'Villa Pamphilj Loop', type: 'trail', desc: '10km, 1h, fácil — jardines barrocos, pinos', link: 'https://maps.google.com/?q=Villa+Doria+Pamphilj+Rome' },
+      ],
+      tips: ['Freni e Frizioni viernes — llegar 18:30', 'Trastevere para comer, Testaccio para salir', 'E-scooters pueden entrar a la ZTL', 'Gianicolo al atardecer, Pincio al amanecer', 'Porta Portese solo domingos (10 may)', 'Correr: Villa Borghese 5km o Via Appia 12km']
+    },
+    'N\u00e1poles': {
+      dates: '12-14 may', nights: 2, dailyCost: '\u20ac40',
+      accommodation: {
+        title: 'Hospedaje',
+        items: [
+          { name: 'Hostel of the Sun', cost: '€11-16/n', desc: '8.5★ waterfront, free breakfast, vista bahía, social', link: 'https://www.hostelworld.com/hostels/naples/hostel-of-the-sun' },
+          { name: 'La Controra', cost: '€14-20/n', desc: '9.0★ jardín, biblioteca, dorms chicos, hidden gem', link: 'https://www.hostelworld.com/hostels/naples/la-controra-hostel' },
+          { name: 'Ostello Bello Napoli', cost: '€15-25/n', desc: '8.8★ rooftop bar, 4 min Quartieri Spagnoli', link: 'https://www.ostellobello.com/ostello-bello-napoli/' },
+        ]
+      },
+      food: {
+        title: 'Comer',
+        items: [
+          { name: 'L\'Antica Pizzeria da Michele', cost: '€5-7', desc: 'Solo marinara/margherita, legendaria' },
+          { name: 'Sorbillo', cost: '€6-10', desc: 'Pizza enorme, Via dei Tribunali' },
+          { name: 'Di Matteo', cost: '€2-4', desc: 'Pizza al taglio en la calle' },
+          { name: 'Pizza fritta callejera', cost: '€3-4', desc: 'Mejor comida por euro de toda Italia' },
+          { name: 'Taverna vegetariana', cost: '€12-18', desc: 'Parmigiana, pasta e fagioli, friarielli' },
+        ]
+      },
+      transport: {
+        title: 'Movilidad',
+        items: [
+          { name: 'Circumvesuviana', cost: '€3.60', desc: 'Tren a Pompeya y Sorrento' },
+          { name: 'Ferry Procida', cost: '€8-18', desc: 'Desde Molo Beverello, 40 min' },
+        ]
+      },
+      pois: [
+        { lat: 40.8518, lng: 14.2681, name: 'Spaccanapoli', type: 'zone', desc: 'Calle que corta el centro histórico' },
+        { lat: 40.8468, lng: 14.2553, name: 'Via dei Tribunali', type: 'zone', desc: 'Pizza cada 10m, caótico y vivo' },
+        { lat: 40.8484, lng: 14.2524, name: 'Quartieri Spagnoli', type: 'zone', desc: 'Auténtico, street food' },
+        { lat: 40.8270, lng: 14.2423, name: 'Mergellina', type: 'zone', desc: 'Lungomare, sfogliatella, locales' },
+        { lat: 40.8337, lng: 14.2488, name: 'Da Michele', type: 'restaurant', desc: 'Solo marinara/margherita, cola pero legendaria' },
+        { lat: 40.8454, lng: 14.2574, name: 'Sorbillo', type: 'restaurant', desc: 'Pizza enorme, Via dei Tribunali' },
+        { lat: 40.8462, lng: 14.2568, name: 'Di Matteo', type: 'restaurant', desc: 'Pizza al taglio, Clinton comió acá' },
+        { lat: 40.8303, lng: 14.2470, name: 'Castel dell\'Ovo', type: 'sight', desc: 'Castillo en el mar, gratis, sunset' },
+        { lat: 40.8528, lng: 14.2507, name: 'Museo Archeologico (MANN)', type: 'museum', desc: 'Hallazgos de Pompeya, €20, cerrado martes', link: 'https://www.museoarcheologiconapoli.it/en/' },
+        { lat: 40.8488, lng: 14.2535, name: 'Cappella Sansevero', type: 'museum', desc: 'Cristo Velado — escultura imposible, €12', link: 'https://www.museosansevero.it/en/' },
+        { lat: 40.8670, lng: 14.2505, name: 'Museo di Capodimonte', type: 'museum', desc: 'Museo real, Titian, Caravaggio', link: 'https://capodimonte.cultura.gov.it/' },
+        { lat: 40.8596, lng: 14.2437, name: 'Cimitero delle Fontanelle', type: 'museum', desc: 'Osario en cueva, 40.000 cráneos', link: 'https://maps.google.com/?q=Cimitero+delle+Fontanelle+Naples' },
+        { lat: 40.8434, lng: 14.2413, name: 'Certosa di San Martino', type: 'museum', desc: 'Monasterio en Vomero, vistas panorámicas', link: 'https://maps.google.com/?q=Certosa+di+San+Martino+Naples' },
+        { lat: 40.8061, lng: 14.3475, name: 'Herculaneum (Ercolano)', type: 'museum', desc: 'Mejor conservado que Pompeya', link: 'https://ercolano.cultura.gov.it/' },
+        { lat: 40.8030, lng: 14.2177, name: 'Parco Virgiliano', type: 'nature', desc: '360° bahía, Vesuvio, islas desde Posillipo' },
+        { lat: 40.8216, lng: 14.4269, name: 'Vesuvio – Cráter', type: 'nature', desc: 'Caminata al cráter activo, €12-15', link: 'https://www.vesuviustickets.com/' },
+        { lat: 40.8128, lng: 14.0817, name: 'Parco Sommerso di Baia', type: 'nature', desc: 'Ruinas romanas submarinas, snorkel o bote' },
+        { lat: 40.8359, lng: 14.2488, name: 'Lungomare', type: 'sight', desc: 'Paseo costero, vista al Vesuvio' },
+        { lat: 40.8474, lng: 14.2520, name: 'Kestè Bar', type: 'bar', desc: 'Cocktails creativos, galería de arte' },
+        { lat: 40.7509, lng: 14.4869, name: 'Pompeya', type: 'daytrip', desc: 'Circumvesuviana 35 min, €18', link: 'https://pompeiisites.org/en/buy-tickets/' },
+        { lat: 40.7267, lng: 14.0101, name: 'Procida', type: 'daytrip', desc: 'Isla colorida, ferry 40 min, overnight' },
+        { lat: 40.6263, lng: 14.3758, name: 'Sorrento', type: 'daytrip', desc: 'Gateway a Amalfi, hostels €18-30' },
+        { lat: 40.8284, lng: 14.4267, name: 'Vesuvio Gran Cono', type: 'trail', desc: '4km ida/vuelta, 1.5h, moderado — cráter volcán activo, €10' },
+        { lat: 40.6266, lng: 14.5450, name: 'Sentiero degli Dei', type: 'trail', desc: '8km, 3.5h, moderado — acantilados 400m, top-10 Italia', link: 'https://www.alltrails.com/trail/italy/campania/sentiero-degli-dei-bomerano-positano' },
+      ],
+      tips: ['Da Michele: solo 2 pizzas, ir 11:30 antes de la cola', 'Combo Pompeya+Herculano €22 (vs €36 separados), v\u00e1lido 48h', 'Cappella Sansevero: reservar online, cupo limitado', 'Procida > Capri para budget', 'Circumvesuviana lento pero barato', 'MANN cerrado martes', 'Castel dell\'Ovo al sunset', 'Pizza fritta en la calle = mejor relaci\u00f3n calidad/precio']
+    },
+    'Atenas': {
+      dates: '14-17 may', nights: 3, dailyCost: '€40',
+      accommodation: {
+        title: 'Hospedaje',
+        items: [
+          { name: 'Stef (si confirma)', cost: 'Gratis', desc: 'Amiga, pendiente confirmaci\u00f3n' },
+          { name: 'Athens Backpackers', cost: '\u20ac18-25/n', desc: 'Rooftop con vista Acr\u00f3polis, social' },
+          { name: 'City Circus Athens', cost: '\u20ac20-28/n', desc: 'Monastiraki, buen WiFi, co-working area' },
+        ]
+      },
+      food: {
+        title: 'Comer',
+        items: [
+          { name: 'O Kostas Souvlaki', cost: '€2.50', desc: 'Desde 1950s, cierra cuando se acaba' },
+          { name: 'Monastiraki Square', cost: '€3-4', desc: 'Souvlaki, gyros, street food' },
+          { name: 'Cookoomela Grill (Exarchia)', cost: '€5-7', desc: 'Souvlaki de hongos, gyros plant-based' },
+          { name: 'Avocado', cost: '€8-12', desc: 'Vegetariano m\u00e1s viejo de Atenas, bowls, curries' },
+          { name: 'Feyrouz', cost: '€8-12', desc: 'Liban\u00e9s, mezze vegetariano completo' },
+          { name: 'Tiropita (bakery)', cost: '€1.50', desc: 'Pie de queso — mejor desayuno de Atenas' },
+        ]
+      },
+      transport: {
+        title: 'Movilidad',
+        items: [
+          { name: 'Metro ticket', cost: '€1.20', desc: '90 min, 3 líneas' },
+          { name: '5-day pass', cost: '€8.20', desc: 'Metro + bus ilimitado' },
+        ]
+      },
+      pois: [
+        { lat: 37.9715, lng: 23.7267, name: 'Acrópolis', type: 'sight', desc: 'Ir al amanecer, €30', link: 'https://etickets.tap.gr/' },
+        { lat: 37.9690, lng: 23.7296, name: 'Museo Acrópolis', type: 'museum', desc: '€15, imprescindible', link: 'https://etickets.theacropolismuseum.gr/' },
+        { lat: 37.9893, lng: 23.7326, name: 'Museo Arqueol\u00f3gico Nacional', type: 'museum', desc: '\u20ac20, m\u00e1scaras mic\u00e9nicas, Antikythera, frescos Santorini', link: 'https://www.namuseum.gr/en/' },
+        { lat: 37.9717, lng: 23.7202, name: 'Ágora Antigua', type: 'museum', desc: 'Centro cívico, Stoa de Átalo', link: 'https://etickets.tap.gr/' },
+        { lat: 37.9693, lng: 23.7330, name: 'Templo de Zeus Olímpico', type: 'museum', desc: '15 columnas en pie', link: 'https://etickets.tap.gr/' },
+        { lat: 37.9398, lng: 23.6920, name: 'SNFCC Stavros Niarchos', type: 'museum', desc: 'Renzo Piano, parque gratis en techo', link: 'https://www.snfcc.org/en' },
+        { lat: 37.9722, lng: 23.7376, name: 'Museo Benaki', type: 'museum', desc: 'Cultura griega prehistoria→moderno', link: 'https://www.benaki.org/en/' },
+        { lat: 37.9754, lng: 23.7427, name: 'Jardín Nacional', type: 'nature', desc: 'Oasis central, 15 hectáreas, gratis' },
+        { lat: 37.8078, lng: 23.7855, name: 'Lago Vouliagmeni', type: 'nature', desc: 'Lago termal 28°C, 25km del centro', link: 'https://lakevouliagmeni.gr/' },
+        { lat: 37.9672, lng: 23.7213, name: 'Filopappou Hill', type: 'viewpoint', desc: 'Mejor ángulo de Acrópolis, sunset' },
+        { lat: 37.9757, lng: 23.7365, name: 'Lycabettus Hill', type: 'viewpoint', desc: 'Punto más alto, 360° views, funicular' },
+        { lat: 37.9722, lng: 23.7278, name: 'Anafiotika', type: 'zone', desc: 'Pueblo cicládico bajo Acrópolis, hidden gem' },
+        { lat: 37.9725, lng: 23.7310, name: 'Plaka', type: 'zone', desc: 'Barrio bajo la Acrópolis, restaurantes' },
+        { lat: 37.9762, lng: 23.7254, name: 'Monastiraki', type: 'zone', desc: 'Mercado, flea market, souvlaki' },
+        { lat: 37.9780, lng: 23.7130, name: 'Psyrrí', type: 'zone', desc: 'Bares, vida nocturna, cocktails' },
+        { lat: 37.9838, lng: 23.7275, name: 'Exarchia', type: 'zone', desc: 'Alternativo, bares baratos, graffiti' },
+        { lat: 37.9759, lng: 23.7241, name: 'O Kostas Souvlaki', type: 'restaurant', desc: 'Desde 1950s, cierra cuando se acaba ~14h' },
+        { lat: 37.9821, lng: 23.7286, name: 'Mercado Varvakios', type: 'market', desc: 'Mercado central pescado/carne, auténtico' },
+        { lat: 37.9769, lng: 23.7285, name: 'A for Athens Rooftop', type: 'bar', desc: 'Vista directa a Acrópolis, cocktails' },
+        { lat: 37.6688, lng: 24.0228, name: 'Cape Sounion', type: 'daytrip', desc: 'Templo de Poseid\u00f3n al sunset, \u20ac20, bus KTEL ~\u20ac6.30 ida' },
+        { lat: 38.0417, lng: 23.5417, name: 'Eleusis (Elefsina)', type: 'daytrip', desc: 'Misterios Eleusinos, santuario de Dem\u00e9ter, \u20ac6, bus A16, medio d\u00eda' },
+        { lat: 37.9455, lng: 23.6487, name: 'Piraeus', type: 'zone', desc: 'Puerto, Mikrolimano, fish tavernas' },
+        { lat: 37.9785, lng: 23.7220, name: 'Kerameikos', type: 'museum', desc: 'Cementerio antiguo, jard\u00edn de Epicuro, contemplativo, \u20ac8' },
+        { lat: 37.9706, lng: 23.7234, name: 'Are\u00f3pago (Mars Hill)', type: 'viewpoint', desc: 'Roca panor\u00e1mica, Agnostos Theos, mejor sunset gratis' },
+        { lat: 37.9701, lng: 23.7220, name: 'Filopappou-Pnyx Loop', type: 'trail', desc: '4km, 1h, fácil — Acrópolis de fondo', link: 'https://www.alltrails.com/trail/greece/attica--4/visit-to-filopappou-hill' },
+        { lat: 37.9795, lng: 23.7437, name: 'Lycabettus Summit Run', type: 'trail', desc: '3km, 45min, moderado — 360° panorámica', link: 'https://www.alltrails.com/trail/greece/attica--4/lycabettus-hill' },
+        { lat: 37.9638, lng: 23.8041, name: 'Monte Hymettus (Kaisariani)', type: 'trail', desc: '7km, 2h, moderado — monasterio bizantino', link: 'https://www.topoguide.gr/mountains/attiki/advs_imittos/' },
+      ],
+      tips: ['Combo ticket \u20ac30 cubre Acr\u00f3polis + 6 sitios, v\u00e1lido 5 d\u00edas', 'Are\u00f3pago al sunset, Filopappou al sunrise \u2014 ambos gratis', '18 mayo = D\u00eda Internacional de Museos \u2014 entrada gratis en varios', 'Eleusis: resonancia directa con tradiciones contemplativas', 'Cape Sounion: bus ~15:30, sunset ~21:00, \u00faltimo bus verificar KTEL', 'Pase 5 d\u00edas transporte \u20ac8.20 (vs \u20ac1.20/viaje)', 'Cookoomela en Exarchia: mejor vegetariano budget', 'Yi Yoga Loft: drop-in \u20ac15-20, detr\u00e1s del Museo Acr\u00f3polis', 'Tiropita en cualquier bakery = desayuno \u20ac1.50']
+    },
+    'Split': {
+      dates: '17-21 may', nights: 4, dailyCost: '\u20ac50',
+      accommodation: {
+        title: 'Hospedaje',
+        items: [
+          { name: 'AI Hostel Split', cost: '\u20ac24/n', desc: '9.0\u2605, orientado a n\u00f3madas, WiFi fuerte', link: 'https://www.hostelworld.com/hostels/split/ai-hostel' },
+          { name: 'Gravitas Hostel', cost: '\u20ac24/n', desc: '8.8\u2605, junto a Pazar, central' },
+          { name: 'Hostel Split Backpackers', cost: '\u20ac28/n', desc: '8.5\u2605, WiFi bueno' },
+        ]
+      },
+      food: {
+        title: 'Comer',
+        items: [
+          { name: 'Marta\'s Veggie Fusion', cost: '\u20ac10-15', desc: 'Vegano, familiar, casual, el mejor' },
+          { name: 'Pandora Greenbox', cost: '\u20ac18+', desc: 'Vegano upmarket, mediterr\u00e1neo' },
+          { name: 'Vege Fast Food', cost: '\u20ac6-10', desc: 'Vegano r\u00e1pido, central' },
+          { name: 'Fig Split', cost: '\u20ac8-14', desc: 'Desayuno 100% veg, dentro del Palacio' },
+          { name: 'Pazar (Green Market)', cost: '\u20ac3-5', desc: 'Fruta, queso, aceitunas — arm\u00e1 picnic' },
+          { name: 'Burek sa sirom (bakeries)', cost: '\u20ac1.50-2', desc: 'Phyllo + feta, desayuno croata' },
+        ]
+      },
+      transport: {
+        title: 'Movilidad',
+        items: [
+          { name: 'Bus 37 aeropuerto', cost: '\u20ac1.50', desc: 'App Promet, 50min al centro' },
+          { name: 'Tink Tank coworking', cost: '\u20ac15/d\u00eda', desc: 'Caf\u00e9 incluido, 5min del centro, WiFi r\u00e1pido' },
+          { name: 'SmartSpace', cost: '\u20ac15-25/d\u00eda', desc: 'Coworking, desks dedicados' },
+          { name: 'CoCreative', cost: 'desde \u20ac11/d\u00eda', desc: 'M\u00e1s barato, buen WiFi' },
+        ]
+      },
+      pois: [
+        { lat: 43.5083, lng: 16.4394, name: 'Palacio de Diocleciano', type: 'sight', desc: 'Entr\u00e1s gratis, es un barrio vivo. S\u00f3tanos \u20ac6-8' },
+        { lat: 43.5079, lng: 16.4392, name: 'S\u00f3tanos del Palacio', type: 'museum', desc: '\u20ac6-8, ingenier\u00eda romana impresionante' },
+        { lat: 43.5082, lng: 16.4393, name: 'Catedral + Campanario', type: 'museum', desc: '\u20ac8 combo, mejor vista del Old Town' },
+        { lat: 43.5122, lng: 16.4460, name: 'Museo Arqueol\u00f3gico', type: 'museum', desc: '\u20ac5, artefactos romanos, tranquilo' },
+        { lat: 43.5578, lng: 16.5317, name: 'Fortaleza Klis', type: 'daytrip', desc: '\u20ac12, Game of Thrones, bus 30min' },
+        { lat: 43.5108, lng: 16.4258, name: 'Marjan Hill \u2014 Prva Vidilica', type: 'viewpoint', desc: '20min caminando, caf\u00e9 en la cima, gratis' },
+        { lat: 43.5090, lng: 16.3965, name: 'Marjan Hill \u2014 Telegrin Peak', type: 'nature', desc: '45min, 178m, panor\u00e1mica 360\u00b0, cruz en la cima' },
+        { lat: 43.5080, lng: 16.4398, name: 'Vest\u00edbulo (spot contemplativo)', type: 'viewpoint', desc: 'Espacio circular romano, silencioso antes de 9am' },
+        { lat: 43.5027, lng: 16.4513, name: 'Playa Ba\u010dvice', type: 'beach', desc: 'Arena (raro en Croacia), 15min del centro, picigin' },
+        { lat: 43.5078, lng: 16.3991, name: 'Playa Ka\u0161juni', type: 'beach', desc: 'Guijarros, la m\u00e1s tranquila, pinos, bus 12 o 45min caminando por Marjan' },
+        { lat: 43.5039, lng: 16.4843, name: 'Playa \u017dnjan', type: 'beach', desc: 'Grande, familiar, servicios, bus 1/2/8' },
+        { lat: 43.5017, lng: 16.4644, name: 'Playa Trstenik', type: 'beach', desc: 'Local, residencial, menos turistas' },
+        { lat: 43.5085, lng: 16.4512, name: 'Tink Tank Coworking', type: 'cowork', desc: '\u20ac15/d\u00eda incl. caf\u00e9, WiFi r\u00e1pido' },
+        { lat: 43.5135, lng: 16.4580, name: 'SmartSpace', type: 'cowork', desc: '\u20ac15-25/d\u00eda, desks dedicados' },
+        { lat: 43.5070, lng: 16.4390, name: 'CoCreative', type: 'cowork', desc: 'desde \u20ac11/d\u00eda' },
+        { lat: 43.5083, lng: 16.4394, name: 'Fig Split (caf\u00e9 trabajo)', type: 'cafe', desc: 'WiFi bueno, dentro del Palacio, \u20ac3.50' },
+        { lat: 43.5079, lng: 16.4400, name: 'Theatrum Bar & Food', type: 'cafe', desc: 'WiFi bueno, vegetariano, Old Town' },
+        { lat: 43.5075, lng: 16.4385, name: 'Marta\'s Veggie Fusion', type: 'restaurant', desc: 'Vegano, familiar, \u20ac10-15' },
+        { lat: 43.5083, lng: 16.4398, name: 'Pandora Greenbox', type: 'restaurant', desc: 'Vegano upmarket, \u20ac18+' },
+        { lat: 43.5085, lng: 16.4420, name: 'Pazar Green Market', type: 'market', desc: 'Lun-S\u00e1b 6-13h, fruta/queso/aceitunas' },
+        { lat: 43.5071, lng: 16.4353, name: 'AI Hostel Split', type: 'hostel', desc: '\u20ac24/n, 9.0\u2605, WiFi n\u00f3mada' },
+        { lat: 43.5057, lng: 16.4436, name: 'Terminal de Ferries', type: 'transport', desc: 'Bra\u010d 50min \u20ac5, Hvar 1h \u20ac6-8' },
+      ],
+      tips: ['Ka\u0161juni antes de 10am = meditaci\u00f3n con pinos, vac\u00eda en mayo', 'Marjan Hill al amanecer: ideal para yoga, bosque de pinos', 'Tink Tank = mejor coworking relaci\u00f3n calidad/precio (\u20ac15 incl. caf\u00e9)', 'Burek sa sirom en cualquier pekara = desayuno \u20ac1.50', 'Soparnik = pie de acelga dalmata, naturalmente vegano', 'Bus 37 aeropuerto: bajar app Promet, \u20ac1.50 vs \u20ac8 shuttle', 'Palacio de Diocleciano es gratis \u2014 es un barrio, no un museo', 'Pazar (mercado verde) cierra ~13h, ir temprano']
+    },
+    'Milan': {
+      dates: '21-24 may', nights: 3, dailyCost: '\u20ac25',
+      accommodation: {
+        title: 'Hospedaje',
+        items: [
+          { name: 'Christian & Gus', cost: 'Gratis', desc: 'Amigos, hospedaje confirmado' },
+        ]
+      },
+      food: {
+        title: 'Comer',
+        items: [
+          { name: 'Navigli aperitivo', cost: '€8', desc: 'Spritz + buffet incluido' },
+          { name: 'Luini Panzerotti', cost: '€3', desc: 'Panzerotto frito, institución desde 1888' },
+          { name: 'Mercato Metropolitano', cost: '€5-12', desc: 'Food hall, street food variado' },
+        ]
+      },
+      transport: {
+        title: 'Movilidad',
+        items: [
+          { name: 'ATM day pass', cost: '€7.60', desc: 'Metro + tram + bus' },
+          { name: 'Bus BGY→Milan', cost: '€7', desc: 'Terravision/Orio Shuttle, 1h' },
+        ]
+      },
+      pois: [
+        { lat: 45.4641, lng: 9.1919, name: 'Duomo', type: 'sight', desc: 'Terraza €19 ascensor / €10 escalera', link: 'https://www.duomomilano.it/en/' },
+        { lat: 45.4654, lng: 9.1776, name: 'La Última Cena', type: 'sight', desc: 'Reservar con meses, €15, ID obligatorio', link: 'https://www.lastsupper.shop/it/' },
+        { lat: 45.4720, lng: 9.1880, name: 'Pinacoteca di Brera', type: 'museum', desc: 'Top galería, Raphael, €20', link: 'https://pinacotecabrera.org/en/' },
+        { lat: 45.4638, lng: 9.1801, name: 'Museo del Novecento', type: 'museum', desc: 'Arte s.XX, vistas Piazza Duomo', link: 'https://www.museodelnovecento.org/en/' },
+        { lat: 45.4705, lng: 9.1793, name: 'Castello Sforzesco – Museos', type: 'museum', desc: '8 museos, Pietà Rondanini', link: 'https://www.milanocastello.it/en' },
+        { lat: 45.4618, lng: 9.1710, name: 'Museo della Scienza', type: 'museum', desc: 'Leonardo da Vinci, submarinos', link: 'https://www.museoscienza.org/en' },
+        { lat: 45.4621, lng: 9.2003, name: 'Fondazione Prada', type: 'museum', desc: 'Arte contemporáneo, Bar Luce (Wes Anderson)', link: 'https://www.fondazioneprada.org/' },
+        { lat: 45.4720, lng: 9.1763, name: 'Parco Sempione', type: 'nature', desc: 'Parque central, Castello Sforzesco' },
+        { lat: 45.4718, lng: 9.1863, name: 'Orto Botanico di Brera', type: 'nature', desc: 'Jardín botánico escondido en patio Brera' },
+        { lat: 45.8955, lng: 8.5269, name: 'Isola Bella (Lago Maggiore)', type: 'nature', desc: 'Palacio-isla barroco, ferry desde Stresa' },
+        { lat: 45.4581, lng: 9.1711, name: 'Navigli', type: 'zone', desc: 'Canales, aperitivo, vida nocturna' },
+        { lat: 45.4720, lng: 9.1870, name: 'Brera', type: 'zone', desc: 'Distrito arte, galerías, aperitivo' },
+        { lat: 45.4586, lng: 9.1836, name: 'Colonne di San Lorenzo', type: 'zone', desc: 'Columnas romanas, aperitivo al aire libre' },
+        { lat: 45.4726, lng: 9.1968, name: '10 Corso Como', type: 'zone', desc: 'Concept store + jardín bar, Porta Garibaldi' },
+        { lat: 45.4462, lng: 9.1740, name: 'MAG Café (Navigli)', type: 'bar', desc: 'Cocktails bohemios, vista al canal' },
+        { lat: 45.4659, lng: 9.1786, name: 'Mercato Metropolitano', type: 'market', desc: 'Food hall, street food, buenos precios' },
+        { lat: 45.8300, lng: 9.0600, name: 'Lago di Como', type: 'daytrip', desc: 'Tren 1h €5, Varenna + ferry' },
+        { lat: 45.0703, lng: 7.6869, name: 'Turín', type: 'daytrip', desc: 'Tren 1h €10, day trip' },
+        { lat: 45.4733, lng: 9.1753, name: 'Parco Sempione Loop', type: 'trail', desc: '4km, 25min, fácil — gravel, Castello a Arco della Pace' },
+        { lat: 45.4481, lng: 9.1729, name: 'Naviglio Grande Canal Run', type: 'trail', desc: '10km ida/vuelta, 50min, fácil — towpath s.XIII, murales' },
+      ],
+      tips: ['Gratis: Christian & Gus', 'Navigli aperitivo = buffet + spritz €8', 'Colonne di San Lorenzo: cada noche se junta gente', 'Fondazione Prada cerrada martes', 'Como: tren a Varenna, ferry entre pueblos']
+    },
+    'Cinque Terre': {
+      dates: '24-25 may', nights: 2, dailyCost: '€70',
+      accommodation: { title: 'Hospedaje', items: [
+        { name: '5 Terre Backpackers City', cost: '€19-25/n', desc: '8.5★ Francesco, 13 camas, jardín, RESERVAR YA', link: 'https://www.5terrebackpackers.com/en/hostel-la-spezia/' },
+        { name: 'Grand Hostel Manin', cost: '€19-25/n', desc: '8.0★ familiar, free breakfast, 20m tren a CT', link: 'https://www.hostelworld.com/hostels/la-spezia/grand-hostel-manin' },
+      ]},
+      food: { title: 'Comer', items: [
+        { name: 'Trattoria dal Billy', cost: '€15-25', desc: 'Seafood en la cima, Manarola' },
+        { name: 'Nessun Dorma', cost: '€8-12', desc: 'Aperitivo + vista icónica, Manarola' },
+      ]},
+      transport: { title: 'Movilidad', items: [{ name: 'Cinque Terre Card', cost: '€16/d', desc: 'Trenes + senderos entre aldeas', link: 'https://card.parconazionale5terre.it/en' }] },
+      pois: [
+        { lat: 44.1454, lng: 9.6443, name: 'Riomaggiore', type: 'sight', desc: 'Primera aldea desde sur' },
+        { lat: 44.1276, lng: 9.7108, name: 'Manarola', type: 'sight', desc: 'La más fotogénica' },
+        { lat: 44.1168, lng: 9.6826, name: 'Vernazza', type: 'sight', desc: 'Puerto pintoresco' },
+        { lat: 44.1210, lng: 9.7090, name: 'Corniglia', type: 'sight', desc: '382 escalones, sin hordas, vistas' },
+        { lat: 44.1461, lng: 9.6502, name: 'Sentiero Azzurro (Vernazza-Corniglia)', type: 'nature', desc: 'Tramo más escénico, viñedos en terrazas' },
+        { lat: 44.0856, lng: 9.7299, name: 'Via dell\'Amore', type: 'nature', desc: 'Reabierta 2024, 1km acantilado, capacity limited' },
+        { lat: 44.1217, lng: 9.6666, name: 'Spiaggia di Guvano', type: 'nature', desc: 'Playa secreta bajo Corniglia, solo hiking' },
+        { lat: 44.0712, lng: 9.7189, name: 'Santuario di Montenero', type: 'nature', desc: 'Santuario sobre Riomaggiore, panorámica bahía' },
+        { lat: 44.1465, lng: 9.6558, name: 'Monterosso Fegina', type: 'beach', desc: 'Única playa de arena real en CT' },
+        { lat: 44.1053, lng: 9.7292, name: 'Nessun Dorma', type: 'bar', desc: 'Terraza aperitivo, limoncino spritz, vista icónica' },
+        { lat: 44.1340, lng: 9.6777, name: 'Trattoria dal Billy', type: 'restaurant', desc: 'Seafood en la cima, panorama al mar' },
+        { lat: 44.1342, lng: 9.6892, name: 'La Torre (Vernazza)', type: 'restaurant', desc: 'Pasta en el acantilado, aprobado por locales' },
+        { lat: 44.1007, lng: 9.7362, name: 'Sentiero Azzurro completo', type: 'trail', desc: '12km, 5h, moderado — las 5 aldeas, viñedos, mar. Card €7.50' },
+        { lat: 44.1460, lng: 9.6560, name: 'Sentiero Rosso (ruta alta)', type: 'trail', desc: '16km, 6h, difícil — cresta 400-600m, sin turistas, Alpes Apuanos' },
+      ],
+      tips: ['Trekking entre aldeas ~2h por tramo', 'Sciacchetrà = vino local dulce', 'Mayo = sin hordas de verano', 'Nessun Dorma: llegar 17h para mesa', 'Agua fría en mayo (~17°C), Monterosso es nadable']
+    },
+    'Nice': {
+      dates: '27-28 may', nights: 2, dailyCost: '€60',
+      accommodation: { title: 'Hospedaje', items: [
+        { name: 'Hostel Pastoral', cost: '€12-18/n', desc: '8.0★ ultra-budget, cocina en cuarto, terraza', link: 'https://www.hostelworld.com/hostels/nice/hostel-pastoral' },
+        { name: 'Villa Saint-Exupéry Beach', cost: '€18-28/n', desc: '8.5★ walking tours gratis, yoga, cerca playa', link: 'https://www.villahotel.com/' },
+        { name: 'Open House Hostel', cost: '€18-28/n', desc: '8.0★ pub crawls, 100m Massena, cerca Wayne\'s', link: 'https://www.hostelworld.com/hostels/nice/open-house-nice' },
+      ]},
+      food: { title: 'Comer', items: [
+        { name: 'Chez Pipo', cost: '€5-8', desc: 'Socca legendaria (panqueque garbanzo)' },
+        { name: 'Cours Saleya stalls', cost: '€3-8', desc: 'Mercado diario, comida callejera' },
+      ]},
+      transport: { title: 'Movilidad', items: [{ name: "Ligne d'Azur", cost: '€1.50', desc: 'Bus/tram single ticket' }] },
+      pois: [
+        { lat: 43.6961, lng: 7.2712, name: 'Promenade des Anglais', type: 'sight', desc: 'Paseo costero icónico' },
+        { lat: 43.7194, lng: 7.2762, name: 'Musée Matisse', type: 'museum', desc: '600 obras, €10, gratis jue 16-19', link: 'https://www.musee-matisse-nice.org/en/' },
+        { lat: 43.7091, lng: 7.2695, name: 'Musée Chagall', type: 'museum', desc: 'Mayor colección pública, Mensaje Bíblico', link: 'https://musees-nationaux-alpesmaritimes.fr/chagall/' },
+        { lat: 43.6926, lng: 7.2800, name: 'Colline du Château (Parc)', type: 'nature', desc: 'Parque gratis, cascada, vistas costeras' },
+        { lat: 43.6785, lng: 7.3330, name: 'Sentier du Littoral – Cap Ferrat', type: 'nature', desc: '10km caminata costera, villas y calas' },
+        { lat: 43.7050, lng: 7.3085, name: 'Villefranche-sur-Mer', type: 'nature', desc: 'Bahía profunda, ciudadela, 6km de Nice' },
+        { lat: 43.6954, lng: 7.2807, name: 'Colline du Château', type: 'viewpoint', desc: '360° views, lift o escaleras, sunset' },
+        { lat: 43.6977, lng: 7.2756, name: 'Vieux Nice', type: 'zone', desc: 'Callejuelas, Cours Saleya, bares' },
+        { lat: 43.6955, lng: 7.2749, name: 'Cours Saleya', type: 'market', desc: 'Mercado flores/comida diario, socca stalls' },
+        { lat: 43.6949, lng: 7.2804, name: "Wayne's Bar", type: 'bar', desc: 'Clásico desde 1991, expats + viajeros' },
+        { lat: 43.6971, lng: 7.2688, name: 'Shapko Bar', type: 'bar', desc: 'Cocktails baratos, música en vivo' },
+        { lat: 43.6965, lng: 7.2730, name: 'Chez Pipo', type: 'restaurant', desc: 'Socca legendaria (panqueque garbanzo)' },
+        { lat: 43.6920, lng: 7.2643, name: 'Plage Carras', type: 'beach', desc: 'Playa pública gratis, menos crowd' },
+        { lat: 43.6946, lng: 7.2755, name: 'Promenade des Anglais Run', type: 'trail', desc: '7-14km, 1h, fácil — carril running al mar', link: 'https://greatruns.com/code-dazur-nice-france-promenade-des-anglais/' },
+        { lat: 43.6972, lng: 7.2945, name: 'Mont Boron-Mont Alban Loop', type: 'trail', desc: '9.3km, 2h50, moderado — dos bahías', link: 'https://www.alltrails.com/trail/france/alpes-maritimes/mont-boron-mont-alban' },
+        { lat: 43.6915, lng: 7.3268, name: 'Tour Cap Ferrat', type: 'trail', desc: '6.5km, 1.5h, moderado — calas turquesas', link: 'https://www.alltrails.com/trail/france/alpes-maritimes/tour-de-saint-jean-cap-ferrat' },
+      ],
+      tips: ["Wayne's para arrancar, Shapko para cerrar", 'Vieux Nice viernes/sábado explota', 'Castle Hill al sunset — subir por escalera', 'Socca en Chez Pipo = imperdible']
+    },
+    'Marseille': {
+      dates: '30 may', nights: 1, dailyCost: '€55',
+      accommodation: { title: 'Hospedaje', items: [
+        { name: 'Vertigo Vieux-Port', cost: '€20-28/n', desc: '8.0★ artístico, vigas madera, free breakfast', link: 'https://www.hostelworld.com/hostels/marseille/vertigo-vieux-port' },
+        { name: 'The People Hostel', cost: '€18-26/n', desc: '8.0★ nuevo 2021, limpio, cerca Le Panier', link: 'https://www.thepeoplehostel.com/en/marseille/' },
+      ]},
+      food: { title: 'Comer', items: [
+        { name: 'Bouillabaisse Vieux Port', cost: '€15-25', desc: 'Plato típico, puestos del puerto' },
+        { name: 'Cours Julien bares', cost: '€4-8', desc: 'Street food bohemio, birra barata' },
+      ]},
+      transport: { title: 'Movilidad', items: [{ name: 'RTM', cost: '€2', desc: 'Metro + bus single' }] },
+      pois: [
+        { lat: 43.2951, lng: 5.3747, name: 'Vieux Port', type: 'sight', desc: 'Puerto histórico, pescadores' },
+        { lat: 43.2839, lng: 5.3712, name: 'Notre-Dame de la Garde', type: 'viewpoint', desc: 'Basílica en la cima, 360° puerto, bus 60' },
+        { lat: 43.2967, lng: 5.3606, name: 'MuCEM', type: 'museum', desc: '€11, gratis 1er domingo', link: 'https://www.mucem.org/en/' },
+        { lat: 43.2800, lng: 5.3260, name: 'Château d\'If', type: 'museum', desc: 'Fortaleza isla, Monte Cristo, ferry 20min', link: 'https://www.chateau-if.fr/en' },
+        { lat: 43.2830, lng: 5.2975, name: 'Îles de Frioul', type: 'nature', desc: 'Islas salvajes, calas turquesas, mismo ferry' },
+        { lat: 43.2121, lng: 5.4541, name: 'Calanque de Sugiton', type: 'nature', desc: 'Mejor calanque accesible, 45min desde Luminy' },
+        { lat: 43.2970, lng: 5.3680, name: 'Le Panier', type: 'zone', desc: 'Barrio más antiguo, street art, casas pastel' },
+        { lat: 43.2980, lng: 5.3770, name: 'Cours Julien', type: 'zone', desc: 'Street art, dive bars, bohemio, birra €4' },
+        { lat: 43.2100, lng: 5.4300, name: 'Calanques', type: 'daytrip', desc: 'Acantilados + playas, hiking 2h' },
+        { lat: 43.2110, lng: 5.4187, name: 'Calanques Sormiou Loop', type: 'trail', desc: '8.2km, 3h, difícil — cala turquesa, acantilados, llegar 9am' },
+        { lat: 43.2695, lng: 5.3837, name: 'Borély-Prado Waterfront', type: 'trail', desc: '8km, 45min, fácil — rosaleda + playas, nadar al final' },
+      ],
+      tips: ['Bouillabaisse en Vieux Port', 'Devolver auto aquí', 'Notre-Dame de la Garde al atardecer', 'Cours Julien = el barrio más cool', 'Calanques: llegar 9am en mayo, restricciones de acceso']
+    },
+    'Barcelona': {
+      dates: '31 may - 12 jun', nights: 12, dailyCost: '€30',
+      accommodation: { title: 'Hospedaje', items: [
+        { name: 'Mary Carmen', cost: 'Gratis', desc: 'Familia, hospedaje confirmado' },
+      ]},
+      food: { title: 'Comer', items: [
+        { name: 'La Boqueria (fondo)', cost: '€3-8', desc: 'Mercado, ir al fondo, frutas €2' },
+        { name: 'Chiringuitos Barceloneta', cost: '€5-10', desc: 'Mojitos + tapas en la arena' },
+        { name: 'El Born tapas', cost: '€8-15', desc: 'Pinchos, patatas bravas, vermouth' },
+      ]},
+      transport: { title: 'Movilidad', items: [{ name: 'T-casual', cost: '€11.35', desc: '10 viajes metro/bus' }] },
+      pois: [
+        { lat: 41.4036, lng: 2.1744, name: 'Sagrada Familia', type: 'sight', desc: 'Reservar 2-4 sem antes, €33+', link: 'https://sagradafamilia.org/en/tickets' },
+        { lat: 41.4145, lng: 2.1528, name: 'Park Güell', type: 'sight', desc: '€18-21 zona Gaudí, gratis exterior', link: 'https://parkguell.barcelona/en/buy-tickets' },
+        { lat: 41.3852, lng: 2.1809, name: 'Museu Picasso', type: 'museum', desc: '€12, gratis jue 16-19', link: 'https://tickets.museupicassobcn.cat/' },
+        { lat: 41.3686, lng: 2.1599, name: 'Fundació Joan Miró', type: 'museum', desc: 'Montjuïc, colección personal', link: 'https://www.fundaciomiro-bcn.org/en/' },
+        { lat: 41.3834, lng: 2.1668, name: 'MACBA', type: 'museum', desc: 'Arte contemporáneo', link: 'https://www.macba.cat/en' },
+        { lat: 41.3684, lng: 2.1534, name: 'MNAC', type: 'museum', desc: 'Mejor arte románico, gratis sáb 15h+', link: 'https://www.museunacional.cat/en/' },
+        { lat: 41.3837, lng: 2.1753, name: 'MUHBA', type: 'museum', desc: 'Excavaciones romanas subterráneas', link: 'https://www.museuhistoria.bcn.cat/en' },
+        { lat: 41.3636, lng: 2.1585, name: 'Montjuïc', type: 'nature', desc: 'Castillo + jardines + teleférico' },
+        { lat: 41.4219, lng: 2.1191, name: 'Tibidabo', type: 'nature', desc: 'Punto más alto, bosque, vistas 360°, templo' },
+        { lat: 41.3673, lng: 2.1720, name: 'Jardins Mossèn Costa i Llobera', type: 'nature', desc: '800+ cactus, microclima frente al mar' },
+        { lat: 41.4175, lng: 2.1005, name: 'Parc Natural Collserola', type: 'nature', desc: '8.000ha bosque, senderos, ciervos, Font Groga' },
+        { lat: 41.4185, lng: 2.1674, name: 'Bunkers del Carmel', type: 'viewpoint', desc: 'Mejor 360° de BCN, llevar latas, sunset' },
+        { lat: 41.3818, lng: 2.1685, name: 'Barceloneta', type: 'zone', desc: 'Playa, chiringuitos' },
+        { lat: 41.3797, lng: 2.1740, name: 'El Born', type: 'zone', desc: 'Bares, cocktails, nocturno' },
+        { lat: 41.3815, lng: 2.1727, name: 'Barri Gòtic', type: 'zone', desc: 'Medieval, perderse horas, muros romanos' },
+        { lat: 41.3813, lng: 2.1675, name: 'Bar Marsella', type: 'bar', desc: 'Bar más viejo de BCN (1820), absenta' },
+        { lat: 41.3808, lng: 2.1821, name: 'Absenta Bar', type: 'bar', desc: 'Especialistas absenta, Barceloneta' },
+        { lat: 41.3860, lng: 2.1773, name: 'Paradiso', type: 'bar', desc: 'Mejor cocktail bar BCN, puerta de heladera' },
+        { lat: 41.3796, lng: 2.1773, name: 'Chiringuitos Barceloneta', type: 'bar', desc: 'Mojito €5 en la arena' },
+        { lat: 41.3853, lng: 2.1737, name: 'La Boqueria', type: 'market', desc: 'Ir al fondo, vendedores locales, fruta €2' },
+        { lat: 41.3938, lng: 2.0939, name: 'Carretera de les Aigües', type: 'trail', desc: '9km, 1h, fácil — cresta Collserola, el #1 local', link: 'https://greatruns.com/barcelona-carretera-de-les-aiguesparc-de-collserola/' },
+        { lat: 41.3640, lng: 2.1675, name: 'Montjuïc Castle Loop', type: 'trail', desc: '11km, 1h, moderado — jardines + castillo', link: 'https://greatruns.com/barcelona-montjuic/' },
+      ],
+      tips: ['Cumple 31 mayo', 'Gratis: Mary Carmen', 'Bunkers del Carmel al sunset con latas', 'Paradiso: puerta secreta detrás de heladería', 'Raval para bares baratos, Born para cocktails', 'Boqueria: evitar puestos de la entrada']
+    }
+  };
+
+  // POI type colors
+  const poiColors = {
+    sight: '#EFEEE9',
+    zone: '#D4AF37',
+    bar: '#f472b6',
+    hostel: '#4ade80',
+    daytrip: '#60a5fa',
+    viewpoint: '#fbbf24',
+    museum: '#c084fc',
+    nature: '#34d399',
+    restaurant: '#fb923c',
+    market: '#a78bfa',
+    beach: '#22d3ee',
+    trail: '#10b981',
+    cowork: '#818cf8',
+    cafe: '#f59e0b',
+    transport: '#94a3b8'
+  };
+  const poiLabels = {
+    sight: 'Lugares',
+    museum: 'Museos',
+    nature: 'Naturaleza',
+    trail: 'Rutas / Correr',
+    viewpoint: 'Miradores',
+    zone: 'Barrios',
+    restaurant: 'Comer',
+    bar: 'Bares',
+    market: 'Mercados',
+    hostel: 'Hostels',
+    beach: 'Playas',
+    daytrip: 'Excursiones',
+    cowork: 'Coworking',
+    cafe: 'Caf\u00e9s trabajo',
+    transport: 'Transporte'
+  };
+  const poiIcons = {
+    sight: '\u2605',
+    museum: '\uD83C\uDFDB\uFE0F',
+    nature: '\uD83C\uDF3F',
+    trail: '\uD83E\uDD7E',
+    viewpoint: '\uD83D\uDC41',
+    zone: '\u25CF',
+    restaurant: '\uD83C\uDF7D\uFE0F',
+    bar: '\uD83C\uDF7A',
+    market: '\uD83D\uDED2',
+    hostel: '\uD83C\uDFE0',
+    beach: '\uD83C\uDFD6\uFE0F',
+    daytrip: '\u2192',
+    cowork: '\uD83D\uDCBB',
+    cafe: '\u2615',
+    transport: '\uD83D\uDE8C'
+  };
+
+  // ===== STATE =====
+  let currentCity = null;
+  let poiLayerGroup = null;
+  const allBoundsPoints = [];
+
+  // ===== MAIN CITY MARKERS =====
   const main = [
-    [41.3874,2.1686,'Barcelona','Transit + Cumple 40','bottom'],
-    [41.9028,12.4964,'Roma','2 noches','top'],
-    [43.7696,11.2558,'Firenze','2 noches','top'],
-    [45.4642,9.1900,'Milan','5 d\u00edas','top'],
-    [44.1461,9.6439,'Cinque Terre','2 noches','bottom'],
-    [44.4056,8.9463,'Genova','de paso','bottom'],
-    [43.7102,7.2620,'Nice','2 noches','bottom'],
-    [43.2965,5.3698,'Marseille','1 noche','bottom'],
-    [43.6108,3.8767,'Montpellier','1 noche','top'],
+    [41.3874, 2.1686, 'Barcelona', 'Cumple 40', 'bottom'],
+    [41.9028, 12.4964, 'Roma', '3 noches', 'top'],
+    [40.8518, 14.2681, 'N\u00e1poles', '2 noches', 'bottom'],
+    [37.9838, 23.7275, 'Atenas', '3 noches', 'top'],
+    [43.5081, 16.4402, 'Split', '4 noches (trabajo)', 'bottom'],
+    [45.4642, 9.1900, 'Milan', '3 d\u00edas', 'top'],
+    [44.1461, 9.6439, 'Cinque Terre', '2 noches', 'bottom'],
+    [44.4056, 8.9463, 'Genova', 'de paso', 'bottom'],
+    [43.7102, 7.2620, 'Nice', '2 noches', 'bottom'],
+    [43.2965, 5.3698, 'Marseille', '1 noche', 'bottom'],
+    [43.6108, 3.8767, 'Montpellier', '1 noche', 'top'],
   ];
 
   const minor = [
-    [43.2141,5.5363,'Cassis'],
-    [43.2677,6.6407,'St-Tropez'],
-    [43.5485,6.8684,'Est\u00e9rel'],
-    [43.5528,7.0174,'Cannes'],
-    [43.5862,7.1280,'Antibes'],
-    [43.7323,7.4191,'Monaco'],
-    [43.7741,7.5034,'Menton'],
-    [43.8172,7.7754,'San Remo'],
-    [44.3033,9.2085,'Portofino'],
-    [44.8015,10.3280,'Parma'],
-    [43.2115,2.3534,'Carcassonne'],
-    [43.5283,4.0769,'Camargue'],
+    [43.2141, 5.5363, 'Cassis'],
+    [43.2677, 6.6407, 'St-Tropez'],
+    [43.5485, 6.8684, 'Estérel'],
+    [43.5528, 7.0174, 'Cannes'],
+    [43.5862, 7.1280, 'Antibes'],
+    [43.7323, 7.4191, 'Monaco'],
+    [43.7741, 7.5034, 'Menton'],
+    [43.8172, 7.7754, 'San Remo'],
+    [44.3033, 9.2085, 'Portofino'],
+    [44.8015, 10.3280, 'Parma'],
+    [43.2115, 2.3534, 'Carcassonne'],
+    [43.5283, 4.0769, 'Camargue'],
   ];
 
-  main.forEach((s,i)=>{
-    const isStart = s[2]==='Roma';
-    const isBday = s[2]==='Barcelona';
-    const isFree = s[2]==='Milan';
-    const dotSize = (isStart||isBday) ? 14 : 10;
+  main.forEach((s) => {
+    const isStart = s[2] === 'Roma';
+    const isBday = s[2] === 'Barcelona';
+    const isFree = s[2] === 'Milan';
+    const dotSize = (isStart || isBday) ? 14 : 10;
     const dotColor = isStart ? G : (isBday ? A : (isFree ? W : A));
     const pos = s[4];
+    const hasCityData = !!cityData[s[2]];
 
     const dotHtml = '<div style="position:relative">'
-      +'<div style="width:'+dotSize+'px;height:'+dotSize+'px;background:'+dotColor+';border-radius:50%;border:2px solid #0a0f14;box-shadow:0 0 16px '+dotColor+'55;"></div>'
-      +'<div style="position:absolute;'+(pos==='top'?'bottom:'+(dotSize+4)+'px':'top:'+(dotSize+4)+'px')+';left:50%;transform:translateX(-50%);white-space:nowrap;text-align:center;pointer-events:none;">'
-        +'<div style="font-family:Plus Jakarta Sans,system-ui;font-size:12px;font-weight:600;color:'+W+';text-shadow:0 1px 6px rgba(0,0,0,0.8),0 0 2px rgba(0,0,0,0.9);">'+s[2]+'</div>'
-        +'<div style="font-family:Plus Jakarta Sans,system-ui;font-size:9px;color:rgba(239,238,233,0.5);text-shadow:0 1px 4px rgba(0,0,0,0.9);letter-spacing:0.5px;">'+s[3]+'</div>'
-      +'</div>'
-    +'</div>';
+      + '<div style="width:' + dotSize + 'px;height:' + dotSize + 'px;background:' + dotColor + ';border-radius:50%;border:2px solid #0a0f14;box-shadow:0 0 16px ' + dotColor + '55;' + (hasCityData ? 'cursor:pointer;' : '') + '"></div>'
+      + '<div style="position:absolute;' + (pos === 'top' ? 'bottom:' + (dotSize + 4) + 'px' : 'top:' + (dotSize + 4) + 'px') + ';left:50%;transform:translateX(-50%);white-space:nowrap;text-align:center;pointer-events:none;">'
+        + '<div style="font-family:Plus Jakarta Sans,system-ui;font-size:12px;font-weight:600;color:' + W + ';text-shadow:0 1px 6px rgba(0,0,0,0.8),0 0 2px rgba(0,0,0,0.9);">' + s[2] + '</div>'
+      + '</div>'
+      + '</div>';
 
-    const m = L.marker([s[0],s[1]],{
-      icon: L.divIcon({className:'',html:dotHtml,iconSize:[dotSize,dotSize],iconAnchor:[dotSize/2,dotSize/2]}),
+    const m = L.marker([s[0], s[1]], {
+      icon: L.divIcon({ className: '', html: dotHtml, iconSize: [dotSize, dotSize], iconAnchor: [dotSize / 2, dotSize / 2] }),
       zIndexOffset: 1000
     }).addTo(map);
 
-    // Popup info for main cities (private only)
-    const cityInfo = {
-      'Roma':     { nights:'2', cost:'€50/d', tips:'Colosseo, Trastevere, cacio e pepe', transport:'Vuelo BCN→FCO incluido' },
-      'Firenze':  { nights:'2', cost:'€55/d', tips:'Duomo, Uffizi, lampredotto', transport:'Italo 1.5h €15-25' },
-      'Milan':    { nights:'5 (gratis)', cost:'€25/d', tips:'Navigli, Como day trip, Última Cena', transport:'Italo 1h45 €15-30' },
-      'Cinque Terre':{ nights:'2', cost:'€70/d', tips:'Trekking costero, Sciacchetrà', transport:'Auto desde Milan 3h' },
-      'Nice':     { nights:'2', cost:'€60/d', tips:'Promenade, Vieux Nice, Riviera', transport:'Auto costero' },
-      'Marseille': { nights:'1', cost:'€55/d', tips:'Vieux Port, calanques, bouillabaisse', transport:'Auto 2.5h' },
-      'Montpellier':{ nights:'1', cost:'€45/d', tips:'Place Comédie, Écusson', transport:'Tren 1.5h €15' },
-      'Barcelona': { nights:'15 (gratis)', cost:'€30/d', tips:'Cumple 31 may, Mary Carmen', transport:'Tren 3h €30-50' },
-    };
-    const ci = cityInfo[s[2]];
-    if (ci && document.body.classList.contains('full')) {
-      m.bindPopup(`
-        <div class="dest-popup-inner">
-          <div class="dest-popup-header">
-            <span class="dest-popup-city">${s[2]}</span>
-            <span class="dest-popup-country">${ci.nights} noches</span>
-          </div>
-          <div class="dest-popup-row"><span class="dest-popup-label">Costo diario</span><span class="dest-popup-val">${ci.cost}</span></div>
-          <div class="dest-popup-row"><span class="dest-popup-label">Transporte</span><span class="dest-popup-val" style="font-weight:400;color:var(--text);font-size:11px">${ci.transport}</span></div>
-          <hr class="dest-popup-divider">
-          <div style="font-size:11px;color:rgba(239,238,233,0.5);line-height:1.5">${ci.tips}</div>
-        </div>`, { className:'dest-popup-wrap', maxWidth:240, closeButton:true });
+    allBoundsPoints.push([s[0], s[1]]);
+
+    if (hasCityData) {
+      m.on('click', () => openCity(s[2], s[0], s[1]));
     }
   });
 
-  minor.forEach(s=>{
-    L.circleMarker([s[0],s[1]],{
-      radius:3, fillColor:'rgba(239,238,233,0.3)', fillOpacity:1,
-      stroke:true, color:'rgba(239,238,233,0.15)', weight:1
-    }).bindTooltip(s[2],{
-      className:'minor-tip', direction:'top', offset:[0,-6]
+  minor.forEach(s => {
+    L.circleMarker([s[0], s[1]], {
+      radius: 3, fillColor: 'rgba(239,238,233,0.3)', fillOpacity: 1,
+      stroke: true, color: 'rgba(239,238,233,0.15)', weight: 1
+    }).bindTooltip(s[2], {
+      className: 'minor-tip', direction: 'top', offset: [0, -6]
     }).addTo(map);
+    allBoundsPoints.push([s[0], s[1]]);
   });
 
-  const tipStyle = document.createElement('style');
-  tipStyle.textContent = '.minor-tip{background:rgba(10,15,20,0.9)!important;border:1px solid rgba(255,255,255,0.1)!important;color:#EFEEE9!important;font-family:Plus Jakarta Sans,system-ui!important;font-size:11px!important;padding:4px 10px!important;border-radius:4px!important;box-shadow:0 4px 12px rgba(0,0,0,0.4)!important;}.minor-tip::before{border-top-color:rgba(10,15,20,0.9)!important;}';
-  document.head.appendChild(tipStyle);
+  // ===== PANEL =====
+  const cityPanel = document.getElementById('cityPanel');
+  const panelCityName = document.getElementById('panelCityName');
+  const panelMeta = document.getElementById('panelMeta');
+  const panelContent = document.getElementById('panelContent');
+  const backBtn = document.getElementById('backBtn');
+  const isFull = () => document.body.classList.contains('full');
 
-  // === ROUTES ===
+  function openCity(cityName, lat, lng) {
+    currentCity = cityName;
+    const data = cityData[cityName];
+    if (!data) return;
 
+    // Fly to city
+    // Offset center to right 2/3 (panel takes left 1/3)
+    const mapWidth = map.getContainer().offsetWidth;
+    const panelWidth = mapWidth / 3;
+    const point = map.project([lat, lng], 13);
+    point.x -= panelWidth / 2;
+    const offsetLatLng = map.unproject(point, 13);
+    map.flyTo(offsetLatLng, 13, { duration: 1.2 });
+
+    // Show back button
+    backBtn.classList.add('visible');
+
+    // Build panel header
+    panelCityName.textContent = cityName;
+    panelMeta.innerHTML = `
+      <div class="panel-meta-item">
+        <span class="panel-meta-label">Fechas</span>
+        <span class="panel-meta-val">${data.dates}</span>
+      </div>
+      <div class="panel-meta-item">
+        <span class="panel-meta-label">Noches</span>
+        <span class="panel-meta-val">${data.nights}</span>
+      </div>
+      <div class="panel-meta-item">
+        <span class="panel-meta-label">Costo/día</span>
+        <span class="panel-meta-val">${data.dailyCost}</span>
+      </div>
+    `;
+
+    // Build panel content
+    let html = '';
+    let sectionIdx = 0;
+
+    function buildCollapsibleCards(sectionData, testId, startOpen) {
+      if (!sectionData || !sectionData.items || !sectionData.items.length) return '';
+      const id = 'collapse-' + (sectionIdx++);
+      const openClass = startOpen ? '' : ' collapsed';
+      let s = `<div class="panel-section" data-testid="${testId}">`;
+      s += `<div class="panel-collapse-toggle${openClass}" onclick="this.classList.toggle('collapsed');document.getElementById('${id}').classList.toggle('collapsed')">
+        <span class="panel-section-title" style="margin:0">${sectionData.title}</span>
+        <span class="chevron">\u25BC</span>
+      </div>`;
+      s += `<div id="${id}" class="panel-collapse-body${openClass}" style="max-height:2000px">`;
+      sectionData.items.forEach(item => {
+        s += `<div class="transport-card" style="margin-top:8px">
+          <div class="transport-card-top">
+            <span class="transport-name">${item.name}</span>
+            <span class="transport-cost">${item.cost}</span>
+          </div>
+          <div class="transport-desc">${item.desc}</div>
+          ${item.link ? `<a class="transport-link" href="${item.link}" target="_blank" rel="noopener">Ver &rarr;</a>` : ''}
+        </div>`;
+      });
+      s += `</div></div>`;
+      return s;
+    }
+
+    // Accommodation (always visible, collapsed by default if free)
+    const accomFree = data.accommodation && data.accommodation.items.length === 1 && data.accommodation.items[0].cost === 'Gratis';
+    html += buildCollapsibleCards(data.accommodation, 'panel-accommodation', !accomFree);
+
+    // Food section
+    html += buildCollapsibleCards(data.food, 'panel-food', true);
+
+    // Transport section
+    html += buildCollapsibleCards(data.transport, 'panel-transport', false);
+
+    // Private-only content
+    if (isFull()) {
+      // Tips
+      if (data.tips && data.tips.length) {
+        const tipId = 'collapse-' + (sectionIdx++);
+        html += `<div class="panel-section" data-testid="panel-tips">`;
+        html += `<div class="panel-collapse-toggle" onclick="this.classList.toggle('collapsed');document.getElementById('${tipId}').classList.toggle('collapsed')">
+          <span class="panel-section-title" style="margin:0">Tips</span>
+          <span class="chevron">\u25BC</span>
+        </div>`;
+        html += `<div id="${tipId}" class="panel-collapse-body" style="max-height:2000px">`;
+        data.tips.forEach(tip => {
+          html += `<div class="tip-item">${tip}</div>`;
+        });
+        html += `</div></div>`;
+      }
+
+      // POIs grouped by type — each group is collapsible
+      if (data.pois && data.pois.length) {
+        const grouped = {};
+        data.pois.forEach(poi => {
+          if (!grouped[poi.type]) grouped[poi.type] = [];
+          grouped[poi.type].push(poi);
+        });
+
+        // Render each type as its own collapsible section
+        const typeOrder = Object.keys(poiLabels);
+        typeOrder.forEach(type => {
+          const pois = grouped[type];
+          if (!pois || !pois.length) return;
+          const gid = 'collapse-' + (sectionIdx++);
+          html += `<div class="panel-section" data-testid="panel-pois-${type}">`;
+          html += `<div class="panel-collapse-toggle" onclick="this.classList.toggle('collapsed');document.getElementById('${gid}').classList.toggle('collapsed')">
+            <span class="panel-section-title" style="margin:0"><span style="font-size:12px;margin-right:4px">${poiIcons[type] || '\u25CF'}</span>${poiLabels[type] || type} <span style="font-size:10px;color:var(--text-dim);font-weight:400">(${pois.length})</span></span>
+            <span class="chevron">\u25BC</span>
+          </div>`;
+          html += `<div id="${gid}" class="panel-collapse-body" style="max-height:2000px">`;
+          pois.forEach((poi, idx) => {
+            html += `<div class="poi-item" data-testid="poi-item-${type}-${idx}" data-lat="${poi.lat}" data-lng="${poi.lng}" data-name="${poi.name}" style="margin-top:6px">
+              <span class="poi-item-icon" style="font-size:11px;flex-shrink:0;margin-top:1px;width:16px;text-align:center">${poiIcons[poi.type] || '\u25CF'}</span>
+              <div class="poi-item-body">
+                <div class="poi-item-name">${poi.name}${poi.link ? ` <a href="${poi.link}" target="_blank" rel="noopener" style="font-size:10px;color:var(--accent);text-decoration:none;margin-left:4px" onclick="event.stopPropagation()">Ver \u2192</a>` : ''}</div>
+                <div class="poi-item-desc">${poi.desc}</div>
+              </div>
+            </div>`;
+          });
+          html += `</div></div>`;
+        });
+      }
+    }
+
+    panelContent.innerHTML = html;
+
+    // POI click → pan map
+    panelContent.querySelectorAll('.poi-item').forEach(el => {
+      el.addEventListener('click', () => {
+        const lat = parseFloat(el.dataset.lat);
+        const lng = parseFloat(el.dataset.lng);
+        const name = el.dataset.name;
+        map.panTo([lat, lng], { animate: true, duration: 0.5 });
+        // find and open tooltip for this marker
+        if (poiLayerGroup) {
+          poiLayerGroup.eachLayer(layer => {
+            if (layer.options._poiName === name) {
+              layer.bindTooltip(name, { className: 'poi-tooltip', permanent: true, direction: 'top' }).openTooltip();
+              setTimeout(() => layer.closeTooltip(), 2000);
+            }
+          });
+        }
+      });
+    });
+
+    // Open panel
+    cityPanel.classList.add('open');
+
+    // Add POI markers (private only)
+    if (poiLayerGroup) {
+      map.removeLayer(poiLayerGroup);
+      poiLayerGroup = null;
+    }
+    if (isFull() && data.pois) {
+      poiLayerGroup = L.layerGroup();
+      data.pois.forEach(poi => {
+        const icon = poiIcons[poi.type] || '\u25CF';
+        const color = poiColors[poi.type] || '#fff';
+        const size = ({sight:24, museum:24, nature:24, trail:24, viewpoint:24, daytrip:22, beach:22})[poi.type] || 20;
+        const markerHtml = '<div style="font-size:'+size+'px;line-height:1;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.7));cursor:pointer;text-align:center" title="'+poi.name+'">'+icon+'</div>';
+        const marker = L.marker([poi.lat, poi.lng], {
+          icon: L.divIcon({
+            className: '',
+            html: markerHtml,
+            iconSize: [size+4, size+4],
+            iconAnchor: [(size+4)/2, (size+4)/2]
+          }),
+          _poiName: poi.name
+        });
+        marker.options._poiName = poi.name;
+        marker.bindTooltip(poi.name + ' — ' + poi.desc, {
+          className: 'poi-tooltip', direction: 'top', offset: [0, -(size/2+2)]
+        });
+        marker.addTo(poiLayerGroup);
+      });
+      poiLayerGroup.addTo(map);
+    }
+  }
+
+  function closeCity() {
+    currentCity = null;
+    cityPanel.classList.remove('open');
+    backBtn.classList.remove('visible');
+
+    if (poiLayerGroup) {
+      map.removeLayer(poiLayerGroup);
+      poiLayerGroup = null;
+    }
+
+    // Fly back to full route
+    map.flyToBounds(L.latLngBounds(allBoundsPoints), { padding: [50, 50], duration: 1 });
+  }
+
+  backBtn.addEventListener('click', closeCity);
+
+  // ===== ROUTE DRAWING =====
   function getFlightArc(from, to, bulge) {
-    const midLat = (from[0]+to[0])/2 + (bulge||1.5);
-    const midLng = (from[1]+to[1])/2;
+    const midLat = (from[0] + to[0]) / 2 + (bulge || 1.5);
+    const midLng = (from[1] + to[1]) / 2;
     const pts = [];
-    for(let t=0;t<=1;t+=0.02) {
+    for (let t = 0; t <= 1; t += 0.02) {
       pts.push([
-        (1-t)*(1-t)*from[0]+2*(1-t)*t*midLat+t*t*to[0],
-        (1-t)*(1-t)*from[1]+2*(1-t)*t*midLng+t*t*to[1]
+        (1 - t) * (1 - t) * from[0] + 2 * (1 - t) * t * midLat + t * t * to[0],
+        (1 - t) * (1 - t) * from[1] + 2 * (1 - t) * t * midLng + t * t * to[1]
       ]);
     }
     return pts;
@@ -1005,17 +1881,18 @@
 
   async function getRoute(c) {
     try {
-      const r = await fetch('https://router.project-osrm.org/route/v1/driving/'+c.map(p=>p[0]+','+p[1]).join(';')+'?overview=full&geometries=geojson');
+      const r = await fetch('https://router.project-osrm.org/route/v1/driving/' + c.map(p => p[0] + ',' + p[1]).join(';') + '?overview=full&geometries=geojson');
       const j = await r.json();
-      if (j.routes&&j.routes[0]) return j.routes[0].geometry.coordinates.map(p=>[p[1],p[0]]);
-    } catch(e) {}
-    return c.map(p=>[p[1],p[0]]);
+      if (j.routes && j.routes[0]) return j.routes[0].geometry.coordinates.map(p => [p[1], p[0]]);
+    } catch (e) {}
+    return c.map(p => [p[1], p[0]]);
   }
 
-  function animateRoute(coords, col, w, dash, delay, duration) {
+  function animateRoute(coords, col, w, dash, delay, duration, opacity) {
     return new Promise(resolve => {
       setTimeout(() => {
-        const line = L.polyline([], {color:col, weight:w, opacity:0.6, dashArray:dash||null}).addTo(map);
+        const op = (typeof opacity === 'number') ? opacity : 0.6;
+        const line = L.polyline([], { color: col, weight: w, opacity: op, dashArray: dash || null }).addTo(map);
         const step = Math.max(1, Math.floor(coords.length / 60));
         let idx = 0;
         const interval = setInterval(() => {
@@ -1028,502 +1905,150 @@
   }
 
   function addTransportIcon(coords, type) {
-    const mid = coords[Math.floor(coords.length/2)];
+    const mid = coords[Math.floor(coords.length / 2)];
     const icons = {
       train: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#EFEEE9" stroke-width="2" stroke-linecap="round"><rect x="4" y="3" width="16" height="14" rx="2"/><path d="M4 11h16M8 21h8"/></svg>',
       car: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linecap="round"><path d="M5 17h14M6 17V7a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v10"/><circle cx="7" cy="19" r="2"/><circle cx="17" cy="19" r="2"/></svg>',
       plane: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.4-.1.9.3 1.1L11 12l-2 3H6l-1 1 3 2 2 3 1-1v-3l3-2 3.8 7.3c.2.4.7.5 1.1.3l.5-.3c.4-.2.6-.6.5-1.1z"/></svg>',
+      'plane-pending': '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linecap="round"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.4-.1.9.3 1.1L11 12l-2 3H6l-1 1 3 2 2 3 1-1v-3l3-2 3.8 7.3c.2.4.7.5 1.1.3l.5-.3c.4-.2.6-.6.5-1.1z"/></svg>',
     };
-    const html = '<div style="background:rgba(10,15,20,0.8);border-radius:4px;padding:2px 4px;border:1px solid rgba(255,255,255,0.08)">'+icons[type]+'</div>';
+    const html = '<div style="background:rgba(10,15,20,0.8);border-radius:4px;padding:2px 4px;border:1px solid rgba(255,255,255,0.08)">' + icons[type] + '</div>';
     L.marker(mid, {
-      icon: L.divIcon({className:'',html:html,iconSize:[20,20],iconAnchor:[10,10]}),
+      icon: L.divIcon({ className: '', html: html, iconSize: [20, 20], iconAnchor: [10, 10] }),
       zIndexOffset: 500
     }).addTo(map);
   }
 
   // Route segments [lng, lat] for OSRM
-  // FASE 1: Trenes r&aacute;pidos (norte)
-  const tren_roma_firenze = [[12.4964,41.9028],[11.2558,43.7696]];
-  const tren_firenze_milan = [[11.2558,43.7696],[9.1900,45.4642]];
+  const tren_roma_napoli = [[12.4964, 41.9028], [14.2681, 40.8518]];
+  const auto_milan_ct = [[9.1900, 45.4642], [9.6439, 44.1461]];
+  const auto_ct_genova_sanremo = [[9.6439, 44.1461], [9.2085, 44.3033], [8.9463, 44.4056], [7.7754, 43.8172]];
+  const auto_sanremo_nice = [[7.7754, 43.8172], [7.5034, 43.7741], [7.4191, 43.7323], [7.2620, 43.7102]];
+  const auto_nice_marseille = [[7.2620, 43.7102], [7.1280, 43.5862], [7.0174, 43.5528], [6.8684, 43.5485], [6.6407, 43.2677], [5.5363, 43.2141], [5.3698, 43.2965]];
+  const tren_marseille_montpellier = [[5.3698, 43.2965], [3.8767, 43.6108]];
+  const tren_montpellier_bcn = [[3.8767, 43.6108], [2.1686, 41.3874]];
 
-  // FASE 2: Road trip (arco sur continuo)
-  const auto_milan_ct = [[9.1900,45.4642],[9.6439,44.1461]];
-  const auto_ct_genova_sanremo = [[9.6439,44.1461],[9.2085,44.3033],[8.9463,44.4056],[7.7754,43.8172]];
-  const auto_sanremo_nice = [[7.7754,43.8172],[7.5034,43.7741],[7.4191,43.7323],[7.2620,43.7102]];
-  const auto_nice_marseille = [[7.2620,43.7102],[7.1280,43.5862],[7.0174,43.5528],[6.8684,43.5485],[6.6407,43.2677],[5.5363,43.2141],[5.3698,43.2965]];
-
-  // FASE 3: Trenes a BCN
-  const tren_marseille_montpellier = [[5.3698,43.2965],[3.8767,43.6108]];
-  const tren_montpellier_bcn = [[3.8767,43.6108],[2.1686,41.3874]];
-
-  (async()=>{
-    // 1. Flight BCN → FCO (green arc)
-    const flightPts = getFlightArc([41.3874,2.1686],[41.9028,12.4964], 2);
+  (async () => {
+    const flightPts = getFlightArc([41.3874, 2.1686], [41.9028, 12.4964], 2);
     await animateRoute(flightPts, G, 2, '6 8', 500, 800);
     addTransportIcon(flightPts, 'plane');
 
-    // 2. Train: Roma → Firenze
-    const r1 = await getRoute(tren_roma_firenze);
+    const r1 = await getRoute(tren_roma_napoli);
     await animateRoute(r1, W, 2, '8 6', 200, 600);
     addTransportIcon(r1, 'train');
 
-    // 3. Train: Firenze → Milan (direct, no CT)
-    const r2 = await getRoute(tren_firenze_milan);
-    await animateRoute(r2, W, 2, '8 6', 200, 600);
-    addTransportIcon(r2, 'train');
+    // NAP\u2192ATH: BOOKED (verde) - fin del viaje confirmado
+    const flightNapAth = getFlightArc([40.8518, 14.2681], [37.9838, 23.7275], -1.5);
+    await animateRoute(flightNapAth, G, 2, '6 8', 300, 800);
+    addTransportIcon(flightNapAth, 'plane');
 
-    // 4. Auto: Milan → Cinque Terre (south)
+    // ======== POST-ATENAS: POTENCIAL (TBD con Stef) ========
+    // Todo lo que sigue se dibuja en gris muy atenuado con dash largo para indicar tentativo
+    const PT = '#6b7280'; // gris potencial
+    const PT_OP = 0.22;   // opacidad baja
+
+    const flightAthSplit = getFlightArc([37.9838, 23.7275], [43.5081, 16.4402], 1.5);
+    await animateRoute(flightAthSplit, PT, 1.5, '2 10', 300, 800, PT_OP);
+
+    const flightSplitMil = getFlightArc([43.5081, 16.4402], [45.4642, 9.1900], -1);
+    await animateRoute(flightSplitMil, PT, 1.5, '2 10', 300, 800, PT_OP);
+
     const a0 = await getRoute(auto_milan_ct);
-    await animateRoute(a0, A, 3.5, null, 300, 800);
-    addTransportIcon(a0, 'car');
+    await animateRoute(a0, PT, 2.5, '2 8', 300, 800, PT_OP);
 
-    // 5. Auto: CT → Genova → San Remo
     const a1 = await getRoute(auto_ct_genova_sanremo);
-    await animateRoute(a1, A, 3.5, null, 200, 1000);
+    await animateRoute(a1, PT, 2.5, '2 8', 200, 1000, PT_OP);
 
-    // 6. Auto: San Remo → Monaco → Nice
     const a2 = await getRoute(auto_sanremo_nice);
-    await animateRoute(a2, A, 3.5, null, 200, 600);
-    addTransportIcon(a2, 'car');
+    await animateRoute(a2, PT, 2.5, '2 8', 200, 600, PT_OP);
 
-    // 7. Auto: Nice → Estérel → St-Tropez → Marseille
     const a3 = await getRoute(auto_nice_marseille);
-    await animateRoute(a3, A, 3.5, null, 200, 1200);
-    addTransportIcon(a3, 'car');
+    await animateRoute(a3, PT, 2.5, '2 8', 200, 1200, PT_OP);
 
-    // 8. Train: Marseille → Montpellier
     const r3 = await getRoute(tren_marseille_montpellier);
-    await animateRoute(r3, W, 2, '8 6', 200, 600);
-    addTransportIcon(r3, 'train');
+    await animateRoute(r3, PT, 1.5, '2 10', 200, 600, PT_OP);
 
-    // 9. Train: Montpellier → BCN
     const r4 = await getRoute(tren_montpellier_bcn);
-    await animateRoute(r4, W, 2, '8 6', 200, 800);
-    addTransportIcon(r4, 'train');
+    await animateRoute(r4, PT, 1.5, '2 10', 200, 800, PT_OP);
   })();
 
-  // Fit bounds — include destination markers only in private mode
-  const basePts = main.map(s=>[s[0],s[1]]).concat(minor.map(s=>[s[0],s[1]]));
-  if (document.body.classList.contains('full')) {
-    const destPts = [
-      [42.6507,18.0944],[35.8989,14.5146],[41.3275,19.8187],
-      [47.4979,19.0402],[42.6977,23.3219],[37.9838,23.7275],[41.0082,28.9784]
-    ];
-    map.fitBounds(L.latLngBounds(basePts.concat(destPts)).pad(0.08));
-  } else {
-    map.fitBounds(L.latLngBounds(basePts).pad(0.15));
-  }
+  // Initial fit bounds
+  const basePts = main.map(s => [s[0], s[1]]).concat(minor.map(s => [s[0], s[1]]));
+  map.fitBounds(L.latLngBounds(basePts).pad(0.10));
 
-  // Legend (public mode only — route panel replaces it in private)
-  if (!document.body.classList.contains('full')) {
-    const lg=L.control({position:'bottomleft'});
-    lg.onAdd=function(){
-      const d=L.DomUtil.create('div');
-      d.style.cssText='background:rgba(10,15,20,0.92);padding:12px 16px;border-radius:8px;font-family:Plus Jakarta Sans,system-ui;font-size:11px;color:rgba(239,238,233,0.6);border:1px solid rgba(255,255,255,0.06);line-height:2';
-      d.innerHTML='<div style="display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:24px;height:3px;background:#D4AF37;border-radius:2px"></span>Auto (road trip)</div>'
-        +'<div style="display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:24px;height:0;border-top:2px dashed #EFEEE9;opacity:0.5"></span>Tren</div>'
-        +'<div style="display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:24px;height:0;border-top:2px dashed #4ade80;opacity:0.6"></span>Vuelo (booked)</div>';
-      return d;
-    };
-    lg.addTo(map);
-  }
-
-  // === DESTINATION MARKERS (private only) ===
-  if (!document.body.classList.contains('full')) { /* skip all private map features */ } else {
-  const destinations = [
-    { code:"DBV", name:"Dubrovnik", lat:42.6507, lng:18.0944, priceFCO:15, priceMilan:20, priceToBCN:127, dailyCost:[45,65], country:"Croatia" },
-    { code:"MLA", name:"Malta",     lat:35.8989, lng:14.5146, priceFCO:15, priceMilan:66, priceToBCN:50,  dailyCost:[40,58], country:"Malta" },
-    { code:"TIA", name:"Tirana",    lat:41.3275, lng:19.8187, priceFCO:28, priceMilan:15, priceToBCN:73,  dailyCost:[30,40], country:"Albania" },
-    { code:"BUD", name:"Budapest",  lat:47.4979, lng:19.0402, priceFCO:34, priceMilan:25, priceToBCN:42,  dailyCost:[35,50], country:"Hungary" },
-    { code:"SOF", name:"Sofia",     lat:42.6977, lng:23.3219, priceFCO:60, priceMilan:15, priceToBCN:30,  dailyCost:[28,38], country:"Bulgaria" },
-    { code:"ATH", name:"Atenas",    lat:37.9838, lng:23.7275, priceFCO:79, priceMilan:68, priceToBCN:74,  dailyCost:[40,55], country:"Greece" },
-    { code:"IST", name:"Istanbul",  lat:41.0082, lng:28.9784, priceFCO:102,priceMilan:null,priceToBCN:75, dailyCost:[35,50], country:"Turkey" },
-  ];
-
-  const destMarkerMap = {}; // code → L.marker
-
-  destinations.forEach(dest => {
-    const minPrice = Math.min(...[dest.priceFCO, dest.priceMilan].filter(p => p !== null));
-    const html = `<div class="dest-marker-wrap"><div class="dest-marker" data-testid="dest-marker-${dest.code}" data-code="${dest.code}">€${minPrice}</div></div>`;
-    const icon = L.divIcon({ className:'', html, iconSize:[44,22], iconAnchor:[22,11] });
-    const marker = L.marker([dest.lat, dest.lng], { icon, zIndexOffset:800 });
-
-    const popupHtml = `
-      <div class="dest-popup-inner" data-testid="dest-popup-${dest.code}">
-        <div class="dest-popup-header">
-          <span class="dest-popup-city">${dest.name}</span>
-          <span class="dest-popup-country">${dest.country}</span>
-        </div>
-        <div class="dest-popup-row">
-          <span class="dest-popup-label">Desde Roma (FCO)</span>
-          <span class="dest-popup-val">€${dest.priceFCO}</span>
-        </div>
-        <div class="dest-popup-row">
-          <span class="dest-popup-label">Desde Milan</span>
-          <span class="dest-popup-val ${dest.priceMilan === null ? 'na' : ''}">${dest.priceMilan !== null ? '€'+dest.priceMilan : '—'}</span>
-        </div>
-        <div class="dest-popup-row">
-          <span class="dest-popup-label">Hacia BCN</span>
-          <span class="dest-popup-val">€${dest.priceToBCN}</span>
-        </div>
-        <hr class="dest-popup-divider">
-        <div class="dest-popup-row">
-          <span class="dest-popup-label">Costo diario est.</span>
-          <span class="dest-popup-val">€${dest.dailyCost[0]}–€${dest.dailyCost[1]}</span>
-        </div>
-      </div>`;
-
-    marker.bindPopup(popupHtml, {
-      className:'dest-popup-wrap',
-      maxWidth:260,
-      closeButton:true,
-    });
-
-    marker.addTo(map);
-    destMarkerMap[dest.code] = marker;
-  });
-
-  // === PROPOSED ROUTES (private only) ===
-  if (document.body.classList.contains('full')) {
-    const GRAY = 'rgba(239,238,233,0.2)';
-    const GRAY_DIM = 'rgba(239,238,233,0.08)';
-
-    // Transport type styles: [dashArray, weight]
-    const transportStyle = {
-      flight: { dash:'6 8', weight:2 },
-      train:  { dash:'8 6', weight:2 },
-      bus:    { dash:'3 5', weight:2 },
-      car:    { dash:null,  weight:3 },
-    };
-
-    // Flight arc helper
-    function flightArc(from, to, n) {
-      const pts = [];
-      for (let i = 0; i <= n; i++) {
-        const t = i / n;
-        const lat = from[0]*(1-t) + to[0]*t;
-        const lng = from[1]*(1-t) + to[1]*t;
-        const alt = Math.sin(Math.PI * t) * Math.abs(to[1]-from[1]) * 0.15;
-        pts.push([lat + alt, lng]);
-      }
-      return pts;
-    }
-
-    // Milan & BCN coords
-    const MIL = [45.4642,9.19], BCN = [41.3874,2.17];
-    const BUD = [47.4979,19.04], BEL = [44.7866,20.45], SOF = [42.6977,23.32];
-    const SKP = [41.9973,21.43], TIA = [41.3275,19.82], ATH = [37.9838,23.73];
-    const CT = [44.1461,9.64], SRM = [43.8172,7.78], NCE = [43.7102,7.26];
-    const MRS = [43.2965,5.37], MTP = [43.6108,3.88];
-
-    const routes = [
-      { id:1, name:'Balcanes central', color:'#4ade80',
-        stops:'Milan ✈ Budapest → Belgrade → Sofia ✈ BCN',
-        flightCost:67, busCost:27, nights:12, dailyCost:37,
-        segments:[
-          { from:MIL, to:BUD, type:'flight' },
-          { from:BUD, to:BEL, type:'bus' },
-          { from:BEL, to:SOF, type:'bus' },
-          { from:SOF, to:BCN, type:'flight' },
-        ]},
-      { id:2, name:'Balcanes sur', color:'#60a5fa',
-        stops:'Milan ✈ Sofia → Skopje → Tirana ✈ BCN',
-        flightCost:88, busCost:25, nights:12, dailyCost:32,
-        segments:[
-          { from:MIL, to:SOF, type:'flight' },
-          { from:SOF, to:SKP, type:'bus' },
-          { from:SKP, to:TIA, type:'bus' },
-          { from:TIA, to:BCN, type:'flight' },
-        ]},
-      { id:3, name:'Grecia', color:'#f472b6',
-        stops:'Milan ✈ Atenas ✈ BCN',
-        flightCost:142, busCost:0, nights:12, dailyCost:45,
-        segments:[
-          { from:MIL, to:ATH, type:'flight' },
-          { from:ATH, to:BCN, type:'flight' },
-        ]},
-      { id:4, name:'Riviera (original)', color:'#D4AF37',
-        stops:'Milan → CT → Riviera → Nice → Marseille ⇢ BCN',
-        flightCost:0, busCost:180, nights:12, dailyCost:55,
-        segments:[
-          { from:MIL, to:CT,  type:'car' },
-          { from:CT,  to:SRM, type:'car' },
-          { from:SRM, to:NCE, type:'car' },
-          { from:NCE, to:MRS, type:'car' },
-          { from:MRS, to:MTP, type:'train' },
-          { from:MTP, to:BCN, type:'train' },
-        ]},
-    ];
-
-    // Fixed costs
-    const FIXED = {
-      intlFlights: 1424,
-      roma: 120, milan: 125, bcn: 450, trainToMilan: 25,
-    };
-    const FIXED_EUR = FIXED.roma + FIXED.milan + FIXED.bcn + FIXED.trainToMilan;
-    const FIXED_USD = FIXED.intlFlights;
-
-    // Draw all route segments gray, styled by transport type
-    const routeSegmentLines = []; // array of arrays
-    routes.forEach((route) => {
-      const lines = [];
-      route.segments.forEach(seg => {
-        const st = transportStyle[seg.type];
-        const pts = seg.type === 'flight' ? flightArc(seg.from, seg.to, 20) : [seg.from, seg.to];
-        const line = L.polyline(pts, {
-          color: GRAY, weight: st.weight, opacity: 1,
-          dashArray: st.dash, smoothFactor: 1
-        }).addTo(map);
-        lines.push({ line, type: seg.type });
-      });
-      routeSegmentLines.push(lines);
-    });
-
-    // Route comparison panel — right side of map, full height
-    const panelEl = document.createElement('div');
-    panelEl.setAttribute('data-testid','route-panel');
-    panelEl.style.cssText = 'position:absolute;top:0;right:0;width:300px;height:100%;z-index:1500;background:rgba(10,15,20,0.92);border-left:1px solid rgba(255,255,255,0.06);font-family:Plus Jakarta Sans,system-ui;display:none;flex-direction:column;overflow-y:auto;';
-
-    // Only show in private mode
-    if (document.body.classList.contains('full')) panelEl.style.display = 'flex';
-
-    let html = '<div style="padding:14px 16px 8px;border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0">'
-      + '<div style="font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(239,238,233,0.38)">Comparar rutas</div>'
-      + '<div style="font-size:10px;color:rgba(239,238,233,0.25);margin-top:4px">Fijos: €' + FIXED_EUR + ' (Roma+Milan+BCN)</div>'
-      + '<div style="font-size:10px;color:rgba(239,238,233,0.25)">Vuelos int: $' + FIXED_USD + ' (pagados)</div>'
-      + '</div>';
-
-    routes.forEach((route, i) => {
-      const segmentCost = route.flightCost + route.busCost + (route.nights * route.dailyCost);
-      const totalEur = FIXED_EUR + segmentCost;
-      const totalUsd = FIXED_USD + Math.round(totalEur * 1.08);
-
-      html += '<div class="route-row" data-route-idx="' + i + '" style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:background 150ms">'
-        + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">'
-          + '<span style="display:inline-block;width:12px;height:3px;border-radius:2px;background:' + route.color + '"></span>'
-          + '<span style="font-size:13px;font-weight:600;color:#EFEEE9">' + route.name + '</span>'
-        + '</div>'
-        + '<div style="font-size:10px;color:rgba(239,238,233,0.35);margin-left:20px;margin-bottom:6px">' + route.stops + '</div>'
-        + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin-left:20px;font-size:10px">'
-          + '<span style="color:rgba(239,238,233,0.45)">Vuelos</span><span style="color:' + route.color + ';font-weight:600;text-align:right">€' + route.flightCost + '</span>'
-          + '<span style="color:rgba(239,238,233,0.45)">' + (route.busCost > 100 ? 'Auto+peajes' : 'Buses') + '</span><span style="color:rgba(239,238,233,0.55);text-align:right">€' + route.busCost + '</span>'
-          + '<span style="color:rgba(239,238,233,0.45)">Vida (' + route.nights + 'n × €' + route.dailyCost + '/d)</span><span style="color:rgba(239,238,233,0.55);text-align:right">€' + (route.nights * route.dailyCost) + '</span>'
-        + '</div>'
-        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-left:20px;margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.04)">'
-          + '<span style="font-size:10px;color:rgba(239,238,233,0.35)">Total viaje</span>'
-          + '<span style="font-size:14px;font-weight:600;color:' + route.color + '">€' + totalEur + ' <span style="font-weight:400;font-size:10px;color:rgba(239,238,233,0.3)">~$' + totalUsd + '</span></span>'
-        + '</div>'
-      + '</div>';
-    });
-
-    panelEl.innerHTML = html;
-
-    // Hover interaction — highlight segments by transport type
-    panelEl.querySelectorAll('.route-row').forEach(row => {
-      row.addEventListener('mouseenter', function() {
-        const idx = parseInt(this.dataset.routeIdx);
-        this.style.background = 'rgba(255,255,255,0.04)';
-        routeSegmentLines.forEach((segs, j) => {
-          segs.forEach(s => {
-            const st = transportStyle[s.type];
-            if (j === idx) {
-              s.line.setStyle({ color: routes[j].color, weight: st.weight + 1.5, opacity: 0.85, dashArray: st.dash });
-            } else {
-              s.line.setStyle({ color: GRAY_DIM, weight: 1, opacity: 1, dashArray: st.dash });
-            }
-          });
-        });
-      });
-      row.addEventListener('mouseleave', function() {
-        this.style.background = 'transparent';
-        routeSegmentLines.forEach(segs => {
-          segs.forEach(s => {
-            const st = transportStyle[s.type];
-            s.line.setStyle({ color: GRAY, weight: st.weight, opacity: 1, dashArray: st.dash });
-          });
-        });
-      });
-    });
-
-    // Append to hero container (not leaflet control)
-    document.querySelector('.hero').appendChild(panelEl);
-  }
-  } // end private-only map features
-
-  function highlightDestCodes(text) {
-    if (typeof destMarkerMap === 'undefined') return;
-    // Reset all
-    Object.values(destMarkerMap).forEach(m => {
-      const el = m.getElement();
-      if (el) el.querySelector('.dest-marker')?.classList.remove('highlighted');
-    });
-    // Highlight matching
-    destinations.forEach(dest => {
-      const re = new RegExp('\\b' + dest.code + '\\b');
-      if (re.test(text)) {
-        const el = destMarkerMap[dest.code]?.getElement();
-        if (el) el.querySelector('.dest-marker')?.classList.add('highlighted');
-      }
-    });
-  }
+  // Legend (always show)
+  const lg = L.control({ position: 'bottomleft' });
+  lg.onAdd = function () {
+    const d = L.DomUtil.create('div');
+    d.style.cssText = 'background:rgba(10,15,20,0.85);padding:10px 14px;border-radius:8px;font-family:Plus Jakarta Sans,system-ui;font-size:11px;color:rgba(239,238,233,0.6);border:1px solid rgba(255,255,255,0.06);line-height:2;backdrop-filter:blur(8px);margin-bottom:60px';
+    d.innerHTML = '<div style="font-size:10px;color:rgba(239,238,233,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Confirmado hasta Atenas</div>'
+      + '<div style="display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:20px;height:0;border-top:2px dashed #4ade80;opacity:0.6"></span>Vuelo booked</div>'
+      + '<div style="display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:20px;height:0;border-top:2px dashed #EFEEE9;opacity:0.5"></span>Tren</div>'
+      + '<div style="font-size:10px;color:rgba(239,238,233,0.4);text-transform:uppercase;letter-spacing:1px;margin:6px 0 4px">Post-Atenas &middot; TBD</div>'
+      + '<div style="display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:20px;height:0;border-top:1.5px dotted #6b7280;opacity:0.5"></span>Ruta potencial</div>';
+    return d;
+  };
+  lg.addTo(map);
 </script>
 
-<!-- === CHAT DRAWER === -->
-<button class="chat-toggle" id="chatToggle" data-testid="chat-toggle" aria-label="Abrir asistente de viaje">
-  <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-  </svg>
-</button>
-
-<div class="chat-drawer" id="chatDrawer" data-testid="chat-drawer" role="complementary" aria-label="Asistente de viaje">
-  <div class="chat-header">
-    <div>
-      <div class="chat-header-title">Asistente de viaje</div>
-      <div class="chat-header-sub">Pregunta sobre destinos, costos, rutas</div>
-    </div>
-    <button class="chat-close" id="chatClose" aria-label="Cerrar">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">
-        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-      </svg>
-    </button>
-  </div>
-
-  <div class="chat-messages" id="chatMessages" data-testid="chat-messages">
-    <div class="chat-empty" id="chatEmpty">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-      </svg>
-      <strong>¿Qué querés explorar?</strong>
-      <span>Pregunta sobre Dubrovnik, Budapest,<br>costos, visas, rutas o lo que sea.</span>
-    </div>
-  </div>
-
-  <div class="chat-footer">
-    <textarea
-      class="chat-input-field"
-      id="chatInput"
-      data-testid="chat-input"
-      placeholder="Pregunta sobre destinos..."
-      rows="1"
-      aria-label="Mensaje"
-    ></textarea>
-    <button class="chat-send" id="chatSend" data-testid="chat-send" aria-label="Enviar">
-      <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="22" y1="2" x2="11" y2="13"/>
-        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-      </svg>
-    </button>
-  </div>
-</div>
-
+<!-- ==================== CHAT JS ==================== -->
 <script>
-(function(){
-  const toggle   = document.getElementById('chatToggle');
-  const drawer   = document.getElementById('chatDrawer');
-  const closeBtn = document.getElementById('chatClose');
-  const input    = document.getElementById('chatInput');
-  const sendBtn  = document.getElementById('chatSend');
-  const msgs     = document.getElementById('chatMessages');
-  const empty    = document.getElementById('chatEmpty');
+  (function() {
+    const toggle = document.getElementById('chatToggle');
+    const drawer = document.getElementById('chatDrawer');
+    const close = document.getElementById('chatClose');
+    const messages = document.getElementById('chatMessages');
+    const input = document.getElementById('chatInput');
+    const send = document.getElementById('chatSend');
+    const empty = document.getElementById('chatEmpty');
 
-  let history = []; // { role, content }
-  let streaming = false;
+    toggle.addEventListener('click', () => drawer.classList.toggle('open'));
+    close.addEventListener('click', () => drawer.classList.remove('open'));
 
-  toggle.addEventListener('click', () => {
-    drawer.classList.toggle('open');
-    if (drawer.classList.contains('open')) input.focus();
-  });
-  closeBtn.addEventListener('click', () => drawer.classList.remove('open'));
+    function addMsg(text, role) {
+      if (empty) empty.style.display = 'none';
+      const div = document.createElement('div');
+      div.className = 'chat-msg ' + role;
+      div.textContent = text;
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+      return div;
+    }
 
-  // Auto-resize textarea
-  input.addEventListener('input', () => {
-    input.style.height = 'auto';
-    input.style.height = Math.min(input.scrollHeight, 100) + 'px';
-  });
+    async function sendMsg() {
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      send.disabled = true;
+      addMsg(text, 'user');
 
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-  });
-  sendBtn.addEventListener('click', sendMessage);
-
-  function addMsg(role, text, isStreaming) {
-    if (empty) empty.style.display = 'none';
-    const el = document.createElement('div');
-    el.className = 'chat-msg ' + role + (isStreaming ? ' streaming' : '');
-    el.textContent = text;
-    msgs.appendChild(el);
-    msgs.scrollTop = msgs.scrollHeight;
-    return el;
-  }
-
-  async function sendMessage() {
-    const text = input.value.trim();
-    if (!text || streaming) return;
-
-    addMsg('user', text);
-    history.push({ role:'user', content:text });
-    input.value = '';
-    input.style.height = 'auto';
-    sendBtn.disabled = true;
-    streaming = true;
-
-    let assistantEl = addMsg('assistant', '', true);
-    let buffer = '';
-
-    try {
-      const res = await fetch('/api/chat', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ messages: history })
-      });
-
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value, { stream:true });
-        const lines = chunk.split('\n');
-
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6).trim();
-            if (data === '[DONE]') continue;
-            try {
-              const json = JSON.parse(data);
-              const delta = json.choices?.[0]?.delta?.content
-                         || json.delta?.text
-                         || json.text
-                         || '';
-              if (delta) {
-                buffer += delta;
-                assistantEl.textContent = buffer;
-                msgs.scrollTop = msgs.scrollHeight;
-              }
-            } catch (_) {}
-          }
-        }
+      const reply = addMsg('', 'assistant streaming');
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text })
+        });
+        const data = await res.json();
+        reply.classList.remove('streaming');
+        reply.textContent = data.reply || 'Sin respuesta.';
+      } catch (e) {
+        reply.classList.remove('streaming');
+        reply.textContent = 'Error de conexión.';
       }
-    } catch (err) {
-      buffer = buffer || 'Error conectando al asistente. Verifica que /api/chat esté disponible.';
-      assistantEl.textContent = buffer;
+      send.disabled = false;
+      messages.scrollTop = messages.scrollHeight;
     }
 
-    assistantEl.classList.remove('streaming');
-    history.push({ role:'assistant', content:buffer });
-    sendBtn.disabled = false;
-    streaming = false;
-
-    // Highlight destination codes mentioned in response
-    if (typeof highlightDestCodes === 'function') {
-      highlightDestCodes(buffer);
-    }
-  }
-})();
+    send.addEventListener('click', sendMsg);
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+    });
+    input.addEventListener('input', () => {
+      input.style.height = 'auto';
+      input.style.height = Math.min(input.scrollHeight, 100) + 'px';
+    });
+  })();
 </script>
 </body>
 </html>
